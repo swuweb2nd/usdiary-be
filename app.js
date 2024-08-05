@@ -5,8 +5,8 @@ const morgan = require('morgan');
 const swaggerUi = require("swagger-ui-express");
 const swaggerFile = require('./swagger/swagger-output.json')
 
-const diaryRoutes = require('./route/diary');
-
+//const diaryRoutes = require('./routes/diary');
+const users = require('./routes/users'); 
 const { sequelize } = require('./models'); // db.sequelize 객체
 
 app.set('port', process.env.PORT || 3001);
@@ -26,13 +26,15 @@ sequelize.sync({ force: false })
 
 // 미들웨어 설정
 app.use(morgan('dev'));
+app.use(express.json()); // JSON 요청 파싱 미들웨어 추가
 
 // 정적 파일 제공 설정
 app.use('/uploads', express.static(path.join(__dirname, 'images')));
 
 // 라우팅
 app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile)) // docs 대신 swagger로 수정한다.
-app.use('/diary', diaryRoutes);
+//app.use('/diary', diaryRoutes);
+app.use('/users', users);
 
 // 404 오류 처리
 app.use((req, res, next) => {
