@@ -7,112 +7,208 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3000"
+      "url": "http://localhost:3001",
+      "description": "Local development server"
+    },
+    {
+      "url": "https://api.example.com",
+      "description": "Production server"
     }
   ],
   "paths": {
-    "/diary/new/{user_id}": {
+    "/diaries/{diary_id}": {
       "get": {
-        "description": "",
+        "description": "특정 일기를 가져옵니다.",
         "parameters": [
           {
-            "name": "user_id",
+            "name": "diary_id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer",
+              "format": "int64"
             }
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/diary/get/{user_id}": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "user_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/diary/{user_id}": {
-      "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "user_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "diary_title": {
-                    "example": "any"
-                  },
-                  "diary_content": {
-                    "example": "any"
-                  },
-                  "diary_cate": {
-                    "example": "any"
-                  },
-                  "access_level": {
-                    "example": "any"
-                  },
-                  "board_id": {
-                    "example": "any"
-                  },
-                  "diary_emotion": {
-                    "example": "any"
-                  },
-                  "cate_num": {
-                    "example": "any"
-                  }
+          "200": {
+            "description": "성공적으로 일기를 가져왔습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Diary"
                 }
               }
             }
+          },
+          "404": {
+            "description": "일기를 찾을 수 없습니다."
+          },
+          "default": {
+            "description": "기타 오류"
+          }
+        }
+      }
+    },
+    "/diaries": {
+      "post": {
+        "description": "새로운 일기를 생성합니다.",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/DiaryCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "일기가 성공적으로 생성되었습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Diary"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
     }
   },
   "components": {
+    "schemas": {
+      "Diary": {
+        "type": "object",
+        "properties": {
+          "diary_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "일기 ID"
+          },
+          "user_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "사용자 ID"
+          },
+          "board_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "게시판 ID"
+          },
+          "diary_title": {
+            "type": "string",
+            "description": "일기 제목"
+          },
+          "diary_content": {
+            "type": "string",
+            "description": "일기 내용"
+          },
+          "access_level": {
+            "type": "integer",
+            "description": "접근 수준 (0: public, 1: private, 2: friend)"
+          },
+          "view_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "조회 수"
+          },
+          "like_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "좋아요 수"
+          },
+          "post_photo": {
+            "type": "string",
+            "description": "게시물 사진 URL"
+          },
+          "diary_emotion": {
+            "type": "string",
+            "description": "감정"
+          },
+          "cate_num": {
+            "type": "integer",
+            "format": "int64",
+            "description": "카테고리 번호"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "일기 생성 시각"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "일기 수정 시각"
+          }
+        },
+        "required": [
+          "diary_id",
+          "user_id",
+          "board_id",
+          "diary_title",
+          "diary_content",
+          "access_level",
+          "view_count",
+          "like_count"
+        ]
+      },
+      "DiaryCreate": {
+        "type": "object",
+        "properties": {
+          "diary_title": {
+            "type": "string",
+            "description": "일기 제목"
+          },
+          "diary_content": {
+            "type": "string",
+            "description": "일기 내용"
+          },
+          "diary_cate": {
+            "type": "string",
+            "description": "일기 카테고리"
+          },
+          "access_level": {
+            "type": "integer",
+            "description": "접근 수준 (0: public, 1: private, 2: friend)"
+          },
+          "board_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "게시판 ID"
+          },
+          "diary_emotion": {
+            "type": "string",
+            "description": "감정"
+          },
+          "cate_num": {
+            "type": "integer",
+            "format": "int64",
+            "description": "카테고리 번호"
+          },
+          "post_photo": {
+            "type": "string",
+            "format": "binary",
+            "description": "게시물 사진"
+          }
+        },
+        "required": [
+          "diary_title",
+          "diary_content",
+          "access_level",
+          "board_id"
+        ]
+      }
+    },
     "securitySchemes": {
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "in": "header",
         "bearerFormat": "JWT"
       }
     }

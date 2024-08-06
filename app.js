@@ -4,6 +4,14 @@ const path = require('path');
 const morgan = require('morgan');
 const swaggerUi = require("swagger-ui-express");
 const swaggerFile = require('./swagger/swagger-output.json')
+const cors = require('cors');
+const corsOptions = {
+  origin: '*', // 모든 출처를 허용. 필요에 따라 특정 도메인만 허용하도록 설정 가능
+  methods: ['GET', 'POST'], // 허용할 HTTP 메서드 설정
+  allowedHeaders: ['Content-Type', 'Authorization'] // 허용할 HTTP 헤더 설정
+};
+
+app.use(cors(corsOptions)); // CORS 설정 적용
 
 const diaryRoutes = require('./route/diary');
 
@@ -32,7 +40,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'images')));
 
 // 라우팅
 app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile)) // docs 대신 swagger로 수정한다.
-app.use('/diary', diaryRoutes);
+app.use('/diaries', diaryRoutes);
 
 // 404 오류 처리
 app.use((req, res, next) => {
