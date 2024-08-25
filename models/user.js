@@ -31,7 +31,7 @@ class User extends Sequelize.Model {
           allowNull: false,
         },
         user_birthday: {
-          type: Sequelize.DATE,
+          type: Sequelize.DATEONLY, //날짜만 가져오기
           allowNull: false,
         },
         ban_count: {
@@ -46,7 +46,7 @@ class User extends Sequelize.Model {
         },
         user_tendency:{
           type: Sequelize.ENUM('숲','도시'),
-          allowNull: false,
+          allowNull: true,
 
         },
         user_nick:{
@@ -56,8 +56,8 @@ class User extends Sequelize.Model {
         user_point:{
           type: Sequelize.BIGINT,
           allowNull: false,
+          defaultValue: 0,
         }
-     
       },
       {
         sequelize,
@@ -84,6 +84,7 @@ class User extends Sequelize.Model {
       db.User.hasMany(db.Answer, { foreignKey: "user_id", sourceKey: "user_id" });
       db.User.hasMany(db.TodayAnswer, {foreignKey: "user_id",sourceKey: "user_id", onDelete: "CASCADE"});
       db.User.hasMany(db.Point, {foreignKey: "user_id",sourceKey: "user_id", onDelete: "CASCADE"});
+      db.User.hasMany(db.Routine, {foreignKey: "user_id",sourceKey: "user_id", onDelete: "CASCADE"});
     
     }
 

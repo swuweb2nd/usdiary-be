@@ -7,8 +7,13 @@ const options = {
   },
   servers: [
     {
-      url: 'http://localhost:3001',
+      "url": "http://localhost:3001",
+      "description": "Local development server"
     },
+    {
+      "url": "https://api.example.com",
+      "description": "Production server"
+    }
   ],
   schemes: ['http','https'],
   securityDefinitions: {

@@ -9,7 +9,7 @@ const Diary = require("./diary");
 const Board = require("./board");
 const TodayAnswer = require("./today_answers");
 const TodayQuestion = require("./today_questions");
-const Checklist = require("./checklists");
+const Routine = require("./routine");
 const Todo = require("./todos");
 const Comment = require("./comment");
 const Friend = require('./friend');
@@ -31,7 +31,7 @@ db.Diary = Diary;
 db.Board = Board;
 db.TodayAnswer = TodayAnswer;
 db.TodayQuestion = TodayQuestion;
-db.Checklist = Checklist;
+db.Routine = Routine;
 db.Todo = Todo;
 db.Comment = Comment;
 db.Friend = Friend;
@@ -49,7 +49,7 @@ Diary.initiate(sequelize)
 Board.initiate(sequelize)
 TodayAnswer.initiate(sequelize)
 TodayQuestion.initiate(sequelize)
-Checklist.initiate(sequelize)
+Routine.initiate(sequelize)
 Todo.initiate(sequelize)
 Comment.initiate(sequelize);
 Friend.initiate(sequelize);
@@ -75,7 +75,7 @@ Like.associate(db);
 Notification.associate(db);
 TodayAnswer.associate(db)
 TodayQuestion.associate(db)
-Checklist.associate(db)
+Routine.associate(db)
 Todo.associate(db)
 Point.associate(db)
 Profile.associate(db)

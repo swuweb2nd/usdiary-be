@@ -1,10 +1,10 @@
 const {Sequelize} = require("sequelize");
 
-class Todo extends Sequelize.Model {
+class Routine extends Sequelize.Model {
   static initiate(sequelize) {
     return super.init(
       {
-        todo_id: {
+        routine_id: {
           type: Sequelize.BIGINT,
           allowNull: false,
           primaryKey: true,
@@ -19,19 +19,19 @@ class Todo extends Sequelize.Model {
           allowNull: false,
           defaultValue: false,
         },
-        diary_id: {
-          type: Sequelize.BIGINT,
-          allowNull: false,
-      
-
-        },
+        user_id: {
+            type: Sequelize.BIGINT,
+            allowNull: false,
+   
+  
+          },
       },
       {
         sequelize,
         timestamps: false,
         underscored: false,
-        modelName: "Todo",
-        tableName: "todos",
+        modelName: "Routine",
+        tableName: "routines",
         paranoid: false,
         charset: "utf8",
         collate: "utf8_general_ci",
@@ -39,12 +39,12 @@ class Todo extends Sequelize.Model {
     );
   }
   static associate(db){
-    db.Todo.belongsTo(db.Diary, {
-      foreignKey: "diary_id",
-      targetKey: "diary_id",
-      onDelete: "CASCADE",
-    });
+    db.Routine.belongsTo(db.User, {
+        foreignKey: "user_id",
+        targetKey: "user_id",
+        onDelete: "CASCADE",
+      });
   }
 }
 
-module.exports = Todo;
+module.exports = Routine;
