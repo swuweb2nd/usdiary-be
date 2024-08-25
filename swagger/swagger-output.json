@@ -16,619 +16,9 @@
     }
   ],
   "paths": {
-  "/register/register": {
-    "post": {
-      "summary": "회원가입",
-      "tags": ["register"],
-      "description": "새로운 사용자를 등록합니다.",
-      "requestBody": {
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/Register"
-            }
-          }
-        },
-        "required": true
-      },
-      "responses": {
-        "201": {
-          "description": "사용자가 성공적으로 등록되었습니다.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "message": {
-                    "type": "string",
-                    "description": "회원가입 성공 메시지",
-                    "example": "회원가입이 완료되었습니다."
-                  }
-                }
-              }
-            }
-          }
-        },
-        "400": {
-          "description": "잘못된 요청 또는 유효성 검사 실패"
-        },
-        "500": {
-          "description": "Internal Server Error"
-        }
-      }
-    }
-  },
-  "/register/verify-email": {
-      "post": {
-        "summary": "이메일 인증",
-        "description": "사용자의 이메일로 인증 코드를 전송합니다.",
-        "tags": ["register"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "example": "user@example.com"
-                  }
-                },
-                "required": ["email"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "이메일이 성공적으로 전송되었습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "이메일이 성공적으로 전송되었습니다."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "유효하지 않은 이메일 주소입니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "유효하지 않은 이메일 주소입니다."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "서버 오류로 인해 이메일 전송에 실패했습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "이메일 전송에 실패했습니다."
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/register/send-verification-code": {
-      "post": {
-        "summary": "이메일 인증 코드 전송",
-        "description": "사용자의 이메일로 인증 코드를 전송합니다.",
-        "tags": ["register"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "example": "user@example.com"
-                  }
-                },
-                "required": ["email"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "인증 코드가 성공적으로 전송되었습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "이메일을 확인하세요."
-                    },
-                    "verificationCode": {
-                      "type": "string",
-                      "example": "abc123"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "요청이 잘못되었습니다. 이메일 입력 또는 유효성에 문제가 있습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "examples": {
-                        "missingEmail": "이메일을 입력하세요.",
-                        "invalidEmail": "유효하지 않은 이메일 주소입니다.",
-                        "emailExists": "이미 등록된 이메일입니다."
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "서버 오류로 인해 이메일 전송에 실패했습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "이메일 인증 중 오류가 발생했습니다."
-                    },
-                    "error": {
-                      "type": "string",
-                      "example": "Internal Server Error"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/register/verify-code": {
-      "post": {
-        "summary": "인증 코드 확인",
-        "description": "이메일로 전송된 인증 코드를 확인합니다.",
-        "tags": ["register"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "example": "user@example.com"
-                  },
-                  "verificationCode": {
-                    "type": "string",
-                    "example": "123456"
-                  }
-                },
-                "required": ["email", "verificationCode"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "인증 코드가 성공적으로 확인되었습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "인증번호가 확인되었습니다. 회원 가입을 계속 진행하세요."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "유효하지 않은 인증 코드 또는 입력 누락이 있습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "message": {
-                      "type": "string",
-                      "examples": {
-                        "missingFields": "이메일과 인증번호를 입력하세요.",
-                        "noStoredCode": "이메일에 대한 인증번호가 없습니다.",
-                        "invalidCode": "인증번호가 일치하지 않습니다.",
-                        "expiredCode": "인증번호가 만료되었습니다."
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "서버 오류가 발생했습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "서버 오류가 발생했습니다."
-                    },
-                    "error": {
-                      "type": "string",
-                      "example": "Internal Server Error"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/register/idcheck": {
-      "get": {
-        "summary": "아이디 중복 확인",
-        "description": "아이디의 중복 여부를 확인합니다.",
-        "tags": ["register"],
-        "parameters": [
-          {
-            "in": "query",
-            "name": "uid",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "user123"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "아이디 사용 가능"
-          },
-          "400": {
-            "description": "이미 사용 중인 아이디입니다."
-          }
-        }
-      }
-    },
-    "/register/nicknamecheck": {
-      "get": {
-        "summary": "닉네임 중복 확인",
-        "description": "닉네임의 중복 여부를 확인합니다.",
-        "tags": ["register"],
-        "parameters": [
-          {
-            "in": "query",
-            "name": "unick",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "nickname123"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "닉네임 사용 가능"
-          },
-          "400": {
-            "description": "이미 사용 중인 닉네임입니다."
-          }
-        }
-      }
-    },  
-  "/users/login": {
-      "post": {
-        "tags": ["Users"],
-        "description": "사용자가 로그인할 수 있습니다.",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Login"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "성공적으로 로그인하였습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "로그인 성공 메시지"
-                    },
-                    "token": {
-                      "type": "string",
-                      "description": "JWT 인증 토큰"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "존재하지 않는 아이디입니다. 또는 잘못된 비밀번호입니다."
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/users/findID": {
-      "post": {
-        "tags": ["Users"],
-        "description": "사용자가 아이디를 찾을 수 있습니다.",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/FindID"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "아이디 찾기 성공",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "아이디 찾기 성공 메시지",
-                      "example": "김슈니님의 아이디입니다."
-                    },
-                    "sign_id": {
-                      "type": "string",
-                      "description": "찾은 사용자 아이디",
-                      "example": "usdiary"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "사용자 정보와 일치하는 계정을 찾을 수 없습니다."
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/users/findPwd": {
-      "post": {
-        "tags": ["Users"],
-        "description": "사용자가 비밀번호를 찾을 수 있습니다.",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/FindPwd"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "비밀번호 찾기 성공",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "비밀번호 찾기 성공 메시지",
-                      "example": "김슈니님의 임시 비밀번호입니다. 로그인 후 비밀번호를 변경해주세요."
-                    },
-                    "temporaryPassword": {
-                      "type": "string",
-                      "description": "임시 비밀번호",
-                      "example": "erwedf13hki!"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "사용자 정보와 일치하는 계정을 찾을 수 없습니다."
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/users/{user_id}/tendency": {
-      "patch": {
-        "tags": ["Users"],
-        "description": "사용자가 자신의 성향을 선택하고 업데이트합니다. 성향 변경은 가입 후 7일 이내에만 가능합니다.",
-        "parameters": [
-          {
-            "name": "user_id",
-            "in": "path",
-            "required": true,
-            "description": "수정할 사용자의 ID",
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "user_tendency": {
-                    "type": "string",
-                    "example": "도시"
-                  }
-                }
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "성공적으로 성향이 수정되었습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TendencyUpdate"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "가입 후 7일 이내에만 성향을 변경할 수 있습니다."
-          },
-          "404": {
-            "description": "사용자를 찾을 수 없습니다."
-          },
-          "500": {
-            "description": "서버 오류가 발생했습니다."
-          }
-        }
-      }
-    },
-    "/users/login/google/callback": {
-      "get": {
-        "tags": ["Users"],
-        "description": "Google OAuth 2.0 인증 후 리디렉션된 요청을 처리하여 사용자를 로그인시키거나, 신규 사용자인 경우 데이터베이스에 저장한 후 로그인 처리합니다.",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "code",
-            "schema": {
-              "type": "string"
-            },
-            "required": true,
-            "description": "Google OAuth 2.0 인증 후 제공되는 인증 코드"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Google 로그인 성공",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "로그인 성공 메시지",
-                      "example": "Google 로그인 성공"
-                    },
-                    "token": {
-                      "type": "string",
-                      "description": "JWT 인증 토큰",
-                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "201": {
-            "description": "Google 계정으로 신규 가입 및 로그인 성공",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "신규 가입 성공 메시지",
-                      "example": "Google 계정으로 신규 가입 및 로그인 성공"
-                    },
-                    "token": {
-                      "type": "string",
-                      "description": "JWT 인증 토큰",
-                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
     "/diaries/{diary_id}": {
       "get": {
         "description": "특정 일기를 가져옵니다.",
-        "tags": ["diary"],
         "parameters": [
           {
             "name": "diary_id",
@@ -654,54 +44,8 @@
           "404": {
             "description": "일기를 찾을 수 없습니다."
           },
-          "500": {
-            "description": "Internal Server Error"
-          },
           "default": {
             "description": "기타 오류"
-          }
-        }
-      },
-      "patch": {
-        "description": "특정 일기를 수정합니다.",
-        "tags": ["diary"],
-        "parameters": [
-          {
-            "name": "diary_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "$ref": "#/components/schemas/DiaryUpdate"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "성공적으로 일기가 수정되었습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Diary"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "일기를 찾을 수 없습니다."
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         }
       }
@@ -709,7 +53,6 @@
     "/diaries": {
       "post": {
         "description": "새로운 일기를 생성합니다.",
-        "tags": ["diary"],
         "requestBody": {
           "content": {
             "multipart/form-data": {
@@ -736,359 +79,10 @@
           }
         }
       }
-    },
-    "/todos/{todo_id}": {
-      "get": {
-        "description": "특정 할 일을 가져옵니다.",
-        "tags": ["Todo"],
-        "parameters": [
-          {
-            "name": "todo_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "성공적으로 할 일을 가져왔습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Todo"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "할 일을 찾을 수 없습니다."
-          },
-          "500": {
-            "description": "Internal Server Error"
-          },
-          "default": {
-            "description": "기타 오류"
-          }
-        }
-      },
-      "patch": {
-        "description": "특정 할 일을 수정합니다.",
-        "tags": ["Todo"],
-        "parameters": [
-          {
-            "name": "todo_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TodoUpdate"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "성공적으로 할 일이 수정되었습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Todo"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "할 일을 찾을 수 없습니다."
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      },
-      "delete": {
-        "description": "특정 할 일을 삭제합니다.",
-        "tags": ["Todo"],
-        "parameters": [
-          {
-            "name": "todo_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "성공적으로 할 일이 삭제되었습니다."
-          },
-          "404": {
-            "description": "할 일을 찾을 수 없습니다."
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/todos": {
-      "post": {
-        "description": "새로운 할 일을 생성합니다.",
-        "tags": ["Todo"],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TodoCreate"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "할 일이 성공적으로 생성되었습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Todo"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/routines/{routine_id}": {
-      "get": {
-        "description": "특정 루틴을 가져옵니다.",
-        "tags": ["Routine"],
-        "parameters": [
-          {
-            "name": "routine_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "성공적으로 루틴을 가져왔습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Routine"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "루틴을 찾을 수 없습니다."
-          },
-          "500": {
-            "description": "Internal Server Error"
-          },
-          "default": {
-            "description": "기타 오류"
-          }
-        }
-      },
-      "patch": {
-        "description": "특정 루틴을 수정합니다.",
-        "tags": ["Routine"],
-        "parameters": [
-          {
-            "name": "routine_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RoutineUpdate"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "성공적으로 루틴이 수정되었습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Routine"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "루틴을 찾을 수 없습니다."
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      },
-      "delete": {
-        "description": "특정 루틴을 삭제합니다.",
-        "tags": ["Routine"],
-        "parameters": [
-          {
-            "name": "routine_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "성공적으로 루틴이 삭제되었습니다."
-          },
-          "404": {
-            "description": "루틴을 찾을 수 없습니다."
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/routines": {
-      "post": {
-        "description": "새로운 루틴을 생성합니다.",
-        "tags": ["Routine"],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RoutineCreate"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "루틴이 성공적으로 생성되었습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Routine"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
     }
   },
   "components": {
     "schemas": {
-      "Login": {
-        "type": "object",
-        "properties": {
-          "sign_id": {
-            "type": "string",
-            "description": "사용자 아이디"
-          },
-          "password": {
-            "type": "string",
-            "format": "password",
-            "description": "사용자 비밀번호"
-          }
-        },
-        "required": ["sign_id", "password"]
-      },
-      "FindID": {
-        "type": "object",
-        "properties": {
-          "user_name": {
-            "type": "string",
-            "description": "사용자 이름"
-          },
-          "user_email": {
-            "type": "string",
-            "description": "사용자 이메일"
-          },
-          "user_birthday": {
-            "type": "string",
-            "format": "date",
-            "description": "사용자 생년월일 (YYYY-MM-DD)"
-          }
-        },
-        "required": [
-          "user_name",
-          "user_email",
-          "user_birthday"
-        ]
-      },
-      "FindPwd": {
-        "type": "object",
-        "properties": {
-          "user_name": {
-            "type": "string",
-            "description": "사용자 이름"
-          },
-          "sign_id": {
-            "type": "string",
-            "description": "사용자 아이디"
-          },
-          "user_email": {
-            "type": "string",
-            "description": "사용자 이메일"
-          }
-        },
-        "required": [
-          "user_name",
-          "sign_id",
-          "user_email"
-        ]
-      },
-      "TendencyUpdate": {
-        "type": "object",
-        "properties": {
-              "user_id": {
-                "type": "integer",
-                "description": "사용자 ID"
-              },
-              "user_tendency": {
-                "type": "string",
-                "description": "유저 성향(숲, 도시)"
-              }
-        }
-      },
       "Diary": {
         "type": "object",
         "properties": {
@@ -1203,179 +197,98 @@
             "description": "게시물 사진"
           }
         },
-        "required": ["diary_title", "diary_content", "access_level", "board_id"]
-      },
-      "DiaryUpdate": {
-        "type": "object",
-        "properties": {
-          "diary_title": {
-            "type": "string",
-            "description": "일기 제목"
-          },
-          "diary_content": {
-            "type": "string",
-            "description": "일기 내용"
-          },
-          "diary_cate": {
-            "type": "string",
-            "description": "일기 카테고리"
-          },
-          "access_level": {
-            "type": "integer",
-            "description": "접근 수준 (0: public, 1: private, 2: friend)"
-          },
-
-          "diary_emotion": {
-            "type": "string",
-            "description": "감정"
-          },
-          "cate_num": {
-            "type": "integer",
-            "format": "int64",
-            "description": "카테고리 번호"
-          },
-          "post_photo": {
-            "type": "string",
-            "format": "binary",
-            "description": "게시물 사진"
-          }
-        }
-      },
-      "Todo": {
-        "type": "object",
-        "properties": {
-          "todo_id": {
-            "type": "integer",
-            "format": "int64",
-            "description": "할 일 ID"
-          },
-          "diary_id": {
-            "type": "integer",
-            "format": "int64",
-            "description": "연결된 일기 ID"
-          },
-          "description": {
-            "type": "string",
-            "description": "할 일 내용"
-          },
-          "is_completed": {
-            "type": "boolean",
-            "description": "할 일 완료 여부"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "할 일 생성 시각"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "할 일 수정 시각"
+        "required": [
+          "diary_title",
+          "diary_content",
+          "access_level",
+          "board_id"
+        ]
+      }
+    
+    },"/users/login": {
+      "post": {
+        "summary": "로그인",
+        "description": "아이디와 비밀번호를 입력해 로그인합니다.",
+        "tags": [
+          "users"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sign_id": {
+                    "type": "string",
+                    "description": "유저아이디",
+                    "example": "test"
+                  },
+                  "user_pwd": {
+                    "type": "string",
+                    "description": "패스워드",
+                    "example": "swuweb123"
+                  }
+                }
+              }
+            }
           }
         },
-        "required": ["todo_id", "diary_id", "description", "is_completed"]
-      },
-      "TodoCreate": {
-        "type": "object",
-        "properties": {
-          "diary_id": {
-            "type": "integer",
-            "format": "int64",
-            "description": "연결된 일기 ID"
+        "responses": {
+          "200": {
+            "description": "Successful login",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "description": "JWT token for authentication",
+                      "example": "your_jwt_token"
+                    }
+                  }
+                }
+              }
+            }
           },
-          "description": {
-            "type": "string",
-            "description": "할 일 내용"
+          "401": {
+            "description": "Unauthorized - Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid sign_id or password"
+                    }
+                  }
+                }
+              }
+            }
           },
-          "is_completed": {
-            "type": "boolean",
-            "description": "할 일 완료 여부",
-            "default": false
-          }
-        },
-        "required": ["diary_id", "description"]
-      },
-      "TodoUpdate": {
-        "type": "object",
-        "properties": {
-          "description": {
-            "type": "string",
-            "description": "할 일 내용"
-          },
-          "is_completed": {
-            "type": "boolean",
-            "description": "할 일 완료 여부"
-          }
-        }
-      },
-      "Routine": {
-        "type": "object",
-        "properties": {
-          "routine_id": {
-            "type": "integer",
-            "format": "int64",
-            "description": "루틴 ID"
-          },
-          "user_id": {
-            "type": "integer",
-            "format": "int64",
-            "description": "사용자 ID"
-          },
-          "description": {
-            "type": "string",
-            "description": "루틴 설명"
-          },
-          "is_completed": {
-            "type": "boolean",
-            "description": "루틴 완료 여부"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "루틴 생성 시각"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "루틴 수정 시각"
-          }
-        },
-        "required": ["routine_id", "user_id", "description", "is_completed"]
-      },
-      "RoutineCreate": {
-        "type": "object",
-        "properties": {
-          "user_id": {
-            "type": "integer",
-            "format": "int64",
-            "description": "사용자 ID"
-          },
-          "description": {
-            "type": "string",
-            "description": "루틴 설명"
-          },
-          "is_completed": {
-            "type": "boolean",
-            "description": "루틴 완료 여부",
-            "default": false
-          }
-        },
-        "required": ["user_id", "description"]
-      },
-      "RoutineUpdate": {
-        "type": "object",
-        "properties": {
-          "description": {
-            "type": "string",
-            "description": "루틴 설명"
-          },
-          "is_completed": {
-            "type": "boolean",
-            "description": "루틴 완료 여부"
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal server error"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
-    },
+    }
+  },
+
     "securitySchemes": {
       "bearerAuth": {
         "type": "http",
@@ -1385,4 +298,3 @@
       }
     }
   }
-}

@@ -1,4 +1,4 @@
-exports.uploadFile = async (req, res, next) => {
+const uploadFile = async (req, res, next) => {
     try {
       var param = {
         file: req.file,
@@ -11,4 +11,8 @@ exports.uploadFile = async (req, res, next) => {
     } catch (error) {
       next(error);  // Error handling middleware로 넘기기
     }
+  };
+  
+module.exports = {
+    uploadFile,
   };

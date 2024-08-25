@@ -1,21 +1,21 @@
 const {Sequelize} = require("sequelize");
 
-class Todo extends Sequelize.Model {
+class Checklist extends Sequelize.Model {
   static initiate(sequelize) {
     return super.init(
       {
-        todo_id: {
+        checklist_id: {
           type: Sequelize.BIGINT,
           allowNull: false,
           primaryKey: true,
           autoIncrement: true
         },
-        description: {
-          type: Sequelize.TEXT,
+        check_date: {
+          type: Sequelize.DATE,
           allowNull: true,
         },
-        is_completed: {
-          type: Sequelize.BOOLEAN,
+        check_content: {
+          type: Sequelize.TEXT,
           allowNull: true,
         }
       },
@@ -23,8 +23,8 @@ class Todo extends Sequelize.Model {
         sequelize,
         timestamps: true,
         underscored: false,
-        modelName: "Todo",
-        tableName: "todos",
+        modelName: "Checklist",
+        tableName: "checklists",
         paranoid: false,
         charset: "utf8",
         collate: "utf8_general_ci",
@@ -32,12 +32,17 @@ class Todo extends Sequelize.Model {
     );
   }
   static associate(db){
-    db.Todo.belongsTo(db.Checklist, {
+    db.Checklist.hasMany(db.Todo, {
       foreignKey: "checklist_id",
-      targetKey: "checklist_id",
+      sourceKey: "checklist_id",
+      onDelete: "CASCADE",
+    });
+    db.Checklist.belongsTo(db.User, {
+      foreignKey: "user_id",
+      targetKey: "user_id",
       onDelete: "CASCADE",
     });
   }
 }
 
-module.exports = Todo;
+module.exports = Checklist;
