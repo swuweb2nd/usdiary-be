@@ -126,100 +126,117 @@ exports.deleteDiary = async (req, res) => {
 // 일기 목록 정렬 (최신순)
 exports.sortDiary = async (req, res) => {
   try {
-      const { page = 1, limit = 15 } = req.query;  // 페이지와 항목 수 쿼리로 받아옴
-      const offset = (page - 1) * limit;
+    const { page = 1, limit = 15, board_id } = req.query; // board_id 쿼리 추가
+    const offset = (page - 1) * limit;
 
-      const diary = await Diary.findAll({
-          include: {
-              model: User,
-              attributes: ['sign_id'],
-          },
-          order: [['createdAt', 'DESC']],
-          limit: parseInt(limit),  // 항목 수 제한
-          offset: offset,          // 시작 지점 설정
-      });
+    const whereCondition = {};
+    if (board_id) {
+      whereCondition.board_id = board_id; // board_id 필터 추가
+    }
 
-      console.log(diary);
-      res.json(diary);
+    const diary = await Diary.findAll({
+      where: whereCondition,
+      include: {
+        model: User,
+        attributes: ['sign_id'],
+      },
+      order: [['createdAt', 'DESC']],
+      limit: parseInt(limit), // 항목 수 제한
+      offset: offset, // 시작 지점 설정
+    });
+
+    console.log(diary);
+    res.json(diary);
   } catch (error) {
     console.error('Error sorting diary:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
-}
+};
+
 
 const { Op } = require('sequelize');
 
 // 주간 조회수 정렬
 exports.sortWeeklyViews = async (req, res) => {
   try {
-      const { page = 1, limit = 15 } = req.query;
-      const offset = (page - 1) * limit;
+    const { page = 1, limit = 15, board_id } = req.query; // board_id 쿼리 추가
+    const offset = (page - 1) * limit;
 
-      // 현재 주의 시작과 끝 날짜 계산 (일요일부터 토요일)
-      const today = new Date();
-      const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
-      startOfWeek.setHours(0, 0, 0, 0);
-      const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(endOfWeek.getDate() + 6);
-      endOfWeek.setHours(23, 59, 59, 999);
+    // 현재 주의 시작과 끝 날짜 계산 (일요일부터 토요일)
+    const today = new Date();
+    const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+    startOfWeek.setHours(0, 0, 0, 0);
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(endOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
 
-      const diary = await Diary.findAll({
-        include: [
-          { model: User, attributes: ['sign_id'] },
-          { model: Board, attributes: ['board_name'] },
-        ],
-        where: {
-          createdAt: {
-            [Op.between]: [startOfWeek, endOfWeek] // 주간 범위 설정
-          }
-        },
-        order: [['view_count', 'DESC']],
-        limit: parseInt(limit),
-        offset: offset,
-      });
+    const whereCondition = {
+      createdAt: {
+        [Op.between]: [startOfWeek, endOfWeek] // 주간 범위 설정
+      }
+    };
+    if (board_id) {
+      whereCondition.board_id = board_id; // board_id 필터 추가
+    }
 
-      console.log(diary);
-      res.json(diary);
+    const diary = await Diary.findAll({
+      where: whereCondition,
+      include: [
+        { model: User, attributes: ['sign_id'] },
+        { model: Board, attributes: ['board_name'] },
+      ],
+      order: [['view_count', 'DESC']],
+      limit: parseInt(limit),
+      offset: offset,
+    });
+
+    console.log(diary);
+    res.json(diary);
   } catch (error) {
     console.error('Error sorting weekly views:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
-}
+};
+
 
 // 주간 좋아요 정렬
-exports.sortWeeklyLikes = async (req, res) => {
+exports.sortWeeklyViews = async (req, res) => {
   try {
-      const { page = 1, limit = 15 } = req.query;
-      const offset = (page - 1) * limit;
+    const { page = 1, limit = 15, board_id } = req.query; // board_id 쿼리 추가
+    const offset = (page - 1) * limit;
 
-      // 현재 주의 시작과 끝 날짜 계산 (일요일부터 토요일)
-      const today = new Date();
-      const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
-      startOfWeek.setHours(0, 0, 0, 0);
-      const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(endOfWeek.getDate() + 6);
-      endOfWeek.setHours(23, 59, 59, 999);
+    // 현재 주의 시작과 끝 날짜 계산 (일요일부터 토요일)
+    const today = new Date();
+    const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+    startOfWeek.setHours(0, 0, 0, 0);
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(endOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
 
-      const diary = await Diary.findAll({
-        include: [
-          { model: User, attributes: ['sign_id'] },
-          { model: Board, attributes: ['board_name'] },
-        ],
-        where: {
-          createdAt: {
-            [Op.between]: [startOfWeek, endOfWeek] // 주간 범위 설정
-          }
-        },
-        order: [['like_count', 'DESC']],
-        limit: parseInt(limit),
-        offset: offset,
-      });
+    const whereCondition = {
+      createdAt: {
+        [Op.between]: [startOfWeek, endOfWeek] // 주간 범위 설정
+      }
+    };
+    if (board_id) {
+      whereCondition.board_id = board_id; // board_id 필터 추가
+    }
 
-      console.log(diary);
-      res.json(diary);
-      
+    const diary = await Diary.findAll({
+      where: whereCondition,
+      include: [
+        { model: User, attributes: ['sign_id'] },
+        { model: Board, attributes: ['board_name'] },
+      ],
+      order: [['view_count', 'DESC']],
+      limit: parseInt(limit),
+      offset: offset,
+    });
+
+    console.log(diary);
+    res.json(diary);
   } catch (error) {
-    console.error('Error sorting weekly likes:', error);
+    console.error('Error sorting weekly views:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
-}
+};

@@ -14,11 +14,11 @@ const { sortDiary, sortWeeklyViews, sortWeeklyLikes, renderDiary,createDiary,upd
 const { verifyToken } = require('../middlewares/jwt');
 
 // 일기 목록 페이지 렌더링 (최신순)
-router.get('/', sortDiary);
+router.get('/:board_id', sortDiary);
 // (조회수 높은순)
-router.get('/weekly-views', sortWeeklyViews);
+router.get('/:board_id/weekly-views', sortWeeklyViews);
 // (좋아요 높은순)
-router.get('/weekly-likes', sortWeeklyLikes);
+router.get('/:board_id/weekly-likes', sortWeeklyLikes);
 
 
 // 일기 작성 페이지 렌더링

@@ -19,7 +19,10 @@ const Point = require("./point");
 const Profile = require("./profile");
 const QnA = require("./qna");
 const Answer = require("./anwer");
-
+const Tier = require('./tier');
+const Condition = require('./condition');
+const TierLog = require('./tierlog');
+const UserCondition = require('./usercondition');
 
 const db = {};
 
@@ -41,6 +44,16 @@ db.Point = Point;
 db.Profile = Profile;
 db.QnA = QnA;
 db.Answer = Answer;
+db.Tier = Tier;
+db.Condition = Condition;
+db.TierLog = TierLog;
+db.UserCondition = UserCondition;
+db.sequelize = sequelize;
+
+
+
+
+// 관계 설정
 
 
 
@@ -60,8 +73,10 @@ Point.initiate(sequelize);
 Profile.initiate(sequelize);
 QnA.initiate(sequelize);
 Answer.initiate(sequelize);
-
-
+Tier.initiate(sequelize);
+Condition.initiate(sequelize);
+TierLog.initiate(sequelize);
+UserCondition.initiate(sequelize);
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
@@ -81,6 +96,10 @@ Point.associate(db)
 Profile.associate(db)
 QnA.associate(db)
 Answer.associate(db)
+Tier.associate(db);
+Condition.associate(db);
+TierLog.associate(db);
+UserCondition.associate(db);
 
 
 

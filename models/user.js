@@ -62,6 +62,11 @@ class User extends Sequelize.Model {
           type: Sequelize.DATE, // 최근 접속일 필드
           allowNull: true,
         },
+        tier_id: {
+          type: Sequelize.BIGINT,
+          allowNull: true,
+         
+        }
       },
       {
         sequelize,
@@ -92,6 +97,12 @@ class User extends Sequelize.Model {
       db.User.belongsToMany(db.User, {through: db.Friend, foreignKey: 'follower_id', as: 'Following',otherKey: 'following_id'});
       // 이 유저를 팔로우하는 유저들 (팔로워 관계)
       db.User.belongsToMany(db.User, { through: db.Friend, foreignKey: 'following_id',as: 'Followers',otherKey: 'follower_id', });
+      db.User.belongsTo(db.Tier, { foreignKey: 'tier_id', targetKey: 'tier_id' });
+       // User는 여러 UserCondition을 가질 수 있음
+      db.User.hasMany(db.UserCondition, { foreignKey: "user_id", sourceKey: "user_id" });
+
+      // User는 여러 TierLog를 가질 수 있음
+      db.User.hasMany(db.TierLog, { foreignKey: "user_id", sourceKey: "user_id" });
     }
 
     

@@ -257,3 +257,8 @@ exports.googleCallback = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+// controllers/permissionsController.js
+exports.checkOppositePagePermission = (req, res) => {
+    res.json({ canAccess: true });
+  };
+  
