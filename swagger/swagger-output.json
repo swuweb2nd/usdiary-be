@@ -1037,6 +1037,112 @@
         }
       }
     },
+    "/diaries/{diay_id}/likes": {
+      "post": {
+        "summary": "좋아요 생성",
+        "description": "일기에 좋아요를 누릅니다.",
+        "tags": ["Likes"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "diary_id": {
+                    "type": "integer",
+                    "description": "좋아요를 누를 일기의 ID",
+                    "example": 123
+                  }
+                },
+                "required": ["diary_id"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "성공적으로 좋아요가 생성되었습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Like created successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user_id": {
+                          "type": "integer",
+                          "description": "유저 ID"
+                        },
+                        "diary_id": {
+                          "type": "integer",
+                          "description": "일기 ID"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 오류"
+          }
+        },
+        "security": [
+          { "bearerAuth": [] }
+        ]
+      }
+    },
+    "/diaries/{diay_id}/likes/{like_id}": {
+      "delete": {
+        "summary": "좋아요 삭제",
+        "description": "좋아요를 삭제합니다.",
+        "tags": ["Likes"],
+        "parameters": [
+          {
+            "name": "like_id",
+            "in": "path",
+            "description": "삭제할 좋아요의 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "성공적으로 좋아요가 삭제되었습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Like deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "좋아요를 찾을 수 없습니다."
+          },
+          "500": {
+            "description": "서버 오류"
+          }
+        },
+        "security": [
+          { "bearerAuth": [] }
+        ]
+      }
+    },
     "/diaries/{diary_id}/comments": {
     "post": {
       "summary": "댓글 생성",

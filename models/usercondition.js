@@ -12,10 +12,7 @@ class UserCondition extends Sequelize.Model {
           condition_id: {
             type: Sequelize.BIGINT,
             allowNull: false,
-            references: {
-              model: 'Condition',
-              key: 'condition_id',
-            },
+          
           },
           condition_value: {
             type: Sequelize.BIGINT,
@@ -29,18 +26,12 @@ class UserCondition extends Sequelize.Model {
           user_id: {
             type: Sequelize.BIGINT,
             allowNull: false,
-            references: {
-              model: 'User',
-              key: 'user_id',
-            },
+           
           },
           tier_id: {
             type: Sequelize.BIGINT,
             allowNull: false,
-            references: {
-              model: 'Tier',
-              key: 'tier_id',
-            },
+           
           },
         },
         {

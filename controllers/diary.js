@@ -2,7 +2,7 @@ const Diary = require('../models/diary');
 const User = require('../models/user');
 const Board = require('../models/board');
 
-//일기 조회
+//특정 사용자 일기 조회
 // handlers.js
 exports.renderDiary = async (req, res) => {
   try {
@@ -15,7 +15,7 @@ exports.renderDiary = async (req, res) => {
         }
     });
       if (!diary) {
-          return res.status(404).json({ message: 'Diary not found' });
+          return res.status(404).json({ message: 'Diary not found' ,data: {diary}});
       }
       console.log(diary)
       res.json(diary);
@@ -23,11 +23,39 @@ exports.renderDiary = async (req, res) => {
       res.status(500).json({ message: 'Server error', error });
   }
 };
+//해당 글 조회
+exports.renderDiary = async (req, res) => {
+  try {
+      const diaryId = req.params.diary_id;
+      
+      
+      const diary = await Diary.findOne({
+        where: {
+            diary_id: diaryId,
+            
+        },
+        include: [
+          { model: User,attributes: ['sign_id','user_nick']},
+        { model: Board, attributes: ['board_name'] },
+        ]
+      });
+      
+      if (!diary) {
+          return res.status(404).json({ message: 'Diary not found', data: { diary } });
+      }
+      
+      console.log(diary);
+      res.json({ data: { diary } });
+  } catch (error) {
+      res.status(500).json({ message: 'Server error', error });
+  }
+};
+
 
 //일기 작성
 exports.createDiary = async (req, res) => {
   const signId = res.locals.decoded.sign_id; // JWT에서 사용자 sign_id 가져오기
-  
+  const postPhotos = req.files ? req.files.map(file => file.path) : [];
   try {
     const newDiary = await Diary.create({
         diary_title: req.body.diary_title,
@@ -37,7 +65,7 @@ exports.createDiary = async (req, res) => {
         board_id: req.body.board_id,
         diary_emotion: req.body.diary_emotion,
         cate_num: req.body.cate_num,
-        post_photo: req.file ? req.file.path : null,
+        post_photo:  JSON.stringify(postPhotos),
         sign_id: signId // JWT에서 가져온 sign_id 사용
     });
 
@@ -53,7 +81,7 @@ exports.createDiary = async (req, res) => {
 exports.updateDiary = async (req, res) => {
     const { diary_id } = req.params;
     const signId = res.locals.decoded.sign_id; // JWT에서 사용자 sign_id 가져오기
-
+    const postPhotos = req.files ? req.files.map(file => file.path) : [];
     const {
       diary_title,
       diary_content,
@@ -82,7 +110,7 @@ exports.updateDiary = async (req, res) => {
         access_level: access_level || diary.access_level,
         diary_emotion: diary_emotion || diary.diary_emotion,
         cate_num: cate_num || diary.cate_num,
-        post_photo: req.file ? req.file.path : diary.post_photo,
+        post_photo:  JSON.stringify(postPhotos),
       });
   
       // 성공적으로 업데이트된 다이어리 항목 반환
@@ -126,30 +154,32 @@ exports.deleteDiary = async (req, res) => {
 // 일기 목록 정렬 (최신순)
 exports.sortDiary = async (req, res) => {
   try {
-    const { page = 1, limit = 15, board_id } = req.query; // board_id 쿼리 추가
-    const offset = (page - 1) * limit;
+    const { page = 1, limit = 15, board_id } = req.query; // board_id 쿼리 파라미터
+    const offset = (page - 1) * limit; // 페이지네이션 오프셋 계산
 
     const whereCondition = {};
     if (board_id) {
-      whereCondition.board_id = board_id; // board_id 필터 추가
+      whereCondition.board_id = parseInt(board_id, 10); // board_id가 있을 경우 필터 추가
     }
+
+    const totalDiaries = await Diary.count({ where: whereCondition }); // 필터링된 일기 총 개수
 
     const diary = await Diary.findAll({
       where: whereCondition,
-      include: {
-        model: User,
-        attributes: ['sign_id'],
-      },
-      order: [['createdAt', 'DESC']],
-      limit: parseInt(limit), // 항목 수 제한
-      offset: offset, // 시작 지점 설정
+      include: [
+        { model: User, attributes: ['sign_id', 'user_nick'] }, // 사용자 정보 포함
+        { model: Board, attributes: ['board_name'] }, // 게시판 이름 포함
+      ],
+      order: [['createdAt', 'DESC']], // 최신순 정렬
+      limit: parseInt(limit, 10), // 페이지네이션 한계
+      offset: offset,
+      loggin: console.log // 페이지네이션 오프셋
     });
 
-    console.log(diary);
-    res.json(diary);
+    res.json({ data: { diary, totalDiaries } }); // 결과 반환
   } catch (error) {
-    console.error('Error sorting diary:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    console.error('Error sorting diary:', error); // 오류 로그
+    res.status(500).json({ message: 'Internal Server Error' }); // 오류 응답
   }
 };
 
@@ -178,11 +208,12 @@ exports.sortWeeklyViews = async (req, res) => {
     if (board_id) {
       whereCondition.board_id = board_id; // board_id 필터 추가
     }
+    const totalDiaries = await Diary.count({ where: whereCondition });
 
     const diary = await Diary.findAll({
       where: whereCondition,
       include: [
-        { model: User, attributes: ['sign_id'] },
+        { model: User, attributes: ['sign_id','user_nick'] },
         { model: Board, attributes: ['board_name'] },
       ],
       order: [['view_count', 'DESC']],
@@ -190,8 +221,7 @@ exports.sortWeeklyViews = async (req, res) => {
       offset: offset,
     });
 
-    console.log(diary);
-    res.json(diary);
+    res.json({data: {diary,totalDiaries}});
   } catch (error) {
     console.error('Error sorting weekly views:', error);
     res.status(500).json({ message: 'Internal Server Error' });
@@ -200,7 +230,7 @@ exports.sortWeeklyViews = async (req, res) => {
 
 
 // 주간 좋아요 정렬
-exports.sortWeeklyViews = async (req, res) => {
+exports.sortWeeklyLikes = async (req, res) => {
   try {
     const { page = 1, limit = 15, board_id } = req.query; // board_id 쿼리 추가
     const offset = (page - 1) * limit;
@@ -221,20 +251,20 @@ exports.sortWeeklyViews = async (req, res) => {
     if (board_id) {
       whereCondition.board_id = board_id; // board_id 필터 추가
     }
-
+    const totalDiaries = await Diary.count({ where: whereCondition });
     const diary = await Diary.findAll({
       where: whereCondition,
       include: [
-        { model: User, attributes: ['sign_id'] },
+        { model: User, attributes: ['sign_id','user_nick'] },
         { model: Board, attributes: ['board_name'] },
       ],
-      order: [['view_count', 'DESC']],
+      order: [['like_count', 'DESC']],
       limit: parseInt(limit),
       offset: offset,
     });
 
-    console.log(diary);
-    res.json(diary);
+    
+    res.json({data: {diary,totalDiaries}});
   } catch (error) {
     console.error('Error sorting weekly views:', error);
     res.status(500).json({ message: 'Internal Server Error' });

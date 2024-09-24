@@ -45,7 +45,7 @@ class Diary extends Sequelize.Model {
           defaultValue: 0,
         },
         post_photo: {
-          type: Sequelize.STRING(255),
+          type: Sequelize.TEXT,
           allowNull: true,
           defaultValue: 0,
         },

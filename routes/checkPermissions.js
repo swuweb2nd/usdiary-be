@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const checkPermissions = require('../middleware/checkPermissions');
+const checkPermissions = require('../middlewares/checkPermissions');
 const membership = require('../controllers/membership');
 
 // 반대 페이지 조회 권한 체크

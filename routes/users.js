@@ -18,9 +18,7 @@ router.get('/login/google', getLoginPage);
 router.get('/login/google/callback', googleCallback);
 
 
-router.get('/check-permissions', checkPermissions('canViewOppositePage'), (req, res) => {
-    res.json({ canAccess: true });
-  });
+
   
 
 module.exports = router;

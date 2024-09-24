@@ -115,7 +115,7 @@ exports.findPwd = async (req, res) => {
         const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
 
         await user.update({ user_pwd: hashedPassword });
-
+        console.log(temporaryPassword)
         res.status(200).json({
             message: `${user_name}님의 임시 비밀번호입니다. 로그인 후 비밀번호를 변경해주세요.`,
             data: { temporaryPassword }
