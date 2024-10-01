@@ -75,3 +75,23 @@ exports.createReport = async (req, res) => {
         res.status(500).json({ error: 'An error occurred while creating the Report' });
     }
 };
+
+// 신고 목록 조회 (최신순)
+exports.reportList = async (res) => {
+    try {
+        const { page = 1, limit = 10 } = req.query; // 페이지와 항목 수 받아옴
+        const offset = (page - 1) * limit;
+
+        const report = await Report.findAll({
+            order: [['createdAt', 'DESC']],
+            limit: parseInt(limit), // 항목 수 제한
+            offset: offset, // 시작 지점 설정
+        });
+
+        console.log(report);
+        res.json(report);
+    } catch (error) {
+        console.error('Error listing Reports:', error);
+        res.status(500).json({ error: 'An error occurred while listing Reports' });
+    }
+}
