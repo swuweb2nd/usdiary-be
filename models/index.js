@@ -55,6 +55,7 @@ db.Tier = Tier;
 db.Condition = Condition;
 db.TierLog = TierLog;
 db.UserCondition = UserCondition;
+db.Report = Report;
 db.sequelize = sequelize;
 
 
@@ -112,13 +113,9 @@ TierLog.associate(db);
 UserCondition.associate(db);
 Report.associate(db)
 
+Report.initiate(sequelize);
+Report.associate(db);
 
-(async () => {
-    try {
-      await sequelize.sync({ alter: true }); // alter: true는 테이블을 수정함
-      console.log('Database synchronized successfully.');
-    } catch (error) {
-      console.error('Error synchronizing database:', error);
-    }
-  })();
+
+
 module.exports = db;
