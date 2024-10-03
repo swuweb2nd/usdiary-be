@@ -257,13 +257,11 @@ exports.googleCallback = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
-<<<<<<< HEAD
 // controllers/permissionsController.js
 exports.checkOppositePagePermission = (req, res) => {
     res.json({ canAccess: true });
   };
   
-=======
 
 // 로그아웃
 exports.logout = (req, res) => {
@@ -277,4 +275,3 @@ exports.logout = (req, res) => {
         res.status(500).json({ message: '서버 오류가 발생했습니다.' });
     }
 };
->>>>>>> f3b0e2d7a113de20a1a7fb770d4893a7aede538d
