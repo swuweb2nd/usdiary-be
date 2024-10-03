@@ -5,7 +5,7 @@ const morgan = require('morgan');
 const swaggerUi = require("swagger-ui-express");
 const swaggerFile = require('./swagger/swagger-output.json')
 const cors = require('cors');
-
+const permissionRoutes = require('./routes/checkPermissions');
 const diaryRoutes = require('./routes/diary');
 const userRoutes = require('./routes/users'); 
 const registerRoutes = require('./routes/register'); 
@@ -52,6 +52,7 @@ app.use('/register', registerRoutes);
 app.use('/diaries', commentRoutes);
 app.use('/contents', contentRoutes);
 app.use('/friends', friendRoutes);
+app.use('/checkPermissions', permissionRoutes);
 app.use('/mypages', mypageRoutes);
 app.use('/like', likeRoutes);
 app.use('/points', pointRoutes)

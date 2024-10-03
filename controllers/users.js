@@ -115,7 +115,7 @@ exports.findPwd = async (req, res) => {
         const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
 
         await user.update({ user_pwd: hashedPassword });
-
+        console.log(temporaryPassword)
         res.status(200).json({
             message: `${user_name}님의 임시 비밀번호입니다. 로그인 후 비밀번호를 변경해주세요.`,
             data: { temporaryPassword }
@@ -257,6 +257,13 @@ exports.googleCallback = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+<<<<<<< HEAD
+// controllers/permissionsController.js
+exports.checkOppositePagePermission = (req, res) => {
+    res.json({ canAccess: true });
+  };
+  
+=======
 
 // 로그아웃
 exports.logout = (req, res) => {
@@ -270,3 +277,4 @@ exports.logout = (req, res) => {
         res.status(500).json({ message: '서버 오류가 발생했습니다.' });
     }
 };
+>>>>>>> f3b0e2d7a113de20a1a7fb770d4893a7aede538d

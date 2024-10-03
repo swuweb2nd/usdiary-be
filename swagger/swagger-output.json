@@ -1189,6 +1189,15 @@
               "type": "integer",
               "default": 15
             }
+          },
+          {
+            "name": "board_id",
+            "in": "query",
+            "description": "필터링할 게시판 ID",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -1236,6 +1245,15 @@
               "type": "integer",
               "default": 15
             }
+          },
+          {
+            "name": "board_id",
+            "in": "query",
+            "description": "필터링할 게시판 ID",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -1279,6 +1297,15 @@
             "schema": {
               "type": "integer",
               "default": 15
+            }
+          },
+          {
+            "name": "board_id",
+            "in": "query",
+            "description": "필터링할 게시판 ID",
+            "required": false,
+            "schema": {
+              "type": "integer"
             }
           }
         ],

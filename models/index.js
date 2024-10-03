@@ -21,6 +21,13 @@ const QnA = require("./qna");
 const Answer = require("./answer");
 const PointCriteria = require('./point_criteria');
 const Report = require("./report");
+const Tier= require("./tier");
+const TierLog = require("./tierlog");
+const Condition = require("./condition");
+const UserCondition = require("./usercondition");
+
+
+
 
 
 const db = {};
@@ -44,7 +51,17 @@ db.PointCriteria = PointCriteria;
 db.Profile = Profile;
 db.QnA = QnA;
 db.Answer = Answer;
-db.Report = Report;
+db.Tier = Tier;
+db.Condition = Condition;
+db.TierLog = TierLog;
+db.UserCondition = UserCondition;
+db.sequelize = sequelize;
+
+
+
+
+// 관계 설정
+
 
 
 User.initiate(sequelize)
@@ -64,6 +81,10 @@ PointCriteria.initiate(sequelize);
 Profile.initiate(sequelize);
 QnA.initiate(sequelize);
 Answer.initiate(sequelize);
+Tier.initiate(sequelize);
+Condition.initiate(sequelize);
+TierLog.initiate(sequelize);
+UserCondition.initiate(sequelize);
 Report.initiate(sequelize);
 
 
@@ -85,8 +106,19 @@ Point.associate(db)
 Profile.associate(db)
 QnA.associate(db)
 Answer.associate(db)
+Tier.associate(db);
+Condition.associate(db);
+TierLog.associate(db);
+UserCondition.associate(db);
 Report.associate(db)
 
 
-
+(async () => {
+    try {
+      await sequelize.sync({ alter: true }); // alter: true는 테이블을 수정함
+      console.log('Database synchronized successfully.');
+    } catch (error) {
+      console.error('Error synchronizing database:', error);
+    }
+  })();
 module.exports = db;
