@@ -1,6 +1,8 @@
 const Diary = require('../models/diary');
 const User = require('../models/user');
 const Board = require('../models/board');
+const { gainPoints } = require('../controllers/point'); 
+const dayjs = require('dayjs');
 
 //특정 사용자 일기 조회
 // handlers.js
@@ -69,6 +71,24 @@ exports.createDiary = async (req, res) => {
         sign_id: signId // JWT에서 가져온 sign_id 사용
     });
 
+  // 기본 활동에 대한 포인트 추가
+  await gainPoints(req, res, '글쓰기');
+
+  // 연속 작성일 경우 추가 포인트
+  const lastDiary = await Diary.findOne({
+    where: { sign_id: signId },
+    order: [['createdAt', 'DESC']],
+  });
+
+  if (lastDiary && dayjs().diff(dayjs(lastDiary.createdAt), 'day') === 1) {
+    await gainPoints(req, res, '연속 글 쓰기');
+  }
+
+  // 사진이 3장 이상이면 추가 포인트
+  if (req.files && req.files.length >= 3) {
+    await gainPoints(req, res, '일기에 사진 3장 이상 첨부 시');
+  }
+
     res.status(201).json({
         message: 'Diary created successfully',
         data: newDiary
@@ -78,6 +98,8 @@ exports.createDiary = async (req, res) => {
     res.status(500).json({ error: 'An error occurred while creating the diary' });
   }
 };
+
+// 일기 수정
 exports.updateDiary = async (req, res) => {
     const { diary_id } = req.params;
     const signId = res.locals.decoded.sign_id; // JWT에서 사용자 sign_id 가져오기

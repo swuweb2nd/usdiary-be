@@ -257,8 +257,24 @@ exports.googleCallback = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+<<<<<<< HEAD
 // controllers/permissionsController.js
 exports.checkOppositePagePermission = (req, res) => {
     res.json({ canAccess: true });
   };
   
+=======
+
+// 로그아웃
+exports.logout = (req, res) => {
+    try {
+        // 쿠키에 저장된 토큰을 삭제하는 경우
+        res.clearCookie('token'); 
+
+        res.status(200).json({ message: '성공적으로 로그아웃되었습니다.' });
+    } catch (error) {
+        console.error('로그아웃 처리 중 오류 발생:', error);
+        res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+    }
+};
+>>>>>>> f3b0e2d7a113de20a1a7fb770d4893a7aede538d

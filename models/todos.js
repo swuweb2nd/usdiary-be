@@ -10,6 +10,10 @@ class Todo extends Sequelize.Model {
           primaryKey: true,
           autoIncrement: true
         },
+        todo_title: {
+          type: Sequelize.TEXT,
+          allowNull: false,
+        },
         description: {
           type: Sequelize.TEXT,
           allowNull: true,

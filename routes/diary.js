@@ -10,7 +10,7 @@
 const express = require('express');
 const router = express.Router();
 const upload = require('../multer/multer'); // multer 설정 가져오기
-const { sortDiary, sortWeeklyViews, sortWeeklyLikes, renderDiary,createDiary,updateDiary, deleteDiary } = require('../controllers/diary');
+const { sortDiary, sortWeeklyViews, sortWeeklyLikes, renderDiary,createDiary,updateDiary,getDiariesByDate,deleteDiary } = require('../controllers/diary');
 const { verifyToken } = require('../middlewares/jwt');
 
 // 일기 목록 페이지 렌더링 (최신순)

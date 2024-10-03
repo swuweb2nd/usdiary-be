@@ -9,23 +9,24 @@ class Point extends Sequelize.Model {
           allowNull: false,
           primaryKey: true,
           autoIncrement: true
-
         },
         point_num: {
           type: Sequelize.BIGINT,
           allowNull: false,
           defaultValue: 0
         },
-        point_con: {
-          type: Sequelize.STRING(255),
+        criteria_id: {  // PointCriteria 테이블과 연계
+          type: Sequelize.BIGINT,
           allowNull: false,
+          references: {
+            model: 'PointCriteria',
+            key: 'criteria_id',
+          },
         },
         user_id: {
           type: Sequelize.BIGINT,
           allowNull: false,
           primaryKey: true,
-         
-
         }
       },
       {
@@ -40,17 +41,11 @@ class Point extends Sequelize.Model {
       }
     );
   }
-  
 
-  // User와 Point 간의 1:n 관계 설정
-    static associate(db) { // DB 관계설정
-      db.Point.belongsTo(db.User, {
-        foreignKey: "user_id",
-        sourceKey: "user_id",
-        onDelete: "CASCADE",
-      });
-    }
-    
+  static associate(db) {
+    db.Point.belongsTo(db.User, { foreignKey: "user_id", sourceKey: "user_id", onDelete: "CASCADE" });
+    db.Point.belongsTo(db.PointCriteria, { foreignKey: "criteria_id", sourceKey: "criteria_id" });
+  }
 }
 
 module.exports = Point;

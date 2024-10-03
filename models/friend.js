@@ -19,11 +19,10 @@ class Friend extends Sequelize.Model {
           type: Sequelize.BIGINT,  // 팔로잉되는 유저의 sign_id
           allowNull: false,
         },
-        relationship: {
-          type: Sequelize.BOOLEAN, 
-          allowNull: true,
+        status: {
+          type: Sequelize.ENUM("pending", "rejected", "accepted", "removed"), // 요청 중, 거절, 친구 수락, 친구 삭제
+          allowNull: true, // 기본값 없이 null 허용
         },
-
       },
       {
         sequelize,

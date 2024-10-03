@@ -76,7 +76,7 @@ exports.verifyCode = async (req, res) => {
 
 // 회원 가입
 exports.register = async (req, res) => {
-    const { sign_id, user_nick, user_email, user_pwd, user_name, verificationCode, confirmPassword, phone, user_birthday, user_gender } = req.body;
+    const { sign_id, user_phone, user_nick, user_email, user_pwd, user_name, verificationCode, confirmPassword, phone, user_birthday, user_gender } = req.body;
 
     if (!sign_id || !user_nick || !user_email || !user_pwd || !user_name  || !phone || !user_birthday || !user_gender) {
         return res.status(400).json({ message: '모든 필드를 입력해야 합니다.' });
@@ -112,6 +112,7 @@ exports.register = async (req, res) => {
             user_pwd: hashedPassword,
             user_email: user_email,
             user_name: user_name,
+            user_phone: user_phone,
             user_gender: user_gender === 'male' ? true : false,
             user_birthday: new Date(user_birthday),
             verificationToken: crypto.randomBytes(32).toString('hex'),
@@ -177,4 +178,3 @@ exports.checkNickname = async (req, res) => {
         res.status(500).json({ message: '서버 오류가 발생했습니다.', error: error.message });
     }
 };
-

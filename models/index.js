@@ -18,11 +18,17 @@ const Notification = require("./notification");
 const Point = require("./point");
 const Profile = require("./profile");
 const QnA = require("./qna");
-const Answer = require("./anwer");
-const Tier = require('./tier');
-const Condition = require('./condition');
-const TierLog = require('./tierlog');
-const UserCondition = require('./usercondition');
+const Answer = require("./answer");
+const PointCriteria = require('./point_criteria');
+const Report = require("./report");
+const Tier= require("./tier");
+const TierLog = require("./tierlog");
+const Condition = require("./condition");
+const UserCondition = require("./usercondition");
+
+
+
+
 
 const db = {};
 
@@ -41,6 +47,7 @@ db.Friend = Friend;
 db.Like = Like;
 db.Notification = Notification;
 db.Point = Point;
+db.PointCriteria = PointCriteria;
 db.Profile = Profile;
 db.QnA = QnA;
 db.Answer = Answer;
@@ -70,6 +77,7 @@ Like.initiate(sequelize);
 Notification.initiate(sequelize);
 Admin.initiate(sequelize);
 Point.initiate(sequelize);
+PointCriteria.initiate(sequelize);
 Profile.initiate(sequelize);
 QnA.initiate(sequelize);
 Answer.initiate(sequelize);
@@ -77,6 +85,8 @@ Tier.initiate(sequelize);
 Condition.initiate(sequelize);
 TierLog.initiate(sequelize);
 UserCondition.initiate(sequelize);
+Report.initiate(sequelize);
+
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
@@ -100,7 +110,7 @@ Tier.associate(db);
 Condition.associate(db);
 TierLog.associate(db);
 UserCondition.associate(db);
-
+Report.associate(db)
 
 
 (async () => {

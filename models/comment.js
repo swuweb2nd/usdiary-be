@@ -40,6 +40,7 @@ class Comment extends Sequelize.Model {
   static associate(db) {
     db.Comment.belongsTo(db.Diary, { foreignKey: "diary_id", targetKey: "diary_id" });  //(1:N)하나의 다이어리에 여러 개의 코멘트가 있을 수 있음
     db.Comment.belongsTo(db.User, { foreignKey: "user_id", targetKey: "user_id" }); //(N:1)여러 코멘트가 하나의 사용자에 의해 작성될 수 있음
+    db.Comment.hasMany(db.Report, { foreignKey: "comment_id", sourceKey: "comment_id", onDelete: "CASCADE"});
   }
     }
     

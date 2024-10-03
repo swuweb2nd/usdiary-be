@@ -9,13 +9,11 @@ class User extends Sequelize.Model {
           allowNull: false,
           primaryKey: true,
           autoIncrement: true
-
         },
         sign_id: {
           type: Sequelize.STRING(255),
           allowNull: false,
           unique: true,
-
         },
         user_pwd: {
           type: Sequelize.STRING(255),
@@ -25,7 +23,13 @@ class User extends Sequelize.Model {
           type: Sequelize.STRING(255),
           allowNull: false,
         },
-
+        user_phone:{
+          type: Sequelize.STRING(15),
+          allowNull: false,
+          validate: {
+            is: /^[0-9]{3}-[0-9]{4}-[0-9]{4}$/ 
+          }
+        },
         user_gender: {
           type: Sequelize.BOOLEAN,
           allowNull: false,
@@ -93,16 +97,24 @@ class User extends Sequelize.Model {
       db.User.hasMany(db.TodayAnswer, {foreignKey: "user_id",sourceKey: "user_id", onDelete: "CASCADE"});
       db.User.hasMany(db.Point, {foreignKey: "user_id",sourceKey: "user_id", onDelete: "CASCADE"});
       db.User.hasMany(db.Routine, {foreignKey: "user_id",sourceKey: "user_id", onDelete: "CASCADE"});
+      db.User.hasOne(db.Profile, {foreignKey: 'user_id',sourceKey: 'user_id', onDelete: 'CASCADE',});
       // 이 유저가 팔로우하는 다른 유저들 (팔로잉 관계)
       db.User.belongsToMany(db.User, {through: db.Friend, foreignKey: 'follower_id', as: 'Following',otherKey: 'following_id'});
       // 이 유저를 팔로우하는 유저들 (팔로워 관계)
       db.User.belongsToMany(db.User, { through: db.Friend, foreignKey: 'following_id',as: 'Followers',otherKey: 'follower_id', });
+<<<<<<< HEAD
       db.User.belongsTo(db.Tier, { foreignKey: 'tier_id', targetKey: 'tier_id' });
        // User는 여러 UserCondition을 가질 수 있음
       db.User.hasMany(db.UserCondition, { foreignKey: "user_id", sourceKey: "user_id" });
 
       // User는 여러 TierLog를 가질 수 있음
       db.User.hasMany(db.TierLog, { foreignKey: "user_id", sourceKey: "user_id" });
+=======
+      // 유저가 여러 번 신고할 수 있음 (Reporter)
+      db.User.hasMany(db.Report, { foreignKey: "reporter_id", sourceKey: "user_id", onDelete: "CASCADE" });
+      // 유저가 여러 번 신고당할 수 있음 (Reported)
+      db.User.hasMany(db.Report, { foreignKey: "reported_id", sourceKey: "user_id", onDelete: "CASCADE" });
+>>>>>>> f3b0e2d7a113de20a1a7fb770d4893a7aede538d
     }
 
     
