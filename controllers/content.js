@@ -2,7 +2,7 @@ const Routine = require('../models/routine');
 const Todo  = require('../models/todos'); 
 const TodayQuestion = require('../models/today_questions'); 
 const TodayAnswer = require('../models/today_answers'); 
-
+const TodayPlace = require('../models/today_places'); 
 
 // Todo 
 const MAX_TODOS_PER_DIARY = 5
@@ -11,7 +11,6 @@ exports.createTodo = async (req, res) => {
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
 
     try {
-       
         const todoCount = await Todo.count({
             where: { diary_id: diary_id }
         });
@@ -136,7 +135,6 @@ exports.createRoutine = async (req, res) => {
             where: { sign_id: signId }
         });
 
-       
         if (routineCount > MAX_ROUTINES_PER_USER-1) {
             return res.status(400).json({
                 message: `You can only create up to ${MAX_ROUTINES_PER_USER} routines.`
@@ -164,7 +162,7 @@ exports.getRoutine = async (req, res) => {
     const { routine_id } = req.params;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
 
-   try {
+    try {
         const routine = await Routine.findOne({
             where: {
                 routine_id,
@@ -358,5 +356,116 @@ exports.deleteAnswer = async (req, res) => {
     } catch (error) {
         console.error('답변 삭제 중 오류 발생:', error);
         res.status(500).json({ message: '답변 삭제에 실패했습니다.' });
+    }
+};
+
+//TodayPlace 등록
+exports.createPlace = async (req, res) => {
+    const { today_mood, place_memo } = req.body;
+    const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
+
+    try {
+        const newPlace = await TodayPlace.create({
+            today_mood,
+            place_memo,
+            user_id: signId // 사용자의 sign_id 추가
+        });
+
+        res.status(201).json({
+            message: '오늘의 장소가 성공적으로 생성되었습니다.',
+            data: newPlace
+        });
+    } catch (error) {
+        console.error('장소 생성 중 오류 발생:', error);
+        res.status(500).json({ error: '장소 생성 중 오류가 발생했습니다.' });
+    }
+};
+
+// TodayPlace 조회
+exports.getPlace = async (req, res) => {
+    const { place_id } = req.params;
+    const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
+
+    try {
+        const place = await TodayPlace.findOne({
+            where: {
+                place_id,
+                user_id: signId // 사용자 sign_id로 필터링
+            }
+        });
+
+        if (!place) {
+            return res.status(404).json({ message: '장소를 찾을 수 없습니다.' });
+        }
+
+        res.status(200).json({
+            message: '장소 조회에 성공했습니다.',
+            data: place
+        });
+    } catch (error) {
+        console.error('장소 조회 중 오류 발생:', error);
+        res.status(500).json({ error: '장소 조회 중 오류가 발생했습니다.' });
+    }
+};
+
+// TodayPlace 수정
+exports.updatePlace = async (req, res) => {
+    const { place_id } = req.params;
+    const { today_mood, place_memo } = req.body;
+    const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
+
+    try {
+        const place = await TodayPlace.findOne({
+            where: {
+                place_id,
+                user_id: signId // 사용자 sign_id로 필터링
+            }
+        });
+
+        if (!place) {
+            return res.status(404).json({ message: '장소를 찾을 수 없습니다.' });
+        }
+
+        // 필드 업데이트
+        place.today_mood = today_mood !== undefined ? today_mood : place.today_mood;
+        place.place_memo = place_memo !== undefined ? place_memo : place.place_memo;
+
+        await place.save();
+
+        res.status(200).json({
+            message: '장소가 성공적으로 수정되었습니다.',
+            data: place
+        });
+    } catch (error) {
+        console.error('장소 수정 중 오류 발생:', error);
+        res.status(500).json({ error: '장소 수정 중 오류가 발생했습니다.' });
+    }
+};
+
+// TodayPlace 삭제
+exports.deletePlace = async (req, res) => {
+    const { place_id } = req.params;
+    const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
+
+    try {
+        const place = await TodayPlace.findOne({
+            where: {
+                place_id,
+                user_id: signId // 사용자 sign_id로 필터링
+            }
+        });
+
+        if (!place) {
+            return res.status(404).json({ message: '장소를 찾을 수 없습니다.' });
+        }
+
+        await place.destroy();
+
+        res.status(200).json({
+            message: '장소가 성공적으로 삭제되었습니다.'
+        });
+    } catch (error) {
+        console.error('장소 삭제 중 오류 발생:', error);
+        res.status(500).json({ error: '장소 삭제 중 오류가 발생했습니다.' });
     }
 };

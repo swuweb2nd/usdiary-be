@@ -76,9 +76,9 @@ exports.verifyCode = async (req, res) => {
 
 // 회원 가입
 exports.register = async (req, res) => {
-    const { sign_id, user_phone, user_nick, user_email, user_pwd, user_name, verificationCode, confirmPassword, phone, user_birthday, user_gender } = req.body;
+    const { sign_id, user_phone, user_nick, user_email, user_pwd, user_name, verificationCode, confirmPassword, user_birthday, user_gender } = req.body;
 
-    if (!sign_id || !user_nick || !user_email || !user_pwd || !user_name  || !phone || !user_birthday || !user_gender) {
+    if (!sign_id || !user_nick || !user_email || !user_pwd || !user_name  || !user_phone || !user_birthday || !user_gender) {
         return res.status(400).json({ message: '모든 필드를 입력해야 합니다.' });
     }
 

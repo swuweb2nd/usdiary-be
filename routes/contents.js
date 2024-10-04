@@ -3,7 +3,8 @@ const router = express.Router();
 const { createTodo,getTodo,updateTodo,deleteTodo,
         createRoutine,getRoutine,updateRoutine,deleteRoutine,
         createQuestion,
-        createAnswer, updateAnswer,deleteAnswer
+        createAnswer, updateAnswer,deleteAnswer,
+        createPlace, getPlace, updatePlace, deletePlace
       }= require('../controllers/content');
 const { verifyToken } = require('../middlewares/jwt');
 
@@ -25,5 +26,11 @@ router.post('/questions', verifyToken, createQuestion);
 router.post('/questions/:question_id/answers', verifyToken, createAnswer);
 router.patch('/questions/:question_id/answers/:answer_id', verifyToken, updateAnswer);
 router.delete('/questions/:question_id/answers/:answer_id', verifyToken, deleteAnswer);
+
+//TodayPlace
+router.post('/places', verifyToken, createPlace);
+router.get('/places/:place_id', verifyToken, getPlace);
+router.patch('/places/:place_id', verifyToken, updatePlace);
+router.delete('/places/:place_id', verifyToken, deletePlace);
 
 module.exports = router;
