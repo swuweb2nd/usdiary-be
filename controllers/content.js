@@ -3,14 +3,21 @@ const Todo  = require('../models/todos');
 const TodayQuestion = require('../models/today_questions'); 
 const TodayAnswer = require('../models/today_answers'); 
 const TodayPlace = require('../models/today_places'); 
+const { gainPoints } = require('../controllers/point'); 
+const { Op } = require("sequelize");
+const dayjs = require('dayjs');
 
 // Todo 
 const MAX_TODOS_PER_DIARY = 5
 exports.createTodo = async (req, res) => {
     const { diary_id, description, is_completed } = req.body;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
+    const today = dayjs().startOf('day').toDate(); // 오늘 날짜 기준
 
     try {
+        // 오늘 이미 Todo나 Routine을 생성했는지 확인
+        const hasActivityToday = await checkDailyActivity(signId);
+
         const todoCount = await Todo.count({
             where: { diary_id: diary_id }
         });
@@ -29,6 +36,11 @@ exports.createTodo = async (req, res) => {
             diary_id,
             sign_id: signId // 사용자 sign_id 추가
         });
+
+        // 포인트 획득: 오늘 처음 생성한 경우에만 포인트 추가
+        if (!hasActivityToday) {
+            await gainPoints(req, res, '콘텐츠 사용', 1);
+        }
 
         res.status(201).json({
             message: 'Todo created successfully',
@@ -129,8 +141,12 @@ const MAX_ROUTINES_PER_USER = 3; //루틴 개수 제한
 
 exports.createRoutine = async (req, res) => {
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
+    const today = dayjs().startOf('day').toDate(); // 오늘 날짜 기준
+
     try {
-        
+        // 오늘 이미 Todo나 Routine을 생성했는지 확인
+        const hasActivityToday = await checkDailyActivity(signId);
+
         const routineCount = await Routine.count({
             where: { sign_id: signId }
         });
@@ -149,6 +165,11 @@ exports.createRoutine = async (req, res) => {
             sign_id: signId,
         });
 
+        // 포인트 획득: 오늘 처음 생성한 경우에만 포인트 추가
+        if (!hasActivityToday) {
+            await gainPoints(req, res, '콘텐츠 사용', 1);
+        }
+                
         res.status(201).json({
             message: 'Routine created successfully',
             data: newRoutine
@@ -277,6 +298,9 @@ exports.createAnswer = async (req, res) => {
             answer_text,
             sign_id: signId
         });
+        
+        // 포인트 획득
+        await gainPoints(req, res, '콘텐츠 사용', 1);
 
         res.status(201).json({
             message: '답변이 등록되었습니다.',
@@ -370,6 +394,9 @@ exports.createPlace = async (req, res) => {
             place_memo,
             user_id: signId // 사용자의 sign_id 추가
         });
+
+        // 포인트 획득
+        await gainPoints(req, res, '콘텐츠 사용', 1);
 
         res.status(201).json({
             message: '오늘의 장소가 성공적으로 생성되었습니다.',

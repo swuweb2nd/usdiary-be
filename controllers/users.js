@@ -31,7 +31,7 @@ exports.login = async (req, res) => {
         }
 
         console.log('Password validated successfully.');
-               
+
          // 로그인 성공 시 최근 접속일 업데이트
         await user.update({ last_login: new Date() });
         const token = jwt.sign(
@@ -257,14 +257,10 @@ exports.googleCallback = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
-<<<<<<< HEAD
 // controllers/permissionsController.js
 exports.checkOppositePagePermission = (req, res) => {
     res.json({ canAccess: true });
-  };
-  
-=======
-
+};
 // 로그아웃
 exports.logout = (req, res) => {
     try {
@@ -277,4 +273,3 @@ exports.logout = (req, res) => {
         res.status(500).json({ message: '서버 오류가 발생했습니다.' });
     }
 };
->>>>>>> f3b0e2d7a113de20a1a7fb770d4893a7aede538d
