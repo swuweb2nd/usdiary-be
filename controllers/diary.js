@@ -65,8 +65,6 @@ exports.createDiary = async (req, res) => {
         diary_cate: req.body.diary_cate,
         access_level: req.body.access_level,
         board_id: req.body.board_id,
-        diary_emotion: req.body.diary_emotion,
-        cate_num: req.body.cate_num,
         post_photo:  JSON.stringify(postPhotos),
         sign_id: signId // JWT에서 가져온 sign_id 사용
     });
@@ -108,9 +106,7 @@ exports.updateDiary = async (req, res) => {
       diary_title,
       diary_content,
       diary_cate,
-      access_level,
-      diary_emotion,
-      cate_num,
+      access_level
     } = req.body;
     
     try {
@@ -130,8 +126,6 @@ exports.updateDiary = async (req, res) => {
         diary_content: diary_content || diary.diary_content,
         diary_cate: diary_cate || diary.diary_cate,
         access_level: access_level || diary.access_level,
-        diary_emotion: diary_emotion || diary.diary_emotion,
-        cate_num: cate_num || diary.cate_num,
         post_photo:  JSON.stringify(postPhotos),
       });
   

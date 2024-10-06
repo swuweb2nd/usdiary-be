@@ -26,7 +26,7 @@ router.get('/:diary_id', verifyToken, renderDiary);
 
 // sign_id를 URL 파라미터로 받도록 설정
 router.post('/',verifyToken, uploadMultiple, createDiary);
-router.patch('/:diary_id', verifyToken, uploadMultiple,updateDiary);
+router.patch('/:diary_id', verifyToken, uploadMultiple, updateDiary);
 
 //일기 삭제
 router.delete('/:diary_id', verifyToken, deleteDiary);

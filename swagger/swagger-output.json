@@ -3437,15 +3437,6 @@
             "type": "string",
             "description": "게시물 사진 URL"
           },
-          "diary_emotion": {
-            "type": "string",
-            "description": "감정"
-          },
-          "cate_num": {
-            "type": "integer",
-            "format": "int64",
-            "description": "카테고리 번호"
-          },
           "createdAt": {
             "type": "string",
             "format": "date-time",
@@ -3492,15 +3483,6 @@
             "format": "int64",
             "description": "게시판 ID"
           },
-          "diary_emotion": {
-            "type": "string",
-            "description": "감정"
-          },
-          "cate_num": {
-            "type": "integer",
-            "format": "int64",
-            "description": "카테고리 번호"
-          },
           "post_photo": {
             "type": "string",
             "format": "binary",
@@ -3527,16 +3509,6 @@
           "access_level": {
             "type": "integer",
             "description": "접근 수준 (0: public, 1: private, 2: friend)"
-          },
-
-          "diary_emotion": {
-            "type": "string",
-            "description": "감정"
-          },
-          "cate_num": {
-            "type": "integer",
-            "format": "int64",
-            "description": "카테고리 번호"
           },
           "post_photo": {
             "type": "string",
