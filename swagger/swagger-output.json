@@ -2059,7 +2059,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AnswerResponse"
+                  "$ref": "#/components/schemas/Answer"
                 }
               }
             }
@@ -2112,7 +2112,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AnswerResponse"
+                  "$ref": "#/components/schemas/Answer"
                 }
               }
             }
@@ -2182,7 +2182,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UpdateAnswerSuccessResponse"
+                  "$ref": "#/components/schemas/Answer"
                 }
               }
             }
@@ -2991,6 +2991,36 @@
           ]
         }
       },
+      "/points/criteria/all": {
+        "get": {
+          "summary": "포인트 기준 조회",
+          "tags": ["Points"],
+          "description": "관리자가 등록한 모든 포인트 기준을 조회합니다.",
+          "responses": {
+            "200": {
+              "description": "포인트 기준이 성공적으로 조회되었습니다.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/PointCriteria"
+                    }
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ]
+        }
+      },
       "/points/criteria/{criteria_id}": {
         "patch": {
           "summary": "포인트 기준 수정",
@@ -3661,28 +3691,6 @@
           }
         }
       },
-      "CreateAnswerRequest": {
-        "type": "object",
-        "properties": {
-          "answer_text": {
-            "type": "string",
-            "description": "생성할 답변의 텍스트",
-            "example": "오늘의 질문에 대한 답변입니다."
-          }
-        },
-        "required": ["answer_text"]
-      },
-      "UpdateAnswerRequest": {
-        "type": "object",
-        "properties": {
-          "answer_text": {
-            "type": "string",
-            "description": "수정할 답변의 텍스트",
-            "example": "수정된 답변 내용입니다."
-          }
-        },
-        "required": ["answer_text"]
-      },
       "QuestionResponse": {
         "type": "object",
         "properties": {
@@ -3715,46 +3723,42 @@
           }
         }
       },
-      "AnswerResponse": {
+      "Answer": {
         "type": "object",
         "properties": {
-          "message": {
-            "type": "string",
-            "description": "응답 메시지",
-            "example": "답변이 등록되었습니다."
+          "answer_id": {
+            "type": "integer",
+            "description": "답변 ID"
           },
-          "data": {
-            "type": "object",
-            "properties": {
-              "answer_id": {
-                "type": "integer",
-                "description": "생성된 답변의 ID"
-              },
-              "question_id": {
-                "type": "integer",
-                "description": "답변이 속한 질문의 ID"
-              },
-              "answer_text": {
-                "type": "string",
-                "description": "답변의 텍스트"
-              },
-              "sign_id": {
-                "type": "integer",
-                "description": "답변을 작성한 사용자의 ID"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time",
-                "description": "답변이 생성된 시간"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time",
-                "description": "답변이 수정된 시간"
-              }
-            }
+          "question_id": {
+            "type": "integer",
+            "description": "질문 ID"
+          },
+          "sign_id": {
+            "type": "integer",
+            "description": "사용자 ID"
+          },
+          "answer_text": {
+            "type": "string",
+            "description": "답변 텍스트"
+          },
+          "answer_photo": {
+            "type": "string",
+            "format": "binary",
+            "description": "첨부된 답변 사진 경로"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "답변 생성 날짜"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "답변 수정 날짜"
           }
-        }
+        },
+        "required": ["answer_id", "question_id", "sign_id", "answer_text"]
       },
       "Place": {
         "type": "object",
@@ -3795,15 +3799,6 @@
             "format": "date-time",
             "description": "장소 수정 시간",
             "example": "2023-09-24T13:00:00Z"
-          }
-        }
-      },
-      "UpdateAnswerSuccessResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "example": "답변이 성공적으로 수정되었습니다."
           }
         }
       },
