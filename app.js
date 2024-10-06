@@ -41,7 +41,7 @@ app.use(morgan('dev'));
 
 app.use(express.json()); // JSON 요청 파싱 미들웨어 추가
 // 정적 파일 제공 설정
-app.use('/uploads', express.static(path.join(__dirname, 'images')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 // 라우팅

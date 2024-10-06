@@ -25,7 +25,7 @@ const Tier= require("./tier");
 const TierLog = require("./tierlog");
 const Condition = require("./condition");
 const UserCondition = require("./usercondition");
-const TodayPlace = require("./today_place");
+const TodayPlace = require("./today_places");
 
 
 
