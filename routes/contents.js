@@ -3,10 +3,11 @@ const router = express.Router();
 const { createTodo,getTodo,updateTodo,deleteTodo,
         createRoutine,getRoutine,updateRoutine,deleteRoutine,
         createQuestion,
-        createAnswer, updateAnswer,deleteAnswer,
+        createAnswer, getAnswer, updateAnswer,deleteAnswer,
         createPlace, getPlace, updatePlace, deletePlace
       }= require('../controllers/content');
 const { verifyToken } = require('../middlewares/jwt');
+const { uploadSingle } = require('../middlewares/upload');
 
 // Todo 
 router.post('/todos', verifyToken, createTodo);
@@ -23,8 +24,9 @@ router.delete('/routines/:routine_id', verifyToken, deleteRoutine);
 router.post('/questions', verifyToken, createQuestion);
 
 // TodayAnswer
-router.post('/questions/:question_id/answers', verifyToken, createAnswer);
-router.patch('/questions/:question_id/answers/:answer_id', verifyToken, updateAnswer);
+router.post('/questions/:question_id/answers', verifyToken, uploadSingle, createAnswer);
+router.get('/questions/:question_id/answers/:answer_id', verifyToken, getAnswer);
+router.patch('/questions/:question_id/answers/:answer_id', verifyToken, uploadSingle, updateAnswer);
 router.delete('/questions/:question_id/answers/:answer_id', verifyToken, deleteAnswer);
 
 //TodayPlace

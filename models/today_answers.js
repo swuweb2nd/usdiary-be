@@ -13,6 +13,10 @@ class TodayAnswer extends Sequelize.Model {
         answer_text: {
           type: Sequelize.TEXT,
           allowNull: false,
+        },
+        answer_photo: {
+          type: Sequelize.TEXT, 
+          allowNull: true, // 사진은 선택사항
         }
       },
       {

@@ -6,6 +6,9 @@ const TodayPlace = require('../models/today_places');
 const { gainPoints } = require('../controllers/point'); 
 const { Op } = require("sequelize");
 const dayjs = require('dayjs');
+const { uploadSingle } = require('../middlewares/upload');
+const fs = require('fs');
+const path = require('path');
 
 // Todo 
 const MAX_TODOS_PER_DIARY = 5
@@ -282,7 +285,7 @@ exports.createQuestion = async (req, res) => {
 };
 
 // TodayAnswer 등록
-exports.createAnswer = async (req, res) => {
+exports.createAnswer = [uploadSingle, async (req, res) => {
     try {
         const { question_id } = req.params;
         const { answer_text } = req.body;
@@ -292,11 +295,14 @@ exports.createAnswer = async (req, res) => {
         if (!question) {
             return res.status(404).json({ message: '질문을 찾을 수 없습니다.' });
         }
+        // 사진 파일이 있으면 경로 저장
+        const answerPhotoPath = req.file ? req.file.path : null;
 
         const newAnswer = await TodayAnswer.create({
             question_id,
             answer_text,
-            sign_id: signId
+            sign_id: signId,
+            answer_photo: answerPhotoPath // 사진 경로 저장
         });
         
         // 포인트 획득
@@ -311,10 +317,53 @@ exports.createAnswer = async (req, res) => {
         console.error('답변 등록 중 오류 발생:', error);
         res.status(500).json({ message: 'Failed to create answer' });
     }
+}];
+// TodayAnswer 조회
+exports.getAnswer = async (req, res) => {
+    try {
+        const { question_id, answer_id } = req.params;
+        const signId = res.locals.decoded.sign_id;
+
+        // 답변 조회
+        const answer = await TodayAnswer.findOne({
+            where: {
+                answer_id,
+                question_id,
+                sign_id
+            },
+            include: [
+                {
+                    model: TodayQuestion,
+                    attributes: ['question_text']
+                },
+                {
+                    model: User,
+                    attributes: ['user_nick']
+                }
+            ]
+        });
+
+        if (!answer) {
+            return res.status(404).json({ message: '답변을 찾을 수 없습니다.' });
+        }
+
+        res.status(200).json({
+            message: '답변 조회 성공',
+            data: {
+                answer_text: answer.answer_text,
+                answer_photo: answer.answer_photo, // 사진 경로 포함
+                question: answer.TodayQuestion.question_text,
+                user_nick: answer.User.user_nick
+            }
+        });
+    } catch (error) {
+        console.error('답변 조회 중 오류 발생:', error);
+        res.status(500).json({ message: '답변 조회 중 오류가 발생했습니다.' });
+    }
 };
 
 // TodayAnswer 수정
-exports.updateAnswer = async (req, res) => {
+exports.updateAnswer = [uploadSingle, async (req, res) => {
     try {
         const { answer_id } = req.params;
         const { answer_text } = req.body;
@@ -334,7 +383,12 @@ exports.updateAnswer = async (req, res) => {
         if (answer.sign_id !== signId) {
             return res.status(403).json({ message: '이 답변을 수정할 권한이 없습니다.' });
         }
-    
+
+        // 사진 파일이 있으면 새로운 경로 저장
+        if (req.file) {
+            answer.answer_photo = req.file.path;
+        }
+
         answer.answer_text = answer_text;
         await answer.save();
     
@@ -347,7 +401,7 @@ exports.updateAnswer = async (req, res) => {
         console.error('답변 수정 중 오류 발생:', error);   
         res.status(500).json({ message: 'Failed to update answer' });
     }
-};
+}];
 
 // TodayAnswer 삭제
 exports.deleteAnswer = async (req, res) => {
@@ -370,6 +424,17 @@ exports.deleteAnswer = async (req, res) => {
         if (answer.sign_id !== signId) {
             return res.status(403).json({ message: '이 답변을 삭제할 권한이 없습니다.' });
         }
+        // 파일 삭제: answer_photo가 존재하면 파일 삭제
+        if (answer.answer_photo) {
+            const filePath = path.join(__dirname, '../', answer.answer_photo); // 파일 경로 설정
+            fs.unlink(filePath, (err) => {
+                if (err) {
+                    console.error('파일 삭제 중 오류 발생:', err);
+                } else {
+                    console.log('사진 파일이 성공적으로 삭제되었습니다.');
+                }
+            });
+        }
 
         await answer.destroy();
 
@@ -385,11 +450,12 @@ exports.deleteAnswer = async (req, res) => {
 
 //TodayPlace 등록
 exports.createPlace = async (req, res) => {
-    const { today_mood, place_memo } = req.body;
+    const { cate_num, today_mood, place_memo } = req.body;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
 
     try {
         const newPlace = await TodayPlace.create({
+            cate_num,
             today_mood,
             place_memo,
             user_id: signId // 사용자의 sign_id 추가
@@ -438,7 +504,7 @@ exports.getPlace = async (req, res) => {
 // TodayPlace 수정
 exports.updatePlace = async (req, res) => {
     const { place_id } = req.params;
-    const { today_mood, place_memo } = req.body;
+    const { cate_num, today_mood, place_memo } = req.body;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
 
     try {
@@ -456,6 +522,7 @@ exports.updatePlace = async (req, res) => {
         // 필드 업데이트
         place.today_mood = today_mood !== undefined ? today_mood : place.today_mood;
         place.place_memo = place_memo !== undefined ? place_memo : place.place_memo;
+        place.cate_num = cate_num !== undefined ? cate_num : place.cate_num;
 
         await place.save();
 
