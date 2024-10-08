@@ -25,7 +25,7 @@ const Tier= require("./tier");
 const TierLog = require("./tierlog");
 const Condition = require("./condition");
 const UserCondition = require("./usercondition");
-
+const TodayPlace = require("./today_places");
 
 
 
@@ -55,14 +55,12 @@ db.Tier = Tier;
 db.Condition = Condition;
 db.TierLog = TierLog;
 db.UserCondition = UserCondition;
+db.Report = Report;
+db.TodayPlace = TodayPlace;
 db.sequelize = sequelize;
 
 
-
-
 // 관계 설정
-
-
 
 User.initiate(sequelize)
 Diary.initiate(sequelize)
@@ -86,7 +84,7 @@ Condition.initiate(sequelize);
 TierLog.initiate(sequelize);
 UserCondition.initiate(sequelize);
 Report.initiate(sequelize);
-
+TodayPlace.initiate(sequelize);
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
@@ -103,6 +101,7 @@ TodayQuestion.associate(db)
 Routine.associate(db)
 Todo.associate(db)
 Point.associate(db)
+PointCriteria.associate(db)
 Profile.associate(db)
 QnA.associate(db)
 Answer.associate(db)
@@ -111,7 +110,7 @@ Condition.associate(db);
 TierLog.associate(db);
 UserCondition.associate(db);
 Report.associate(db)
-
+TodayPlace.associate(db);
 
 (async () => {
     try {

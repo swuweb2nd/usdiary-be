@@ -2,7 +2,7 @@ const PointCriteria = require('../models/point_criteria');
 const { Op } = require("sequelize");
 const dayjs = require("dayjs");
 
-// 포인트 획득 및 차감 기준 등록
+// 포인트 기준 등록
 exports.createPointCriteria = async (req, res) => {
   try {
     const { content, remark, points } = req.body;
@@ -27,7 +27,26 @@ exports.createPointCriteria = async (req, res) => {
   }
 };
 
-// 포인트 획득 및 차감 기준 수정
+// 포인트 기준 조회
+exports.getAllPointCriteria = async (req, res) => {
+  try {
+    const criteriaList = await PointCriteria.findAll();
+
+    if (!criteriaList || criteriaList.length === 0) {
+      return res.status(404).json({ message: '포인트 기준이 없습니다.' });
+    }
+
+    return res.status(200).json({
+      message: '포인트 기준 조회 성공',
+      data: criteriaList
+    });
+  } catch (error) {
+    console.error('포인트 기준 조회 중 오류 발생:', error);
+    return res.status(500).json({ message: '서버 오류' });
+  }
+};
+
+// 포인트 기준 수정
 exports.updatePointCriteria = async (req, res) => {
   try {
     const { criteria_id } = req.params;
@@ -56,7 +75,7 @@ exports.updatePointCriteria = async (req, res) => {
   }
 };
 
-// 포인트 획득 및 차감 기준 삭제
+// 포인트 기준 삭제
 exports.deletePointCriteria = async (req, res) => {
   try {
     const { criteria_id } = req.params;

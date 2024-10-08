@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const upload = require('../multer/multer'); // multer 설정 가져오기
 const { likeDiary, deleteLike } = require('../controllers/like');
 const { verifyToken } = require('../middlewares/jwt');
 
