@@ -2038,6 +2038,11 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "diary_id": {
+                    "type": "integer",
+                    "example": 1,
+                    "description": "다이어리 ID"
+                  },
                   "answer_text": {
                     "type": "string",
                     "description": "답변 텍스트"
@@ -2048,7 +2053,7 @@
                     "description": "답변과 함께 첨부할 사진 (선택사항)"
                   }
                 },
-                "required": ["answer_text"]
+                "required": ["answer_text", "diary_id"]
               }
             }
           }
@@ -3742,6 +3747,11 @@
             "type": "string",
             "description": "답변 텍스트"
           },
+          "diary_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "연결된 일기 ID"
+          },
           "answer_photo": {
             "type": "string",
             "format": "binary",
@@ -3758,7 +3768,7 @@
             "description": "답변 수정 날짜"
           }
         },
-        "required": ["answer_id", "question_id", "sign_id", "answer_text"]
+        "required": ["answer_id", "question_id", "sign_id", "diary_id", "answer_text"]
       },
       "Place": {
         "type": "object",
@@ -3783,10 +3793,14 @@
             "description": "카테고리 번호 (영화관:1, 놀이공원:2 등)",
             "example": 3
           },
-          "user_id": {
+          "sign_id": {
             "type": "integer",
-            "description": "사용자 ID",
-            "example": 123
+            "description": "사용자 ID"
+          },
+          "diary_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "연결된 일기 ID"
           },
           "createdAt": {
             "type": "string",

@@ -64,6 +64,7 @@ class Diary extends Sequelize.Model {
     db.Diary.hasMany(db.Todo,{foreignKey : "diary_id", targetKey: "diary_id", onDelete: "CASCADE"})
     db.Diary.hasMany(db.Report, { foreignKey: "diary_id", sourceKey: "diary_id", onDelete: "CASCADE" });
     db.Diary.hasMany(db.TodayPlace, { foreignKey: "diary_id", sourceKey: "diary_id", onDelete: "CASCADE" });
+    db.Diary.hasMany(db.TodayAnswer,{foreignKey : "diary_id", targetKey: "diary_id", onDelete: "CASCADE"})
   }
 }
 
