@@ -14,12 +14,11 @@ class QnA extends Sequelize.Model {
           type: Sequelize.BOOLEAN,
           allowNull: false
         },
-        user_id: {
-          type: Sequelize.BIGINT,
+        sign_id: {
+          type: Sequelize.STRING(255),
           allowNull: false,
-          primaryKey: true,
-
-        }
+          unique: true,
+        },
       },
       {
         sequelize,
@@ -37,8 +36,8 @@ class QnA extends Sequelize.Model {
 // QnA 와 User 간의 N:1 관계 설정
     static associate(db) { // DB 관계설정
       db.QnA.belongsTo(db.User, {
-        foreignKey: "user_id",
-        sourceKey: "user_id",
+        foreignKey: "sign_id",
+        sourceKey: "sign_id",
         onDelete: "CASCADE",
       });
       

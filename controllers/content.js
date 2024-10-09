@@ -288,7 +288,7 @@ exports.createQuestion = async (req, res) => {
 exports.createAnswer = [uploadSingle, async (req, res) => {
     try {
         const { question_id } = req.params;
-        const { answer_text } = req.body;
+        const { answer_text, diary_id } = req.body;
         const signId = res.locals.decoded.sign_id;
 
         const question = await TodayQuestion.findByPk(question_id);
@@ -301,6 +301,7 @@ exports.createAnswer = [uploadSingle, async (req, res) => {
         const newAnswer = await TodayAnswer.create({
             question_id,
             answer_text,
+            diary_id,
             sign_id: signId,
             answer_photo: answerPhotoPath // 사진 경로 저장
         });
@@ -329,7 +330,7 @@ exports.getAnswer = async (req, res) => {
             where: {
                 answer_id,
                 question_id,
-                sign_id
+                sign_id: signId
             },
             include: [
                 {
@@ -450,7 +451,7 @@ exports.deleteAnswer = async (req, res) => {
 
 //TodayPlace 등록
 exports.createPlace = async (req, res) => {
-    const { cate_num, today_mood, place_memo } = req.body;
+    const { diary_id, cate_num, today_mood, place_memo } = req.body;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
 
     try {
@@ -458,7 +459,8 @@ exports.createPlace = async (req, res) => {
             cate_num,
             today_mood,
             place_memo,
-            user_id: signId // 사용자의 sign_id 추가
+            diary_id,
+            sign_id: signId // 사용자의 sign_id 추가
         });
 
         // 포인트 획득
@@ -483,7 +485,7 @@ exports.getPlace = async (req, res) => {
         const place = await TodayPlace.findOne({
             where: {
                 place_id,
-                user_id: signId // 사용자 sign_id로 필터링
+                sign_id: signId // 사용자 sign_id로 필터링
             }
         });
 
@@ -511,7 +513,7 @@ exports.updatePlace = async (req, res) => {
         const place = await TodayPlace.findOne({
             where: {
                 place_id,
-                user_id: signId // 사용자 sign_id로 필터링
+                sign_id: signId // 사용자 sign_id로 필터링
             }
         });
 
@@ -545,7 +547,7 @@ exports.deletePlace = async (req, res) => {
         const place = await TodayPlace.findOne({
             where: {
                 place_id,
-                user_id: signId // 사용자 sign_id로 필터링
+                sign_id: signId// 사용자 sign_id로 필터링
             }
         });
 

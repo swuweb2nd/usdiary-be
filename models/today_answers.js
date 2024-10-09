@@ -17,7 +17,11 @@ class TodayAnswer extends Sequelize.Model {
         answer_photo: {
           type: Sequelize.TEXT, 
           allowNull: true, // 사진은 선택사항
-        }
+        },
+        diary_id: {
+          type: Sequelize.BIGINT,
+          allowNull: false,
+        },
       },
       {
         sequelize,
@@ -37,9 +41,10 @@ class TodayAnswer extends Sequelize.Model {
       targetKey: "question_id",
       onDelete: "CASCADE",
     });
-    db.TodayAnswer.belongsTo(db.User, {
-      foreignKey: "user_id",
-      targetKey: "user_id",
+    
+    db.TodayAnswer.belongsTo(db.Diary, {
+      foreignKey: "diary_id",
+      targetKey: "diary_id",
       onDelete: "CASCADE",
     });
   }
