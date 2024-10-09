@@ -31,8 +31,8 @@ class Profile extends Sequelize.Model {
     // Profile 과 User 간의 1:1 관계 설정
     static associate(db) { // DB 관계설정
       db.Profile.belongsTo(db.User, {
-        foreignKey: "user_id",
-        sourceKey: "user_id",
+        foreignKey: "sign_id",
+        sourceKey: "sign_id",
         onDelete: "CASCADE",
       });
     }

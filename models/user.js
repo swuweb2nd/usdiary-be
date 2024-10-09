@@ -85,33 +85,33 @@ class User extends Sequelize.Model {
     );
   }
     static associate(db) {
-      db.User.hasMany(db.Diary, { foreignKey: "user_id", //상대 테이블에 참조하는 값의 칼럼 이름
-        sourceKey: "user_id", //이 테이블의 참조당하는 값
+      db.User.hasMany(db.Diary, { foreignKey: "sign_id", //상대 테이블에 참조하는 값의 칼럼 이름
+        sourceKey: "sign_id", //이 테이블의 참조당하는 값
         onDelete: "CASCADE",
       });
-      db.User.hasMany(db.Comment, { foreignKey: "user_id", sourceKey: "user_id" });
-      db.User.hasMany(db.Like, { foreignKey: "diary_user", sourceKey: "user_id" });
-      db.User.hasMany(db.Notification, { foreignKey: "user_id", sourceKey: "user_id" });
-      db.User.hasMany(db.QnA, { foreignKey: "user_id", sourceKey: "user_id" });
-      db.User.hasMany(db.Answer, { foreignKey: "user_id", sourceKey: "user_id" });
-      db.User.hasMany(db.TodayAnswer, {foreignKey: "user_id",sourceKey: "user_id", onDelete: "CASCADE"});
-      db.User.hasMany(db.Point, {foreignKey: "user_id",sourceKey: "user_id", onDelete: "CASCADE"});
-      db.User.hasMany(db.Routine, {foreignKey: "user_id",sourceKey: "user_id", onDelete: "CASCADE"});
-      db.User.hasOne(db.Profile, {foreignKey: 'user_id',sourceKey: 'user_id', onDelete: 'CASCADE',});
+      db.User.hasMany(db.Comment, { foreignKey: "sign_id", sourceKey: "sign_id" });
+      db.User.hasMany(db.Like, { foreignKey: "diary_user", sourceKey: "sign_id" });
+      db.User.hasMany(db.Notification, { foreignKey: "sign_id", sourceKey: "sign_id" });
+      db.User.hasMany(db.QnA, { foreignKey: "sign_id", sourceKey: "sign_id" });
+      db.User.hasMany(db.Answer, { foreignKey: "sign_id", sourceKey: "sign_id" });
+      db.User.hasMany(db.TodayAnswer, {foreignKey: "sign_id",sourceKey: "sign_id", onDelete: "CASCADE"});
+      db.User.hasMany(db.Point, {foreignKey: "sign_id",sourceKey: "sign_id", onDelete: "CASCADE"});
+      db.User.hasMany(db.Routine, {foreignKey: "sign_id",sourceKey: "sign_id", onDelete: "CASCADE"});
+      db.User.hasOne(db.Profile, {foreignKey: 'sign_id',sourceKey: 'sign_id', onDelete: 'CASCADE',});
       // 이 유저가 팔로우하는 다른 유저들 (팔로잉 관계)
-      db.User.belongsToMany(db.User, {through: db.Friend, foreignKey: 'follower_id', as: 'Following',otherKey: 'following_id'});
+      db.User.belongsToMany(db.User, {through: db.Friend, foreignKey: 'follower_sign_id', as: 'Following',otherKey: 'following_sign_id'});
       // 이 유저를 팔로우하는 유저들 (팔로워 관계)
-      db.User.belongsToMany(db.User, { through: db.Friend, foreignKey: 'following_id',as: 'Followers',otherKey: 'follower_id', });
+      db.User.belongsToMany(db.User, { through: db.Friend, foreignKey: 'following_sign_id',as: 'Followers',otherKey: 'follower_sign_id', });
       db.User.belongsTo(db.Tier, { foreignKey: 'tier_id', targetKey: 'tier_id' });
        // User는 여러 UserCondition을 가질 수 있음
-      db.User.hasMany(db.UserCondition, { foreignKey: "user_id", sourceKey: "user_id" });
+      db.User.hasMany(db.UserCondition, { foreignKey: "sign_id", sourceKey: "sign_id" });
 
       // User는 여러 TierLog를 가질 수 있음
-      db.User.hasMany(db.TierLog, { foreignKey: "user_id", sourceKey: "user_id" });
+      db.User.hasMany(db.TierLog, { foreignKey: "sign_id", sourceKey: "sign_id" });
       // 유저가 여러 번 신고할 수 있음 (Reporter)
-      db.User.hasMany(db.Report, { foreignKey: "reporter_id", sourceKey: "user_id", onDelete: "CASCADE" });
+      db.User.hasMany(db.Report, { foreignKey: "reporter_id", sourceKey: "sign_id", onDelete: "CASCADE" });
       // 유저가 여러 번 신고당할 수 있음 (Reported)
-      db.User.hasMany(db.Report, { foreignKey: "reported_id", sourceKey: "user_id", onDelete: "CASCADE" });
+      db.User.hasMany(db.Report, { foreignKey: "reported_id", sourceKey: "sign_id", onDelete: "CASCADE" });
     }
 
     

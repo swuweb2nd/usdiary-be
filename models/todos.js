@@ -26,8 +26,6 @@ class Todo extends Sequelize.Model {
         diary_id: {
           type: Sequelize.BIGINT,
           allowNull: false,
-      
-
         },
       },
       {

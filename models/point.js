@@ -23,11 +23,11 @@ class Point extends Sequelize.Model {
             key: 'criteria_id',
           },
         },
-        user_id: {
-          type: Sequelize.BIGINT,
+        sign_id: {
+          type: Sequelize.STRING(255),
           allowNull: false,
-          primaryKey: true,
-        }
+          unique: true,
+        },
       },
       {
         sequelize,
@@ -43,7 +43,7 @@ class Point extends Sequelize.Model {
   }
 
   static associate(db) {
-    db.Point.belongsTo(db.User, { foreignKey: "user_id", targetKey: "user_id", onDelete: "CASCADE" });
+    db.Point.belongsTo(db.User, { foreignKey: "sign_id", targetKey: "sign_id", onDelete: "CASCADE" });
     db.Point.belongsTo(db.PointCriteria, { foreignKey: "criteria_id", targetKey: "criteria_id" });
   }
 }
