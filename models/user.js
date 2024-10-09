@@ -69,7 +69,7 @@ class User extends Sequelize.Model {
         tier_id: {
           type: Sequelize.BIGINT,
           allowNull: true,
-         
+        
         }
       },
       {
