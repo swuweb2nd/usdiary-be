@@ -3292,6 +3292,13 @@
 },
 
   "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
     "schemas": {
       "Login": {
         "type": "object",
@@ -3307,13 +3314,6 @@
           }
         },
         "required": ["sign_id", "password"]
-      },
-      "securitySchemes": {
-        "bearerAuth": {
-          "type": "http",
-          "scheme": "bearer",
-          "bearerFormat": "JWT"
-        }
       },
       "FindID": {
         "type": "object",
