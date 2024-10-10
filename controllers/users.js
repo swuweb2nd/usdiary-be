@@ -35,7 +35,7 @@ exports.login = async (req, res) => {
          // 로그인 성공 시 최근 접속일 업데이트
         await user.update({ last_login: new Date() });
         const token = jwt.sign(
-            { sign_id: user.sign_id }, // sign_id를 JWT 토큰에 포함
+            { sign_id: user.sign_id, user_id: user.user_id },
             process.env.JWT_SECRET,
             { expiresIn: '24h' } // 토큰 24시간 만료
         );
