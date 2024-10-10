@@ -56,7 +56,8 @@ exports.renderDiary = async (req, res) => {
 
 //일기 작성
 exports.createDiary = async (req, res) => {
-  const signId = res.locals.decoded.sign_id; // JWT에서 사용자 sign_id 가져오기
+  const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
+  const userId = res.locals.decoded.user_id; // JWT에서 user_id 가져오기
   const postPhotos = req.files ? req.files.map(file => file.path) : [];
   try {
     const newDiary = await Diary.create({
@@ -66,7 +67,8 @@ exports.createDiary = async (req, res) => {
         access_level: req.body.access_level,
         board_id: req.body.board_id,
         post_photo:  JSON.stringify(postPhotos),
-        sign_id: signId // JWT에서 가져온 sign_id 사용
+        sign_id: signId, // JWT에서 가져온 sign_id 사용
+        user_id: userId // JWT에서 가져온 user_id 사용
     });
 
   // 기본 활동에 대한 포인트 추가
@@ -74,7 +76,7 @@ exports.createDiary = async (req, res) => {
 
   // 연속 작성일 경우 추가 포인트
   const lastDiary = await Diary.findOne({
-    where: { sign_id: signId },
+    where: { user_id: userId },
     order: [['createdAt', 'DESC']],
   });
 
@@ -87,20 +89,20 @@ exports.createDiary = async (req, res) => {
     await gainPoints(req, res, '일기에 사진 3장 이상 첨부 시');
   }
 
-    res.status(201).json({
+    return res.status(201).json({
         message: 'Diary created successfully',
         data: newDiary
     });
 } catch (error) {
     console.error('Error creating diary:', error);
-    res.status(500).json({ error: 'An error occurred while creating the diary' });
+    return res.status(500).json({ error: 'An error occurred while creating the diary' });
   }
 };
 
 // 일기 수정
 exports.updateDiary = async (req, res) => {
     const { diary_id } = req.params;
-    const signId = res.locals.decoded.sign_id; // JWT에서 사용자 sign_id 가져오기
+    const userId = res.locals.decoded.user_id;
     const postPhotos = req.files ? req.files.map(file => file.path) : [];
     const {
       diary_title,
@@ -113,7 +115,7 @@ exports.updateDiary = async (req, res) => {
       const diary = await Diary.findOne({
           where: {
               diary_id,
-              sign_id: signId // 사용자 sign_id로 필터링
+              user_id: userId
           }
       });
       if (!diary) {
@@ -143,14 +145,14 @@ exports.updateDiary = async (req, res) => {
 // 일기 삭제 
 exports.deleteDiary = async (req, res) => {
     const diaryId = req.params.diary_id;
-    const signId = res.locals.decoded.sign_id; // JWT에서 사용자 sign_id 가져오기
+    const userId = res.locals.decoded.user_id;
 
     try {
       // 일기가 존재하는지 확인
       const diary = await Diary.findOne({
           where: {
               diary_id: diaryId,
-              sign_id: signId // 사용자 sign_id로 필터링
+              user_id: userId
           }
       });
         if (!diary) {

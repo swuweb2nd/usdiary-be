@@ -1,3 +1,4 @@
+const User = require('../models/user');
 const PointCriteria = require('../models/point_criteria');
 const { Op } = require("sequelize");
 const dayjs = require("dayjs");
