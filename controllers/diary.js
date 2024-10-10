@@ -102,7 +102,7 @@ exports.createDiary = async (req, res) => {
 // 일기 수정
 exports.updateDiary = async (req, res) => {
     const { diary_id } = req.params;
-    const signId = res.locals.decoded.sign_id; // JWT에서 사용자 sign_id 가져오기
+    const userId = res.locals.decoded.user_id;
     const postPhotos = req.files ? req.files.map(file => file.path) : [];
     const {
       diary_title,
@@ -115,7 +115,7 @@ exports.updateDiary = async (req, res) => {
       const diary = await Diary.findOne({
           where: {
               diary_id,
-              sign_id: signId // 사용자 sign_id로 필터링
+              user_id: userId
           }
       });
       if (!diary) {
@@ -145,14 +145,14 @@ exports.updateDiary = async (req, res) => {
 // 일기 삭제 
 exports.deleteDiary = async (req, res) => {
     const diaryId = req.params.diary_id;
-    const signId = res.locals.decoded.sign_id; // JWT에서 사용자 sign_id 가져오기
+    const userId = res.locals.decoded.user_id;
 
     try {
       // 일기가 존재하는지 확인
       const diary = await Diary.findOne({
           where: {
               diary_id: diaryId,
-              sign_id: signId // 사용자 sign_id로 필터링
+              user_id: userId
           }
       });
         if (!diary) {
