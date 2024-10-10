@@ -4,7 +4,7 @@ const { createPointCriteria, getAllPointCriteria, updatePointCriteria, deletePoi
 const { verifyAdmin } = require('../middlewares/jwt'); // 관리자만 접근 가능
 
 // 포인트 기준 등록 
-router.post('/criteria', verifyAdmin, createPointCriteria);
+router.post('/criteria', createPointCriteria);
 
 // 포인트 기준 전체 조회
 router.get('/criteria/all', getAllPointCriteria);
