@@ -10,10 +10,9 @@ class TierLog extends Sequelize.Model {
             primaryKey: true,
             autoIncrement: true,
           },
-          sign_id: {
-            type: Sequelize.STRING(255),
+          user_id: {
+            type: Sequelize.BIGINT,
             allowNull: false,
-            unique: true,
           },
           pre_tier: {
             type: Sequelize.BIGINT,
