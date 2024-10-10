@@ -23,10 +23,9 @@ class UserCondition extends Sequelize.Model {
             allowNull: false,
             defaultValue: Sequelize.NOW,
           },
-          sign_id: {
-            type: Sequelize.STRING(255),
+          user_id: {
+            type: Sequelize.BIGINT,
             allowNull: false,
-            unique: true,
           },
           tier_id: {
             type: Sequelize.BIGINT,
@@ -46,7 +45,7 @@ class UserCondition extends Sequelize.Model {
     }
   
     static associate(db) {
-      db.UserCondition.belongsTo(db.User, { foreignKey: 'sign_id' });
+      db.UserCondition.belongsTo(db.User, { foreignKey: 'user_id' });
       db.UserCondition.belongsTo(db.Condition, { foreignKey: 'condition_id' });
       db.UserCondition.belongsTo(db.Tier, { foreignKey: 'tier_id' });
     }
