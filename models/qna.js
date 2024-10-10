@@ -10,16 +10,37 @@ class QnA extends Sequelize.Model {
           primaryKey: true,
           autoIncrement: true
         },
+        answer_id: {
+          type: Sequelize.BIGINT,
+          allowNull: true,
+          primaryKey: true,
+        },
         is_completed: {
           type: Sequelize.BOOLEAN,
           allowNull: false
         },
-        user_id: {
+        sign_id: {
+          type: Sequelize.STRING(255),
+          allowNull: false,
+          unique: true,
+        },
+        qna_title: {
+          type: Sequelize.STRING(255),
+          allowNull: false,
+        },
+        qna_content: {
+          type: Sequelize.TEXT,
+          allowNull: false,
+        },
+        answer_content: {
+          type: Sequelize.TEXT,
+          allowNull: true,
+        },
+        view_count: {
           type: Sequelize.BIGINT,
           allowNull: false,
-          primaryKey: true,
-
-        }
+          defaultValue: 0,
+        },
       },
       {
         sequelize,
@@ -37,8 +58,8 @@ class QnA extends Sequelize.Model {
 // QnA 와 User 간의 N:1 관계 설정
     static associate(db) { // DB 관계설정
       db.QnA.belongsTo(db.User, {
-        foreignKey: "user_id",
-        sourceKey: "user_id",
+        foreignKey: "sign_id",
+        sourceKey: "sign_id",
         onDelete: "CASCADE",
       });
       
