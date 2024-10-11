@@ -20,9 +20,9 @@ exports.renderDiary = async (req, res) => {
           return res.status(404).json({ message: 'Diary not found' ,data: {diary}});
       }
       console.log(diary)
-      res.json(diary);
+      return res.json(diary);
   } catch (error) {
-      res.status(500).json({ message: 'Server error', error });
+    return res.status(500).json({ message: 'Server error', error });
   }
 };
 //해당 글 조회
@@ -47,28 +47,29 @@ exports.renderDiary = async (req, res) => {
       }
       
       console.log(diary);
-      res.json({ data: { diary } });
+      return res.json({ data: { diary } });
   } catch (error) {
-      res.status(500).json({ message: 'Server error', error });
+    return res.status(500).json({ message: 'Server error', error });
   }
 };
 
 
 //일기 작성
 exports.createDiary = async (req, res) => {
-  const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-  const userId = res.locals.decoded.user_id; // JWT에서 user_id 가져오기
+  const signId = res.locals.decoded.sign_id; // JWT에서 사용자 sign_id 가져오기
+  const user = await User.findOne({ where: { sign_id: signId } });
   const postPhotos = req.files ? req.files.map(file => file.path) : [];
   try {
     const newDiary = await Diary.create({
         diary_title: req.body.diary_title,
         diary_content: req.body.diary_content,
         diary_cate: req.body.diary_cate,
-        access_level: req.body.access_level,
-        board_id: req.body.board_id,
+        access_level: "2",
+        // access_level: req.body.access_level,
+        board_id: "1",
+        // board_id: req.body.board_id,
         post_photo:  JSON.stringify(postPhotos),
-        sign_id: signId, // JWT에서 가져온 sign_id 사용
-        user_id: userId // JWT에서 가져온 user_id 사용
+        user_id: user.user_id // JWT에서 가져온 sign_id 사용
     });
 
   // 기본 활동에 대한 포인트 추가
@@ -76,7 +77,7 @@ exports.createDiary = async (req, res) => {
 
   // 연속 작성일 경우 추가 포인트
   const lastDiary = await Diary.findOne({
-    where: { user_id: userId },
+    where: { user_id: user.user_id },
     order: [['createdAt', 'DESC']],
   });
 
@@ -102,7 +103,7 @@ exports.createDiary = async (req, res) => {
 // 일기 수정
 exports.updateDiary = async (req, res) => {
     const { diary_id } = req.params;
-    const userId = res.locals.decoded.user_id;
+    const signId = res.locals.decoded.sign_id; // JWT에서 사용자 sign_id 가져오기
     const postPhotos = req.files ? req.files.map(file => file.path) : [];
     const {
       diary_title,
@@ -115,7 +116,7 @@ exports.updateDiary = async (req, res) => {
       const diary = await Diary.findOne({
           where: {
               diary_id,
-              user_id: userId
+              sign_id: signId // 사용자 sign_id로 필터링
           }
       });
       if (!diary) {
@@ -145,14 +146,14 @@ exports.updateDiary = async (req, res) => {
 // 일기 삭제 
 exports.deleteDiary = async (req, res) => {
     const diaryId = req.params.diary_id;
-    const userId = res.locals.decoded.user_id;
+    const signId = res.locals.decoded.sign_id; // JWT에서 사용자 sign_id 가져오기
 
     try {
       // 일기가 존재하는지 확인
       const diary = await Diary.findOne({
           where: {
               diary_id: diaryId,
-              user_id: userId
+              sign_id: signId // 사용자 sign_id로 필터링
           }
       });
         if (!diary) {
@@ -194,10 +195,10 @@ exports.sortDiary = async (req, res) => {
       loggin: console.log // 페이지네이션 오프셋
     });
 
-    res.json({ data: { diary, totalDiaries } }); // 결과 반환
+    return res.json({ data: { diary, totalDiaries } }); // 결과 반환
   } catch (error) {
     console.error('Error sorting diary:', error); // 오류 로그
-    res.status(500).json({ message: 'Internal Server Error' }); // 오류 응답
+    return res.status(500).json({ message: 'Internal Server Error' }); // 오류 응답
   }
 };
 
@@ -239,10 +240,10 @@ exports.sortWeeklyViews = async (req, res) => {
       offset: offset,
     });
 
-    res.json({data: {diary,totalDiaries}});
+    return res.json({data: {diary,totalDiaries}});
   } catch (error) {
     console.error('Error sorting weekly views:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
