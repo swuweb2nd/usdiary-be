@@ -18,9 +18,7 @@ class Like extends Sequelize.Model {
           type: Sequelize.BIGINT,
           allowNull: false,
         },
-        // //diary_user: {  //diary_user라고 쓰여있는데 유저테이블에 연결되어 있음
-        //   type: Sequelize.BIGINT,
-        //   allowNull: false, //NOT NULL과 NULL 둘다 쓰여있어서 User테이블에 있는 user_id의 NULL여부로 작성}
+       
       },
       {
         sequelize,

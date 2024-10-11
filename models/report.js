@@ -1,5 +1,4 @@
 const {Sequelize} = require("sequelize");
-const { initiate } = require("./friend");
 
 class Report extends Sequelize.Model {
     static initiate(sequelize) {

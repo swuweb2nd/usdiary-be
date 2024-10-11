@@ -31,7 +31,7 @@ exports.login = async (req, res) => {
         }
 
         console.log('Password validated successfully.');
-
+               
          // 로그인 성공 시 최근 접속일 업데이트
         await user.update({ last_login: new Date() });
         const token = jwt.sign(
@@ -260,7 +260,10 @@ exports.googleCallback = async (req, res) => {
 // controllers/permissionsController.js
 exports.checkOppositePagePermission = (req, res) => {
     res.json({ canAccess: true });
-};
+}
+  
+
+
 // 로그아웃
 exports.logout = (req, res) => {
     try {

@@ -111,13 +111,8 @@ TierLog.associate(db);
 UserCondition.associate(db);
 Report.associate(db)
 TodayPlace.associate(db);
+Report.associate(db);
 
-(async () => {
-    try {
-      await sequelize.sync({ alter: true }); // alter: true는 테이블을 수정함
-      console.log('Database synchronized successfully.');
-    } catch (error) {
-      console.error('Error synchronizing database:', error);
-    }
-  })();
+
+
 module.exports = db;
