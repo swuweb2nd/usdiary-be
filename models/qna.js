@@ -18,7 +18,6 @@ class QnA extends Sequelize.Model {
           type: Sequelize.BIGINT,
           allowNull: false,
           primaryKey: true,
-
         }
       },
       {

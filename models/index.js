@@ -18,7 +18,16 @@ const Notification = require("./notification");
 const Point = require("./point");
 const Profile = require("./profile");
 const QnA = require("./qna");
-const Answer = require("./anwer");
+const Answer = require("./answer");
+const PointCriteria = require('./point_criteria');
+const Report = require("./report");
+const Tier= require("./tier");
+const TierLog = require("./tierlog");
+const Condition = require("./condition");
+const UserCondition = require("./usercondition");
+const TodayPlace = require("./today_places");
+
+
 
 
 const db = {};
@@ -38,11 +47,20 @@ db.Friend = Friend;
 db.Like = Like;
 db.Notification = Notification;
 db.Point = Point;
+db.PointCriteria = PointCriteria;
 db.Profile = Profile;
 db.QnA = QnA;
 db.Answer = Answer;
+db.Tier = Tier;
+db.Condition = Condition;
+db.TierLog = TierLog;
+db.UserCondition = UserCondition;
+db.Report = Report;
+db.TodayPlace = TodayPlace;
+db.sequelize = sequelize;
 
 
+// 관계 설정
 
 User.initiate(sequelize)
 Diary.initiate(sequelize)
@@ -57,11 +75,16 @@ Like.initiate(sequelize);
 Notification.initiate(sequelize);
 Admin.initiate(sequelize);
 Point.initiate(sequelize);
+PointCriteria.initiate(sequelize);
 Profile.initiate(sequelize);
 QnA.initiate(sequelize);
 Answer.initiate(sequelize);
-
-
+Tier.initiate(sequelize);
+Condition.initiate(sequelize);
+TierLog.initiate(sequelize);
+UserCondition.initiate(sequelize);
+Report.initiate(sequelize);
+TodayPlace.initiate(sequelize);
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
@@ -78,11 +101,23 @@ TodayQuestion.associate(db)
 Routine.associate(db)
 Todo.associate(db)
 Point.associate(db)
+PointCriteria.associate(db)
 Profile.associate(db)
 QnA.associate(db)
 Answer.associate(db)
+Tier.associate(db);
+Condition.associate(db);
+TierLog.associate(db);
+UserCondition.associate(db);
+Report.associate(db)
+TodayPlace.associate(db);
 
-
-
-
+(async () => {
+    try {
+      await sequelize.sync({ alter: true }); // alter: true는 테이블을 수정함
+      console.log('Database synchronized successfully.');
+    } catch (error) {
+      console.error('Error synchronizing database:', error);
+    }
+  })();
 module.exports = db;

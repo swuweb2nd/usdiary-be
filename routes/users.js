@@ -10,11 +10,15 @@ router.post('/findId', findId);
 // 비밀번호 찾기
 router.post('/findPwd', findPwd);
 // 유저 성향 선택
-router.patch('/:user_id/tendency', verifyToken, updateTendency);
+router.patch('/:sign_id/tendency', verifyToken, updateTendency);
 
 // Google 로그인 페이지 렌더링
 router.get('/login/google', getLoginPage);
 // Google OAuth 2.0 콜백 처리
 router.get('/login/google/callback', googleCallback);
+
+
+
+  
 
 module.exports = router;

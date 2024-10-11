@@ -10,6 +10,10 @@ class Routine extends Sequelize.Model {
           primaryKey: true,
           autoIncrement: true
         },
+        routine_title: {
+          type: Sequelize.TEXT,
+          allowNull: false,
+        },
         description: {
           type: Sequelize.TEXT,
           allowNull: true,
@@ -20,11 +24,9 @@ class Routine extends Sequelize.Model {
           defaultValue: false,
         },
         user_id: {
-            type: Sequelize.BIGINT,
-            allowNull: false,
-   
-  
-          },
+          type: Sequelize.BIGINT,
+          allowNull: false,
+        },
       },
       {
         sequelize,

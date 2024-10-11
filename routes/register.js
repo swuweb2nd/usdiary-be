@@ -13,7 +13,7 @@ const {
 
 
 // 회원 가입
-router.post('/register', register);
+router.post('/', register);
 
 //이메일 인증
 router.post('/verify-email', sendVerificationEmail);

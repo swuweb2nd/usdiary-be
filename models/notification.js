@@ -17,7 +17,6 @@ class Notification extends Sequelize.Model {
         user_id: {
           type: Sequelize.BIGINT,
           allowNull: true,
-        
         },
         friend_id: {
           type: Sequelize.BIGINT,
@@ -27,7 +26,6 @@ class Notification extends Sequelize.Model {
         comment_id: {
           type: Sequelize.BIGINT,
           allowNull: false,
-   
         },
         like_id: {
           type: Sequelize.BIGINT,
@@ -37,12 +35,10 @@ class Notification extends Sequelize.Model {
         qna_id3: {   //원래 아이디가 q&a id3인데 '&'가 오류를 일으켜서 n으로 대체하고 띄어쓰기 대신 언더바로 대체
           type: Sequelize.BIGINT,
           allowNull: false,
-       
         },
         ans_id: {
           type: Sequelize.BIGINT,
           allowNull: false,
-         
         },        
       },
       {
@@ -62,7 +58,7 @@ class Notification extends Sequelize.Model {
     db.Notification.belongsTo(db.User, { foreignKey: "user_id", targetKey: "user_id" }); 
     db.Notification.belongsTo(db.Friend, { foreignKey: "friend_id", targetKey: "friend_id" }); 
     db.Notification.belongsTo(db.Comment, { foreignKey: "comment_id", targetKey: "comment_id" });  
-    db.Notification.belongsTo(db.Friend, { foreignKey: "user_id2", targetKey: "user_id2" });
+    db.Notification.belongsTo(db.Friend, { foreignKey: "follower_id", targetKey: "follower_id" });
     db.Notification.belongsTo(db.Like, { foreignKey: "like_id", targetKey: "like_id" });
     db.Notification.belongsTo(db.QnA, { foreignKey: "qna_id3", targetKey: "qna_id" }); 
     db.Notification.belongsTo(db.Answer, { foreignKey: "ans_id", targetKey: "ans_id" }); 

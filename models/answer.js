@@ -17,9 +17,7 @@ class Answer extends Sequelize.Model {
         user_id: {
           type: Sequelize.BIGINT,
           allowNull: false,
-          primaryKey: true,
-          
-
+          primaryKey: true
         }
       },
       {

@@ -12,7 +12,7 @@ class Admin extends Sequelize.Model {
           autoIncrement: true
 
         },
-        admin_acc:{
+        admin_acc:{ // 관리자 아이디
             type: Sequelize.STRING(255),
             allowNull: false,
   
@@ -21,9 +21,6 @@ class Admin extends Sequelize.Model {
             type: Sequelize.STRING(255),
             allowNull: false,
           }, 
-   
-       
-     
       },
       {
         sequelize,

@@ -5,20 +5,27 @@ const morgan = require('morgan');
 const swaggerUi = require("swagger-ui-express");
 const swaggerFile = require('./swagger/swagger-output.json')
 const cors = require('cors');
-
+const permissionRoutes = require('./routes/checkPermissions');
 const diaryRoutes = require('./routes/diary');
 const userRoutes = require('./routes/users'); 
 const registerRoutes = require('./routes/register'); 
 const commentRoutes = require('./routes/comment'); 
 const contentRoutes = require('./routes/contents');
+const friendRoutes = require('./routes/friends');
+const mypageRoutes = require('./routes/mypage');
+const likeRoutes = require('./routes/like');
+const pointRoutes = require('./routes/point');
+const reportRoutes = require('./routes/reports');
 
 const { sequelize } = require('./models'); // db.sequelize 객체
+app.use(cors({
+  origin: 'http://localhost:3000', // 허용할 출처
+  methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE','OPTIONS'], // 허용할 HTTP 메서드
+  credentials: true // 필요한 경우 인증 정보 허용
+}));
 
 app.set('port', process.env.PORT || 3001);
 
-// 뷰 엔진 설정
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
 
 // 데이터베이스 연결
 sequelize.sync({ force: false })
@@ -31,10 +38,10 @@ sequelize.sync({ force: false })
 
 // 미들웨어 설정
 app.use(morgan('dev'));
-app.use(cors()); // CORS 미들웨어 추가 - 이메일 인증에 필요
+
 app.use(express.json()); // JSON 요청 파싱 미들웨어 추가
 // 정적 파일 제공 설정
-app.use('/uploads', express.static(path.join(__dirname, 'images')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 // 라우팅
@@ -42,8 +49,14 @@ app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile)) // docs 대�
 app.use('/diaries', diaryRoutes);
 app.use('/users', userRoutes);
 app.use('/register', registerRoutes);
-app.use('/comments', commentRoutes);
+app.use('/diaries', commentRoutes);
 app.use('/contents', contentRoutes);
+app.use('/friends', friendRoutes);
+app.use('/checkPermissions', permissionRoutes);
+app.use('/mypages', mypageRoutes);
+app.use('/like', likeRoutes);
+app.use('/points', pointRoutes)
+app.use('/reports', reportRoutes);
 
 // 404 오류 처리
 app.use((req, res, next) => {
