@@ -41,6 +41,11 @@ class QnA extends Sequelize.Model {
           allowNull: false,
           defaultValue: 0,
         },
+        user_id: {
+          type: Sequelize.BIGINT,
+          allowNull: false,
+          primaryKey: true,
+        }
       },
       {
         sequelize,
