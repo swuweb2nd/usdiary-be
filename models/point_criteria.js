@@ -35,6 +35,10 @@ class PointCriteria extends Sequelize.Model {
       }
     );
   }
+
+  static associate(db) {
+    db.PointCriteria.hasMany(db.Point, { foreignKey: "criteria_id", sourceKey: "criteria_id" });
+  }
 }
 
 module.exports = PointCriteria;

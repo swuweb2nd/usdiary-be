@@ -43,6 +43,7 @@ class Tier extends Sequelize.Model {
     //   sourceKey: 'level_id',
     //   onDelete: 'SET NULL',
     // });
+    
   }
 }
 

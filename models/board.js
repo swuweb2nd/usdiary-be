@@ -17,10 +17,6 @@ class Board extends Sequelize.Model {
             allowNull: false,
   
         },
-        
-   
-       
-     
       },
       {
         sequelize,

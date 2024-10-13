@@ -340,43 +340,43 @@
         }
       }
     },
-    "/users/logout": {
-  "post": {
-    "summary": "로그아웃",
-    "tags": ["User"],
-    "description": "사용자가 JWT 토큰을 사용하여 로그아웃합니다.",
-    "security": [
-      {
-        "bearerAuth": []
-      }
-    ],
-    "responses": {
-      "200": {
-        "description": "성공적으로 로그아웃되었습니다.",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "description": "로그아웃 성공 메시지",
-                  "example": "성공적으로 로그아웃되었습니다."
+        "/users/logout": {
+      "post": {
+        "summary": "로그아웃",
+        "tags": ["User"],
+        "description": "사용자가 JWT 토큰을 사용하여 로그아웃합니다.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "성공적으로 로그아웃되었습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "로그아웃 성공 메시지",
+                      "example": "성공적으로 로그아웃되었습니다."
+                    }
+                  }
                 }
               }
             }
+          },
+          "401": {
+            "description": "인증되지 않은 사용자입니다."
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
-      },
-      "401": {
-        "description": "인증되지 않은 사용자입니다."
-      },
-      "500": {
-        "description": "Internal Server Error"
       }
-    }
-  }
-},
+    },
     "/users/findID": {
       "post": {
         "summary": "아이디 찾기",
@@ -618,6 +618,101 @@
         }
       }
     },
+    "/reports": {
+      "get": {
+        "summary": "신고 목록 조회",
+        "description": "신고된 항목들의 목록을 최신순으로 조회합니다.",
+        "tags": ["Report"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            },
+            "required": false,
+            "description": "조회할 페이지 번호"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "example": 10
+            },
+            "required": false,
+            "description": "한 페이지에 표시할 항목 수"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "신고 목록 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "report_id": {
+                        "type": "integer",
+                        "example": 123,
+                        "description": "신고 ID"
+                      },
+                      "reporter_id": {
+                        "type": "string",
+                        "example": "user123",
+                        "description": "신고한 유저의 sign_id"
+                      },
+                      "reported_id": {
+                        "type": "string",
+                        "example": "user456",
+                        "description": "신고당한 유저의 sign_id"
+                      },
+                      "diary_id": {
+                        "type": "integer",
+                        "example": 1,
+                        "description": "신고된 다이어리 ID"
+                      },
+                      "comment_id": {
+                        "type": "integer",
+                        "example": 10,
+                        "description": "신고된 댓글 ID"
+                      },
+                      "report_type": {
+                        "type": "string",
+                        "example": "스팸",
+                        "description": "신고 유형"
+                      },
+                      "report_reason": {
+                        "type": "string",
+                        "example": "광고성 메시지입니다.",
+                        "description": "신고 이유"
+                      },
+                      "is_false_report": {
+                        "type": "boolean",
+                        "example": false,
+                        "description": "허위 신고 여부"
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-09-24T12:34:56Z",
+                        "description": "신고 생성 시간"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },    
     "/systems/reports": {
       "post": {
         "summary": "신고 생성",
@@ -1057,6 +1152,15 @@
               "type": "integer",
               "default": 15
             }
+          },
+          {
+            "name": "board_id",
+            "in": "query",
+            "description": "필터링할 게시판 ID",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -1104,6 +1208,15 @@
               "type": "integer",
               "default": 15
             }
+          },
+          {
+            "name": "board_id",
+            "in": "query",
+            "description": "필터링할 게시판 ID",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -1147,6 +1260,15 @@
             "schema": {
               "type": "integer",
               "default": 15
+            }
+          },
+          {
+            "name": "board_id",
+            "in": "query",
+            "description": "필터링할 게시판 ID",
+            "required": false,
+            "schema": {
+              "type": "integer"
             }
           }
         ],
@@ -1897,7 +2019,7 @@
       "post": {
         "summary": "오늘의 답변 등록",
         "tags": ["Today's Q&A"],
-        "description": "사용자가 특정 질문에 대한 답변을 생성합니다. 사용자는 JWT를 통해 인증되며, 질문에 대한 권한이 확인됩니다.",
+        "description": "사용자가 특정 질문에 대한 답변을 생성합니다. 사진을 첨부할 수 있습니다.",
         "parameters": [
           {
             "name": "question_id",
@@ -1912,9 +2034,26 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/CreateAnswerRequest"
+                "type": "object",
+                "properties": {
+                  "diary_id": {
+                    "type": "integer",
+                    "example": 1,
+                    "description": "다이어리 ID"
+                  },
+                  "answer_text": {
+                    "type": "string",
+                    "description": "답변 텍스트"
+                  },
+                  "answer_photo": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "답변과 함께 첨부할 사진 (선택사항)"
+                  }
+                },
+                "required": ["answer_text", "diary_id"]
               }
             }
           }
@@ -1925,7 +2064,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AnswerResponse"
+                  "$ref": "#/components/schemas/Answer"
                 }
               }
             }
@@ -1948,11 +2087,68 @@
       }
     },
     "/contents/questions/{question_id}/answers/{answer_id}": {
+      "get": {
+        "summary": "오늘의 답변 조회",
+        "tags": ["Today's Q&A"],
+        "description": "사용자가 특정 질문에 대한 답변을 조회합니다.",
+        "parameters": [
+          {
+            "name": "question_id",
+            "in": "path",
+            "required": true,
+            "description": "조회할 답변이 속한 질문의 ID",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "answer_id",
+            "in": "path",
+            "required": true,
+            "description": "조회할 답변의 ID",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "답변이 성공적으로 조회되었습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Answer"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "답변을 찾을 수 없습니다."
+          },
+          "500": {
+            "description": "서버 오류로 답변 조회에 실패했습니다."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
       "patch": {
         "summary": "오늘의 답변 수정",
         "tags": ["Today's Q&A"],
-        "description": "사용자가 특정 질문에 대한 기존 답변을 수정합니다. 사용자는 JWT를 통해 인증되며, 해당 답변에 대한 권한이 확인됩니다.",
+        "description": "사용자가 특정 질문에 대한 기존 답변을 수정합니다. 사진 수정도 가능합니다.",
         "parameters": [
+          {
+            "name": "question_id",
+            "in": "path",
+            "required": true,
+            "description": "수정할 답변이 속한 질문의 ID",
+            "schema": {
+              "type": "integer"
+            }
+          },
           {
             "name": "answer_id",
             "in": "path",
@@ -1966,9 +2162,21 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateAnswerRequest"
+                "type": "object",
+                "properties": {
+                  "answer_text": {
+                    "type": "string",
+                    "description": "수정할 답변 텍스트"
+                  },
+                  "answer_photo": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "수정할 답변 사진 (선택사항)"
+                  }
+                },
+                "required": ["answer_text"]
               }
             }
           }
@@ -1979,7 +2187,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UpdateAnswerSuccessResponse"
+                  "$ref": "#/components/schemas/Answer"
                 }
               }
             }
@@ -2001,46 +2209,205 @@
       "delete": {
         "summary": "오늘의 답변 삭제",
         "tags": ["Today's Q&A"],
-        "description": "사용자가 특정 질문에 대한 답변을 삭제합니다. 사용자는 JWT를 통해 인증되며, 해당 답변에 대한 권한이 확인됩니다.",
+        "description": "사용자가 특정 질문에 대한 답변을 삭제합니다.",
         "parameters": [
-            {
-                "name": "question_id",
-                "in": "path",
-                "required": true,
-                "description": "삭제할 답변이 속한 질문의 ID",
-                "schema": {
-                    "type": "integer"
-                }
-            },
-            {
-                "name": "answer_id",
-                "in": "path",
-                "required": true,
-                "description": "삭제할 답변의 ID",
-                "schema": {
-                    "type": "integer"
-                }
+          {
+            "name": "question_id",
+            "in": "path",
+            "required": true,
+            "description": "삭제할 답변이 속한 질문의 ID",
+            "schema": {
+              "type": "integer"
             }
+          },
+          {
+            "name": "answer_id",
+            "in": "path",
+            "required": true,
+            "description": "삭제할 답변의 ID",
+            "schema": {
+              "type": "integer"
+            }
+          }
         ],
         "responses": {
-            "200": {
-                "description": "답변이 성공적으로 삭제되었습니다."
-            },
-            "403": {
-                "description": "이 답변을 삭제할 권한이 없습니다."
-            },
-            "404": {
-                "description": "답변을 찾을 수 없습니다."
-            },
-            "500": {
-                "description": "서버 오류로 답변 삭제에 실패했습니다."
-            }
+          "200": {
+            "description": "답변이 성공적으로 삭제되었습니다."
+          },
+          "403": {
+            "description": "이 답변을 삭제할 권한이 없습니다."
+          },
+          "404": {
+            "description": "답변을 찾을 수 없습니다."
+          },
+          "500": {
+            "description": "서버 오류로 답변 삭제에 실패했습니다."
+          }
         },
         "security": [
           { "bearerAuth": [] }
         ]
-    }
-  },
+      }
+    },
+    "/contents/places": {
+      "post": {
+        "summary": "오늘의 장소 등록",
+        "tags": ["Today's Places"],
+        "description": "사용자가 오늘의 장소를 등록합니다. 사용자는 JWT를 통해 인증되며, 장소 등록 시 카테고리 번호, 메모와 기분을 입력할 수 있습니다.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Place"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "오늘의 장소가 성공적으로 등록되었습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Place"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/contents/places/{place_id}": {
+      "get": {
+        "summary": "오늘의 장소 조회",
+        "tags": ["Today's Places"],
+        "description": "사용자가 특정 ID에 해당하는 오늘의 장소를 조회합니다.",
+        "parameters": [
+          {
+            "name": "place_id",
+            "in": "path",
+            "required": true,
+            "description": "조회할 장소의 ID",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "오늘의 장소 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Place"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "장소를 찾을 수 없습니다."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "summary": "오늘의 장소 수정",
+        "tags": ["Today's Places"],
+        "description": "사용자가 특정 장소의 정보를 수정합니다.",
+        "parameters": [
+          {
+            "name": "place_id",
+            "in": "path",
+            "required": true,
+            "description": "수정할 장소의 ID",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Place"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "장소가 성공적으로 수정되었습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Place"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "장소를 찾을 수 없습니다."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "오늘의 장소 삭제",
+        "tags": ["Today's Places"],
+        "description": "사용자가 특정 장소를 삭제합니다.",
+        "parameters": [
+          {
+            "name": "place_id",
+            "in": "path",
+            "required": true,
+            "description": "삭제할 장소의 ID",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "장소가 성공적으로 삭제되었습니다."
+          },
+          "404": {
+            "description": "장소를 찾을 수 없습니다."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/friends/{sign_id}/followers": {
       "get": {
         "summary": "팔로워 목록 조회",
@@ -2629,6 +2996,36 @@
           ]
         }
       },
+      "/points/criteria/all": {
+        "get": {
+          "summary": "포인트 기준 조회",
+          "tags": ["Points"],
+          "description": "관리자가 등록한 모든 포인트 기준을 조회합니다.",
+          "responses": {
+            "200": {
+              "description": "포인트 기준이 성공적으로 조회되었습니다.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/PointCriteria"
+                    }
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ]
+        }
+      },
       "/points/criteria/{criteria_id}": {
         "patch": {
           "summary": "포인트 기준 수정",
@@ -3009,6 +3406,13 @@
 },
 
   "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
     "schemas": {
       "Login": {
         "type": "object",
@@ -3189,15 +3593,6 @@
             "type": "string",
             "description": "게시물 사진 URL"
           },
-          "diary_emotion": {
-            "type": "string",
-            "description": "감정"
-          },
-          "cate_num": {
-            "type": "integer",
-            "format": "int64",
-            "description": "카테고리 번호"
-          },
           "createdAt": {
             "type": "string",
             "format": "date-time",
@@ -3244,15 +3639,6 @@
             "format": "int64",
             "description": "게시판 ID"
           },
-          "diary_emotion": {
-            "type": "string",
-            "description": "감정"
-          },
-          "cate_num": {
-            "type": "integer",
-            "format": "int64",
-            "description": "카테고리 번호"
-          },
           "post_photo": {
             "type": "string",
             "format": "binary",
@@ -3279,16 +3665,6 @@
           "access_level": {
             "type": "integer",
             "description": "접근 수준 (0: public, 1: private, 2: friend)"
-          },
-
-          "diary_emotion": {
-            "type": "string",
-            "description": "감정"
-          },
-          "cate_num": {
-            "type": "integer",
-            "format": "int64",
-            "description": "카테고리 번호"
           },
           "post_photo": {
             "type": "string",
@@ -3441,28 +3817,6 @@
           }
         }
       },
-      "CreateAnswerRequest": {
-        "type": "object",
-        "properties": {
-          "answer_text": {
-            "type": "string",
-            "description": "생성할 답변의 텍스트",
-            "example": "오늘의 질문에 대한 답변입니다."
-          }
-        },
-        "required": ["answer_text"]
-      },
-      "UpdateAnswerRequest": {
-        "type": "object",
-        "properties": {
-          "answer_text": {
-            "type": "string",
-            "description": "수정할 답변의 텍스트",
-            "example": "수정된 답변 내용입니다."
-          }
-        },
-        "required": ["answer_text"]
-      },
       "QuestionResponse": {
         "type": "object",
         "properties": {
@@ -3495,53 +3849,91 @@
           }
         }
       },
-      "AnswerResponse": {
+      "Answer": {
         "type": "object",
         "properties": {
-          "message": {
-            "type": "string",
-            "description": "응답 메시지",
-            "example": "답변이 등록되었습니다."
+          "answer_id": {
+            "type": "integer",
+            "description": "답변 ID"
           },
-          "data": {
-            "type": "object",
-            "properties": {
-              "answer_id": {
-                "type": "integer",
-                "description": "생성된 답변의 ID"
-              },
-              "question_id": {
-                "type": "integer",
-                "description": "답변이 속한 질문의 ID"
-              },
-              "answer_text": {
-                "type": "string",
-                "description": "답변의 텍스트"
-              },
-              "sign_id": {
-                "type": "integer",
-                "description": "답변을 작성한 사용자의 ID"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time",
-                "description": "답변이 생성된 시간"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time",
-                "description": "답변이 수정된 시간"
-              }
-            }
+          "question_id": {
+            "type": "integer",
+            "description": "질문 ID"
+          },
+          "sign_id": {
+            "type": "integer",
+            "description": "사용자 ID"
+          },
+          "answer_text": {
+            "type": "string",
+            "description": "답변 텍스트"
+          },
+          "diary_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "연결된 일기 ID"
+          },
+          "answer_photo": {
+            "type": "string",
+            "format": "binary",
+            "description": "첨부된 답변 사진 경로"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "답변 생성 날짜"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "답변 수정 날짜"
           }
-        }
+        },
+        "required": ["answer_id", "question_id", "sign_id", "diary_id", "answer_text"]
       },
-      "UpdateAnswerSuccessResponse": {
+      "Place": {
         "type": "object",
         "properties": {
-          "message": {
+          "place_id": {
+            "type": "integer",
+            "description": "장소 ID",
+            "example": 1
+          },
+          "today_mood": {
             "type": "string",
-            "example": "답변이 성공적으로 수정되었습니다."
+            "description": "오늘의 기분",
+            "example": "행복"
+          },
+          "place_memo": {
+            "type": "string",
+            "description": "장소에 대한 메모",
+            "example": "카페에서 커피마시기"
+          },
+          "cate_num": {
+            "type": "integer",
+            "description": "카테고리 번호 (영화관:1, 놀이공원:2 등)",
+            "example": 3
+          },
+          "sign_id": {
+            "type": "integer",
+            "description": "사용자 ID"
+          },
+          "diary_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "연결된 일기 ID"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "장소 생성 시간",
+            "example": "2023-09-24T12:34:56Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "장소 수정 시간",
+            "example": "2023-09-24T13:00:00Z"
           }
         }
       },

@@ -10,6 +10,10 @@ class Routine extends Sequelize.Model {
           primaryKey: true,
           autoIncrement: true
         },
+        routine_title: {
+          type: Sequelize.TEXT,
+          allowNull: false,
+        },
         description: {
           type: Sequelize.TEXT,
           allowNull: true,
@@ -19,12 +23,11 @@ class Routine extends Sequelize.Model {
           allowNull: false,
           defaultValue: false,
         },
-        user_id: {
-            type: Sequelize.BIGINT,
-            allowNull: false,
-   
-  
-          },
+        sign_id: {
+          type: Sequelize.STRING(255),
+          allowNull: false,
+          unique: true,
+        },
       },
       {
         sequelize,
@@ -40,8 +43,8 @@ class Routine extends Sequelize.Model {
   }
   static associate(db){
     db.Routine.belongsTo(db.User, {
-        foreignKey: "user_id",
-        targetKey: "user_id",
+        foreignKey: "sign_id",
+        targetKey: "sign_id",
         onDelete: "CASCADE",
       });
   }

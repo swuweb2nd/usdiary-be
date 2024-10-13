@@ -60,7 +60,6 @@ exports.createQna = async (req, res) => {
       
       // QnA 생성
       const newQna = await Qna.create({
-        sign_id: signId,
         qna_title: titleId, 
         qna_content: contentId,
         is_completed: false 

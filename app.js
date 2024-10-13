@@ -5,7 +5,7 @@ const morgan = require('morgan');
 const swaggerUi = require("swagger-ui-express");
 const swaggerFile = require('./swagger/swagger-output.json')
 const cors = require('cors');
-
+const permissionRoutes = require('./routes/checkPermissions');
 const diaryRoutes = require('./routes/diary');
 const userRoutes = require('./routes/users'); 
 const registerRoutes = require('./routes/register'); 
@@ -42,7 +42,7 @@ app.use(morgan('dev'));
 
 app.use(express.json()); // JSON 요청 파싱 미들웨어 추가
 // 정적 파일 제공 설정
-app.use('/uploads', express.static(path.join(__dirname, 'images')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 // 라우팅
@@ -53,6 +53,7 @@ app.use('/register', registerRoutes);
 app.use('/diaries', commentRoutes);
 app.use('/contents', contentRoutes);
 app.use('/friends', friendRoutes);
+app.use('/checkPermissions', permissionRoutes);
 app.use('/mypages', mypageRoutes);
 app.use('/like', likeRoutes);
 app.use('/points', pointRoutes)
