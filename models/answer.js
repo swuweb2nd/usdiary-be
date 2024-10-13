@@ -14,11 +14,11 @@ class Answer extends Sequelize.Model {
           type: Sequelize.STRING(255),
           allowNull: false
         },
-        sign_id: {
-          type: Sequelize.STRING(255),
+        user_id: {
+          type: Sequelize.BIGINT,
           allowNull: false,
-          unique: true,
-        },
+          primaryKey: true
+        }
       },
       {
         sequelize,

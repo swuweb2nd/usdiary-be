@@ -23,10 +23,9 @@ class Routine extends Sequelize.Model {
           allowNull: false,
           defaultValue: false,
         },
-        sign_id: {
-          type: Sequelize.STRING(255),
+        user_id: {
+          type: Sequelize.BIGINT,
           allowNull: false,
-          unique: true,
         },
       },
       {
@@ -43,8 +42,8 @@ class Routine extends Sequelize.Model {
   }
   static associate(db){
     db.Routine.belongsTo(db.User, {
-        foreignKey: "sign_id",
-        targetKey: "sign_id",
+        foreignKey: "user_id",
+        targetKey: "user_id",
         onDelete: "CASCADE",
       });
   }

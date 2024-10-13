@@ -20,9 +20,9 @@ exports.renderDiary = async (req, res) => {
           return res.status(404).json({ message: 'Diary not found' ,data: {diary}});
       }
       console.log(diary)
-      res.json(diary);
+      return res.json(diary);
   } catch (error) {
-      res.status(500).json({ message: 'Server error', error });
+    return res.status(500).json({ message: 'Server error', error });
   }
 };
 //해당 글 조회
@@ -47,9 +47,9 @@ exports.renderDiary = async (req, res) => {
       }
       
       console.log(diary);
-      res.json({ data: { diary } });
+      return res.json({ data: { diary } });
   } catch (error) {
-      res.status(500).json({ message: 'Server error', error });
+    return res.status(500).json({ message: 'Server error', error });
   }
 };
 
@@ -57,16 +57,19 @@ exports.renderDiary = async (req, res) => {
 //일기 작성
 exports.createDiary = async (req, res) => {
   const signId = res.locals.decoded.sign_id; // JWT에서 사용자 sign_id 가져오기
+  const user = await User.findOne({ where: { sign_id: signId } });
   const postPhotos = req.files ? req.files.map(file => file.path) : [];
   try {
     const newDiary = await Diary.create({
         diary_title: req.body.diary_title,
         diary_content: req.body.diary_content,
         diary_cate: req.body.diary_cate,
-        access_level: req.body.access_level,
-        board_id: req.body.board_id,
+        access_level: "2",
+        // access_level: req.body.access_level,
+        board_id: "1",
+        // board_id: req.body.board_id,
         post_photo:  JSON.stringify(postPhotos),
-        sign_id: signId // JWT에서 가져온 sign_id 사용
+        user_id: user.user_id // JWT에서 가져온 sign_id 사용
     });
 
   // 기본 활동에 대한 포인트 추가
@@ -74,7 +77,7 @@ exports.createDiary = async (req, res) => {
 
   // 연속 작성일 경우 추가 포인트
   const lastDiary = await Diary.findOne({
-    where: { sign_id: signId },
+    where: { user_id: user.user_id },
     order: [['createdAt', 'DESC']],
   });
 
@@ -87,13 +90,13 @@ exports.createDiary = async (req, res) => {
     await gainPoints(req, res, '일기에 사진 3장 이상 첨부 시');
   }
 
-    res.status(201).json({
+    return res.status(201).json({
         message: 'Diary created successfully',
         data: newDiary
     });
 } catch (error) {
     console.error('Error creating diary:', error);
-    res.status(500).json({ error: 'An error occurred while creating the diary' });
+    return res.status(500).json({ error: 'An error occurred while creating the diary' });
   }
 };
 
@@ -192,10 +195,10 @@ exports.sortDiary = async (req, res) => {
       loggin: console.log // 페이지네이션 오프셋
     });
 
-    res.json({ data: { diary, totalDiaries } }); // 결과 반환
+    return res.json({ data: { diary, totalDiaries } }); // 결과 반환
   } catch (error) {
     console.error('Error sorting diary:', error); // 오류 로그
-    res.status(500).json({ message: 'Internal Server Error' }); // 오류 응답
+    return res.status(500).json({ message: 'Internal Server Error' }); // 오류 응답
   }
 };
 
@@ -237,10 +240,10 @@ exports.sortWeeklyViews = async (req, res) => {
       offset: offset,
     });
 
-    res.json({data: {diary,totalDiaries}});
+    return res.json({data: {diary,totalDiaries}});
   } catch (error) {
     console.error('Error sorting weekly views:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 

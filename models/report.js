@@ -1,5 +1,4 @@
 const {Sequelize} = require("sequelize");
-const { initiate } = require("./friend");
 
 class Report extends Sequelize.Model {
     static initiate(sequelize) {
@@ -54,9 +53,9 @@ class Report extends Sequelize.Model {
     }
     static associate(db) {
         // 신고한 사람
-        this.belongsTo(db.User,{foreignKey : "reporter_id", targetKey: "sign_id", onDelete: "CASCADE"});
+        this.belongsTo(db.User,{foreignKey : "reporter_id", targetKey: "user_id", onDelete: "CASCADE"});
         // 신고당한 사람
-        this.belongsTo(db.User,{foreignKey : "reported_id", targetKey: "sign_id", onDelete: "CASCADE"});
+        this.belongsTo(db.User,{foreignKey : "reported_id", targetKey: "user_id", onDelete: "CASCADE"});
         // 신고한 일기
         this.belongsTo(db.Diary,{foreignKey : "diary_id", targetKey: "diary_id", onDelete: "CASCADE"}); // (N:1)하나의 다이어리에 여러 개의 신고가 있을 수 있음
     }
