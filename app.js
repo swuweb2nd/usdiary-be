@@ -16,6 +16,7 @@ const mypageRoutes = require('./routes/mypage');
 const likeRoutes = require('./routes/like');
 const pointRoutes = require('./routes/point');
 const reportRoutes = require('./routes/reports');
+const qnaRoutes = require('./routes/qna');
 
 const { sequelize } = require('./models'); // db.sequelize 객체
 app.use(cors({
@@ -57,6 +58,7 @@ app.use('/mypages', mypageRoutes);
 app.use('/like', likeRoutes);
 app.use('/points', pointRoutes)
 app.use('/reports', reportRoutes);
+app.use('/qnas', qnaRoutes);
 
 // 404 오류 처리
 app.use((req, res, next) => {

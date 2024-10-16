@@ -3289,6 +3289,121 @@
         ]
       }
     },
+"/qnas/list": {
+  "get": {
+    "summary": "1:1 문의 목록 조회",
+    "description": "사용자가 작성한 1:1 문의 목록을 조회합니다.",
+    "tags": ["QnA"],
+    "responses": {
+      "200": {
+        "description": "문의 목록 조회 성공",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/QnaListResponse"
+              }
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "문의 내역이 없습니다."
+      },
+      "500": {
+        "description": "서버 오류"
+      },
+      "default": {
+        "description": "기타 오류"
+      }
+    },
+    "security": [
+      { "bearerAuth": [] }
+    ]
+  }
+},
+"/qnas/{qna_id}": {
+  "get": {
+    "summary": "특정 1:1 문의 조회",
+    "description": "사용자가 작성한 특정 1:1 문의를 조회합니다.",
+    "tags": ["QnA"],
+    "parameters": [
+      {
+        "name": "qna_id",
+        "in": "path",
+        "description": "조회할 QnA ID",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "문의 조회 성공",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/QnaResponse"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "해당 문의를 찾을 수 없습니다."
+      },
+      "500": {
+        "description": "서버 오류"
+      },
+      "default": {
+        "description": "기타 오류"
+      }
+    },
+    "security": [
+      { "bearerAuth": [] }
+    ]
+  }
+},
+"/qnas": {
+  "post": {
+    "summary": "1:1 문의 등록",
+    "description": "사용자가 새로운 1:1 문의를 등록합니다.",
+    "tags": ["QnA"],
+    "requestBody": {
+      "content": {
+        "multipart/form-data": {
+          "schema": {
+            "$ref": "#/components/schemas/CreateQnaRequest"
+          }
+        }
+      },
+      "required": true
+    },
+    "responses": {
+      "201": {
+        "description": "문의 등록 성공",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/QnaResponse"
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "서버 오류"
+      },
+      "default": {
+        "description": "기타 오류"
+      }
+    },
+    "security": [
+      { "bearerAuth": [] }
+      ]
+    }
+  }
+    },
     "/opposite-page": {
       "get": {
         "summary": "반대 페이지 조회",
@@ -3459,6 +3574,13 @@
           }
         },
         "required": ["sign_id", "password"]
+      },
+      "securitySchemes": {
+        "bearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT"
+        }
       },
       "FindID": {
         "type": "object",
@@ -4024,6 +4146,68 @@
           }
         }
       },
+    "QnaListResponse": {
+      "type": "object",
+      "properties": {
+        "qna_id": {
+          "type": "integer",
+          "description": "QnA ID"
+        },
+        "qna_title": {
+          "type": "string",
+          "description": "QnA 제목"
+        },
+        "is_completed": {
+          "type": "boolean",
+          "description": "QnA 처리 상태"
+        },
+        "view_count": {
+          "type": "integer",
+          "description": "조회수"
+        }
+      }
+    },
+   "QnaResponse": {
+      "type": "object",
+      "properties": {
+        "qna_id": {
+          "type": "integer",
+          "description": "QnA ID"
+        },
+        "qna_title": {
+          "type": "string",
+          "description": "QnA 제목"
+        },
+       "qna_content": {
+          "type": "string",
+          "description": "QnA 내용"
+       },
+        "is_completed": {
+          "type": "boolean",
+          "description": "QnA 처리 상태"
+        },
+        "view_count": {
+          "type": "integer",
+          "description": "조회수"
+        }
+      }
+    },
+   "CreateQnaRequest": {
+  "type": "object",
+  "properties": {
+    "qna_title": {
+      "type": "string",
+      "description": "QnA 제목",
+      "example": "문의 제목입니다."
+    },
+    "qna_content": {
+      "type": "string",
+      "description": "사용자가 작성한 문의 내용",
+      "example": "질문 내용을 여기에 작성하세요."
+    }
+  },
+  "required": ["qna_title", "qna_content"]
+},
       "ProfileResponse": {
         "type": "object",
         "properties": {
@@ -4072,6 +4256,9 @@
             "type": "string"
           },
             "properties": {
+              " user_pwd": {
+                "type": "string"
+              },
               "user_nick": {
                 "type": "string"
               },

@@ -28,7 +28,7 @@ exports.getProfile = async (req, res) => {
 //프로필 수정
 exports.updateProfile = async (req, res) => {
     const { user_id } = req.params;
-    const { sign_id, user_nick, user_email, user_name, user_phone, user_birthday, user_gender } = req.body;
+    const { sign_id, user_nick, user_pwd, user_email, user_name, user_phone, user_birthday, user_gender } = req.body;
     const profile_img = req.file ? req.file.filename : null; // 프로필 이미지 파일 처리
 
     try {
@@ -42,6 +42,7 @@ exports.updateProfile = async (req, res) => {
         await user.update({
             sign_id,
             user_nick,
+            user_pwd,
             user_email,
             user_name,
             user_phone,
