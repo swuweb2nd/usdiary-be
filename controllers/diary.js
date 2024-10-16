@@ -59,46 +59,50 @@ exports.createDiary = async (req, res) => {
   const signId = res.locals.decoded.sign_id; // JWT에서 사용자 sign_id 가져오기
   const user = await User.findOne({ where: { sign_id: signId } });
   const postPhotos = req.files ? req.files.map(file => file.path) : [];
+  
   try {
     const newDiary = await Diary.create({
-        diary_title: req.body.diary_title,
-        diary_content: req.body.diary_content,
-        diary_cate: req.body.diary_cate,
-        access_level: "2",
-        // access_level: req.body.access_level,
-        board_id: "1",
-        // board_id: req.body.board_id,
-        post_photo:  JSON.stringify(postPhotos),
-        user_id: user.user_id // JWT에서 가져온 sign_id 사용
+      diary_title: req.body.diary_title,
+      diary_content: req.body.diary_content,
+      diary_cate: req.body.diary_cate,
+      access_level: "2",
+      // access_level: req.body.access_level,
+      board_id: "1",
+      // board_id: req.body.board_id,
+      post_photo: JSON.stringify(postPhotos),
+      user_id: user.user_id // JWT에서 가져온 sign_id 사용
     });
 
-  // 기본 활동에 대한 포인트 추가
-  await gainPoints(req, res, '글쓰기');
+    // 기본 활동에 대한 포인트 추가
+    await gainPoints(signId, '글쓰기');
 
-  // 연속 작성일 경우 추가 포인트
-  const lastDiary = await Diary.findOne({
-    where: { user_id: user.user_id },
-    order: [['createdAt', 'DESC']],
-  });
+    // 연속 작성일 경우 추가 포인트
+    const lastDiary = await Diary.findOne({
+      where: { user_id: user.user_id },
+      order: [['createdAt', 'DESC']],
+    });
 
-  if (lastDiary && dayjs().diff(dayjs(lastDiary.createdAt), 'day') === 1) {
-    await gainPoints(req, res, '연속 글 쓰기');
-  }
+    if (lastDiary && dayjs().diff(dayjs(lastDiary.createdAt), 'day') === 1) {
+      await gainPoints(signId, '연속 글 쓰기');
+    }
 
-  // 사진이 3장 이상이면 추가 포인트
-  if (req.files && req.files.length >= 3) {
-    await gainPoints(req, res, '일기에 사진 3장 이상 첨부 시');
-  }
+    // 사진이 3장 이상이면 추가 포인트
+    if (req.files && req.files.length >= 3) {
+      await gainPoints(signId, '일기에 사진 3장 이상 첨부 시');
+    }
 
+    // 응답은 여기서 한 번만 보냅니다.
     return res.status(201).json({
-        message: 'Diary created successfully',
-        data: newDiary
+      message: 'Diary created successfully',
+      data: newDiary
     });
-} catch (error) {
+
+  } catch (error) {
     console.error('Error creating diary:', error);
     return res.status(500).json({ error: 'An error occurred while creating the diary' });
   }
 };
+
 
 // 일기 수정
 exports.updateDiary = async (req, res) => {

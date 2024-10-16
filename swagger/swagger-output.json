@@ -3547,10 +3547,8 @@
           }
         }
       }
-    }
-    
-},
-
+    }, 
+  
   "components": {
     "securitySchemes": {
       "bearerAuth": {
