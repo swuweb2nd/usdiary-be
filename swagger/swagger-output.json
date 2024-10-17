@@ -2038,13 +2038,13 @@
       "post": {
         "summary": "오늘의 질문 생성",
         "tags": ["Today's Q&A"],
-        "description": "새로운 질문을 생성합니다. JWT를 통해 인증된 사용자의 ID가 질문에 연관됩니다.",
+        "description": "새로운 질문을 생성합니다.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateQuestionRequest"
+                "$ref": "#/components/schemas/TodayQuestion"
               }
             }
           }
@@ -2055,7 +2055,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/QuestionResponse"
+                  "$ref": "#/components/schemas/TodayQuestion"
                 }
               }
             }
@@ -2063,12 +2063,41 @@
           "500": {
             "description": "서버 오류로 질문 생성에 실패했습니다."
           }
-        },
-        "security": [
-          {
-            "bearerAuth": []
+        }
+      }
+    },
+    "/contents/questions/random": {
+      "get": {
+        "summary": "랜덤 질문 조회",
+        "tags": ["Today's Q&A"],
+        "description": "데이터베이스에서 랜덤으로 오늘의 질문 중 하나를 조회합니다.",
+        "responses": {
+          "200": {
+            "description": "랜덤 질문 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "랜덤 질문 조회 성공"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/TodayQuestion"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "질문이 존재하지 않음"
+          },
+          "500": {
+            "description": "서버 오류"
           }
-        ]
+        }
       }
     },
     "/contents/questions/{question_id}/answers": {
@@ -4091,45 +4120,26 @@
           }
         }
       },
-      "CreateQuestionRequest": {
+      "TodayQuestion": {
         "type": "object",
         "properties": {
+          "question_id": {
+            "type": "integer",
+            "description": "질문 ID"
+          },
           "question_text": {
             "type": "string",
-            "description": "생성할 질문의 텍스트",
-            "example": "오늘의 질문은 무엇인가요?"
-          }
-        }
-      },
-      "QuestionResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "description": "응답 메시지",
-            "example": "질문이 생성되었습니다."
+            "description": "질문의 내용"
           },
-          "data": {
-            "type": "object",
-            "properties": {
-              "question_id": {
-                "type": "integer",
-                "description": "생성된 질문의 ID"
-              },
-              "question_text": {
-                "type": "string",
-                "description": "생성된 질문의 텍스트"
-              },
-              "sign_id": {
-                "type": "integer",
-                "description": "질문을 생성한 사용자의 ID"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time",
-                "description": "질문이 생성된 시간"
-              }
-            }
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "질문이 생성된 시간"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "질문이 수정된 시간"
           }
         }
       },
