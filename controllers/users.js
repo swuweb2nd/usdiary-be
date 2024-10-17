@@ -31,7 +31,7 @@ exports.login = async (req, res) => {
         }
 
         console.log('Password validated successfully.');
-               
+        
          // 로그인 성공 시 최근 접속일 업데이트
         await user.update({ last_login: new Date() });
         const token = jwt.sign(
@@ -126,6 +126,36 @@ exports.findPwd = async (req, res) => {
         res.status(500).json({
             message: "서버 내부 오류"
         });
+    }
+};
+
+// 비밀번호 확인
+exports.checkPassword = async (req, res) => {
+    const { password } = req.body;
+
+    try {
+        if (!password) {
+            return res.status(400).json({ message: '비밀번호는 필수 입력 사항입니다.' });
+        }
+
+        const userId = res.locals.decoded.user_id;
+
+        const user = await User.findOne({ where: { user_id: userId } });
+
+        if (!user) {
+            return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.user_pwd);
+
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: '잘못된 비밀번호입니다.' });
+        }
+
+        return res.json({ message: '비밀번호가 일치합니다.' });
+    } catch (error) {
+        console.error('비밀번호 확인 중 오류 발생:', error);
+        return res.status(500).json({ message: '내부 서버 오류입니다.' });
     }
 };
 
@@ -261,7 +291,7 @@ exports.googleCallback = async (req, res) => {
 exports.checkOppositePagePermission = (req, res) => {
     res.json({ canAccess: true });
 }
-  
+
 
 
 // 로그아웃

@@ -34,14 +34,14 @@ class Admin extends Sequelize.Model {
       }
     );
   }
-//   static associate(db) {
-//     db.Board.hasMany(db.Diary, {
-//       foreignKey: "board_id", //상대 테이블에 참조하는 값의 칼럼 이름
-//       sourceKey: "board_id", //이 테이블의 참조당하는 값
-//       onDelete: "CASCADE",
-//     });
 
-//   }
+  static associate(db) {
+    db.Admin.hasMany(db.Notice, {
+      foreignKey: "admin_id",
+      sourceKey: "admin_id",
+      onDelete: "SET NULL",
+    });
+  }
 }
 
 module.exports = Admin;

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { createTodo,getTodo,updateTodo,deleteTodo,
         createRoutine,getRoutine,updateRoutine,deleteRoutine,
-        createQuestion,
+        createQuestion, getRandomQuestion,
         createAnswer, getAnswer, updateAnswer,deleteAnswer,
         createPlace, getPlace, updatePlace, deletePlace
       }= require('../controllers/content');
@@ -21,7 +21,9 @@ router.patch('/routines/:routine_id', verifyToken, updateRoutine);
 router.delete('/routines/:routine_id', verifyToken, deleteRoutine);
 
 // TodayQuestion
-router.post('/questions', verifyToken, createQuestion);
+router.post('/questions', createQuestion);
+// 랜덤 질문 조회
+router.get('/questions/random', getRandomQuestion);
 
 // TodayAnswer
 router.post('/questions/:question_id/answers', verifyToken, uploadSingle, createAnswer);

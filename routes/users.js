@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { login, findId, findPwd, updateTendency, getLoginPage, googleCallback } = require('../controllers/users');
+const { login, findId, findPwd, checkPassword,updateTendency, getLoginPage, googleCallback } = require('../controllers/users');
 const { verifyToken } = require('../middlewares/jwt');
 
 // 로그인
@@ -9,6 +9,8 @@ router.post('/login', login);
 router.post('/findId', findId);
 // 비밀번호 찾기
 router.post('/findPwd', findPwd);
+// 비밀번호 확인
+router.post('/check-password', verifyToken, checkPassword);
 // 유저 성향 선택
 router.patch('/:sign_id/tendency', verifyToken, updateTendency);
 
