@@ -3457,8 +3457,243 @@
     "security": [
       { "bearerAuth": [] }
       ]
-    }
   }
+},
+    "/notice": {
+      "get": {
+        "summary": "공지사항 목록 조회",
+        "tags": ["Notice"],
+        "description": "공지사항 목록을 조회할 수 있습니다.",
+        "responses": {
+          "200": {
+            "description": "공지사항 목록 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "성공 메시지"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Notice"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 오류"
+          }
+        }
+      },
+      "post": {
+        "summary": "공지사항 생성",
+        "tags": ["Notice"],
+        "description": "관리자가 새로운 공지사항을 생성할 수 있습니다.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "공지사항 제목",
+                    "example": "새로운 공지사항"
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "공지사항 내용",
+                    "example": "공지사항의 내용입니다."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "공지사항 생성 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "성공 메시지"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Notice"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 오류"
+          }
+        }
+      }
+    },
+    "/notice/{notice_id}": {
+      "get": {
+        "summary": "공지사항 단일 조회",
+        "tags": ["Notice"],
+        "description": "특정 공지사항을 조회할 수 있습니다.",
+        "parameters": [
+          {
+            "name": "notice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "조회할 공지사항의 ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "공지사항 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "성공 메시지"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Notice"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "공지사항을 찾을 수 없음"
+          },
+          "500": {
+            "description": "서버 오류"
+          }
+        }
+      },
+      "patch": {
+        "summary": "공지사항 수정",
+        "tags": ["Notice"],
+        "description": "특정 공지사항을 수정할 수 있습니다.",
+        "parameters": [
+          {
+            "name": "notice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "수정할 공지사항의 ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "공지사항 제목",
+                    "example": "수정된 공지사항 제목"
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "수정된 공지사항 내용",
+                    "example": "수정된 공지사항 내용입니다."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "공지사항 수정 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "성공 메시지"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Notice"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "공지사항을 찾을 수 없음"
+          },
+          "500": {
+            "description": "서버 오류"
+          }
+        }
+      },
+      "delete": {
+        "summary": "공지사항 삭제",
+        "tags": ["Notice"],
+        "description": "특정 공지사항을 삭제할 수 있습니다.",
+        "parameters": [
+          {
+            "name": "notice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "삭제할 공지사항의 ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "공지사항 삭제 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "성공 메시지"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "공지사항을 찾을 수 없음"
+          },
+          "500": {
+            "description": "서버 오류"
+          }
+        }
+      }
+    }
 },
 
   "components": {
@@ -3484,13 +3719,6 @@
           }
         },
         "required": ["sign_id", "password"]
-      },
-      "securitySchemes": {
-        "bearerAuth": {
-          "type": "http",
-          "scheme": "bearer",
-          "bearerFormat": "JWT"
-        }
       },
       "FindID": {
         "type": "object",
@@ -4077,7 +4305,7 @@
         }
       }
     },
-   "QnaResponse": {
+  "QnaResponse": {
       "type": "object",
       "properties": {
         "qna_id": {
@@ -4088,10 +4316,10 @@
           "type": "string",
           "description": "QnA 제목"
         },
-       "qna_content": {
+        "qna_content": {
           "type": "string",
           "description": "QnA 내용"
-       },
+        },
         "is_completed": {
           "type": "boolean",
           "description": "QnA 처리 상태"
@@ -4102,9 +4330,9 @@
         }
       }
     },
-   "CreateQnaRequest": {
-  "type": "object",
-  "properties": {
+  "CreateQnaRequest": {
+    "type": "object",
+    "properties": {
     "qna_title": {
       "type": "string",
       "description": "QnA 제목",
@@ -4159,13 +4387,9 @@
           }
         }
       },
-    "ProfileUpdateRequest": {
+      "ProfileUpdateRequest": {
         "type": "object",
         "properties": {
-          "message": {
-            "type": "string"
-          },
-            "properties": {
               " user_pwd": {
                 "type": "string"
               },
@@ -4192,10 +4416,9 @@
                 "type": "string",
                 "format": "url"
               }
-            }
           }
-        },
-        "ProfileUpdateResponse": {
+      },
+      "ProfileUpdateResponse": {
         "type": "object",
         "properties": {
           "message": {
@@ -4277,6 +4500,32 @@
             },
             "description": "조회된 일기 리스트"
           }
+        }
+      },
+      "Notice": {
+        "type": "object",
+        "properties": {
+          "notice_id": {
+          "type": "integer",
+            "description": "공지사항 ID"
+            },
+            "title": {
+              "type": "string",
+              "description": "공지사항 제목"
+            },
+            "content": {
+              "type": "string",
+              "description": "공지사항 내용"
+            },
+            "view_count": {
+              "type": "integer",
+              "description": "공지사항 조회수"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "description": "공지사항 생성일"
+            }
         }
       }
     }
