@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const validator = require('validator');
 const { User } = require('../models');
@@ -118,8 +119,14 @@ exports.register = async (req, res) => {
             verificationToken: crypto.randomBytes(32).toString('hex'),
             isVerified: true
         });
+        // JWT 토큰 생성
+        const token = jwt.sign(
+            { sign_id: newUser.sign_id, user_id: newUser.user_id },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' } 
+        );        
 
-        res.status(201).json({ message: '회원가입이 완료되었습니다.' , data: { newUser }});
+        res.status(201).json({ message: '회원가입이 완료되었습니다.' , data: { newUser, token }});
     } catch (error) {
         res.status(500).json({ message: '서버 오류가 발생했습니다.', error: error.message });
     }
