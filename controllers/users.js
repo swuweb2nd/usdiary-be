@@ -271,17 +271,16 @@ exports.googleCallback = async (req, res) => {
 
         let user = await User.findOne({ where: { user_email: email } });
 
+        let token;
         if (user) {
             console.log('Google 계정으로 이미 가입된 사용자입니다:', user.user_email);
             // 로그인 성공 시 최근 접속일 업데이트
             await user.update({ last_login: new Date() });
-            const token = jwt.sign(
+            token = jwt.sign(
                 { sign_id: user.sign_id }, // sign_id로 토큰 발급
                 process.env.JWT_SECRET,
                 { expiresIn: '24h' } 
             );
-
-            res.status(200).json({ message: 'Google 로그인 성공', data: { token,user,last_login: user.last_login  } });
         } else {
             const newUser = await User.create({
                 user_email: email,
@@ -295,20 +294,23 @@ exports.googleCallback = async (req, res) => {
 
             console.log('신규 사용자로 Google 계정 등록:', newUser.user_email);
 
-            const token = jwt.sign(
-                { sign_id: newUser.sign_id }, // sign_id로 토큰 발급
+            token = jwt.sign(
+                { sign_id: newUser.sign_id, user_id: newUser.user_id }, // sign_id로 토큰 발급
                 process.env.JWT_SECRET,
                 { expiresIn: '24h' }
             );
-
-            res.status(201).json({ message: 'Google 계정으로 신규 가입 및 로그인 성공', data: { token,newUser } });
         }
+
+        // 성공적으로 로그인 후 질문 페이지로 리다이렉트 (쿼리 파라미터에 토큰 포함)
+        const redirectUrl = `http://localhost:3000/question?token=${token}`;
+        res.redirect(redirectUrl);
 
     } catch (error) {
         console.error('Google OAuth 2.0 콜백 처리 중 오류 발생:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+
 // controllers/permissionsController.js
 exports.checkOppositePagePermission = (req, res) => {
     res.json({ canAccess: true });
