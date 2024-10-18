@@ -307,6 +307,7 @@ exports.googleCallback = async (req, res) => {
             redirectUrl = `http://localhost:3000/question?token=${token}`;
         }
 
+        // 성공적으로 로그인 후 리다이렉트
         res.redirect(redirectUrl);
 
     } catch (error) {
@@ -314,6 +315,7 @@ exports.googleCallback = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+
 
 // controllers/permissionsController.js
 exports.checkOppositePagePermission = (req, res) => {
