@@ -240,8 +240,9 @@ exports.sortWeeklyViews = async (req, res) => {
         { model: Board, attributes: ['board_name'] },
       ],
       order: [['view_count', 'DESC']],
-      limit: parseInt(limit),
+      limit: parseInt(limit, 10), // 페이지네이션 한계
       offset: offset,
+      loggin: console.log // 페이지네이션 오프셋
     });
 
     return res.json({data: {diary,totalDiaries}});
@@ -282,8 +283,9 @@ exports.sortWeeklyLikes = async (req, res) => {
         { model: Board, attributes: ['board_name'] },
       ],
       order: [['like_count', 'DESC']],
-      limit: parseInt(limit),
+      limit: parseInt(limit, 10), // 페이지네이션 한계
       offset: offset,
+      loggin: console.log // 페이지네이션 오프셋
     });
 
     

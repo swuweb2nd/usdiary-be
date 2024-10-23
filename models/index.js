@@ -114,5 +114,4 @@ TodayPlace.associate(db);
 Report.associate(db);
 
 
-
 module.exports = db;
