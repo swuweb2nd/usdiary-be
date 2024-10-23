@@ -1,3 +1,4 @@
+const { Sequelize } = require('sequelize');
 const Routine = require('../models/routine');
 const Todo  = require('../models/todos'); 
 const TodayQuestion = require('../models/today_questions'); 
@@ -281,6 +282,31 @@ exports.createQuestion = async (req, res) => {
     } catch (error) {
         console.error('질문 생성 중 오류 발생:', error);
         res.status(500).json({ message: 'Failed to create question' });
+    }
+};
+
+// 랜덤 질문 조회
+exports.getRandomQuestion = async (req, res) => {
+    try {
+        const randomQuestion = await TodayQuestion.findOne({
+            order: Sequelize.literal('RAND()')
+        });
+
+        if (!randomQuestion) {
+            return res.status(404).json({
+                message: '질문이 존재하지 않습니다.'
+            });
+        }
+
+        return res.status(200).json({
+            message: '랜덤 질문 조회 성공',
+            data: randomQuestion
+        });
+    } catch (error) {
+        console.error('랜덤 질문 조회 중 오류 발생:', error);
+        return res.status(500).json({
+            message: '랜덤 질문 조회에 실패했습니다.'
+        });
     }
 };
 

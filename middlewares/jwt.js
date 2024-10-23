@@ -6,14 +6,17 @@ dotenv.config(); // .env 파일에서 JWT_SECRET 가져오기
 exports.verifyToken = (req, res, next) => {
     try {
         const token = req.headers['authorization'];
+        console.log('Authorization header:', req.headers['authorization']); // 토큰 존재 확인
+
         if (!token) {
             return res.status(403).json({ message: 'No token provided' });
         }
 
         const decoded = jwt.verify(token.split(' ')[1], process.env.JWT_SECRET); // 'Bearer ' 부분 제거하고 검증
+        console.log('Decoded JWT:', decoded); // JWT 디코딩 확인
+
         res.locals.decoded = decoded;
 
-        console.log('Decoded JWT:', decoded); // 디버깅을 위해 콘솔에 출력
         return next(); 
     } catch (error) {
         if (error.name === 'TokenExpiredError') {
@@ -28,7 +31,6 @@ exports.verifyToken = (req, res, next) => {
         });
     }
 };
-
 // 관리자 권한 확인 미들웨어 (JWT 토큰 검증 + Admin 테이블에서 관리자 확인)
 exports.verifyAdmin = async (req, res, next) => {
     try {
