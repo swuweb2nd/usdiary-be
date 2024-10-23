@@ -3770,11 +3770,6 @@
           }
         }
       }
-    }
-},
-
-    }
-  }
     },
     "/opposite-page": {
       "get": {
@@ -3919,8 +3914,8 @@
           }
         }
       }
-    }, 
-  
+    }
+  },
   "components": {
     "securitySchemes": {
       "bearerAuth": {
@@ -4732,6 +4727,7 @@
               "format": "date-time",
               "description": "공지사항 생성일"
             }
+            
         }
       }
     }
