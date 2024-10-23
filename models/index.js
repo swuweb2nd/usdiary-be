@@ -113,6 +113,7 @@ UserCondition.associate(db);
 Report.associate(db)
 TodayPlace.associate(db);
 Report.associate(db);
+
 Notice.associate(db); 
 
 module.exports = db;

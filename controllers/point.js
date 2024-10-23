@@ -97,29 +97,21 @@ exports.deletePointCriteria = async (req, res) => {
 };
 
 // 포인트 획득 함수
-exports.gainPoints = async (req, res, activity, pointsEarned = null) => {
+exports.gainPoints = async (signId, activity, pointsEarned = null) => {
   try {
-    const signId = res.locals.decoded.sign_id; // JWT에서 사용자 sign_id 가져오기
+    
 
     // 포인트 기준 테이블에서 해당 활동에 대한 포인트 기준을 찾음
     const criteria = await PointCriteria.findOne({ where: { content: activity } });
-
     if (!criteria && pointsEarned === null) {
-      return res.status(404).json({
-        status: 404,
-        message: '해당 활동에 대한 포인트 기준이 없습니다.',
-        data: null,
-      });
+      console.error('해당 활동에 대한 포인트 기준이 없습니다.');
+      return null;
     }
-
     // 유저의 포인트 업데이트
     const user = await User.findOne({ where: { sign_id: signId } });
     if (!user) {
-      return res.status(404).json({
-        status: 404,
-        message: '사용자를 찾을 수 없습니다.',
-        data: null,
-      });
+      console.error('사용자를 찾을 수 없습니다.');
+      return null;
     }
 
     // 기존 포인트에 기준에 따라 포인트 추가, pointsEarned가 주어진 경우 이를 사용
@@ -129,20 +121,10 @@ exports.gainPoints = async (req, res, activity, pointsEarned = null) => {
     // 변경된 포인트 저장
     await user.save();
 
-    return res.status(200).json({
-      status: 200,
-      message: `${pointsToAdd}점 획득했습니다.`,
-      data: {
-        points: user.user_point,
-      },
-    });
+    return `${pointsToAdd}점 획득했습니다. 현재 포인트: ${user.user_point}`;
   } catch (error) {
     console.error('포인트 획득 중 오류 발생:', error);
-    return res.status(500).json({
-      status: 500,
-      message: '포인트 획득 중 오류가 발생했습니다.',
-      data: null,
-    });
+    return null;
   }
 };
 
