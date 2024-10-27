@@ -18,7 +18,6 @@ class Like extends Sequelize.Model {
           type: Sequelize.BIGINT,
           allowNull: false,
         },
-       
       },
       {
         sequelize,

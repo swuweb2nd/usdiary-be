@@ -10,15 +10,37 @@ class QnA extends Sequelize.Model {
           primaryKey: true,
           autoIncrement: true
         },
+        answer_id: {
+          type: Sequelize.BIGINT,
+          allowNull: true,
+          primaryKey: true,
+        },
+        user_id: { 
+          type: Sequelize.BIGINT,
+          allowNull: false,
+          type: Sequelize.BIGINT,
+        },
         is_completed: {
           type: Sequelize.BOOLEAN,
           allowNull: false
         },
-        user_id: {
+        qna_title: {
+          type: Sequelize.STRING(255),
+          allowNull: false,
+        },
+        qna_content: {
+          type: Sequelize.TEXT,
+          allowNull: false,
+        },
+        answer_content: {
+          type: Sequelize.TEXT,
+          allowNull: true,
+        },
+        view_count: {
           type: Sequelize.BIGINT,
           allowNull: false,
-          primaryKey: true,
-        }
+          defaultValue: 0,
+        },
       },
       {
         sequelize,

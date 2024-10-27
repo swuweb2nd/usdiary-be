@@ -1,6 +1,7 @@
 const { Op } = require('sequelize');
 const dayjs = require('dayjs');
 const Like = require('../models/like');
+const Diary = require('../models/diary');
 const gainPoints = require('../controllers/point').gainPoints; // 포인트 획득 함수 가져오기
 
 // 좋아요 누르기
@@ -8,9 +9,18 @@ exports.likeDiary = async (req, res) => {
     try {
         const signId = req.locals.decoded.sign_id; // 유저 아이디 가져오기
 
+        // 좋아요 생성
         const createLike = await Like.create({
             user_id: signId,
             diary_id: req.body.diary_id
+        });
+
+        // 해당 일기의 like_count 증가
+        await Diary.increment('like_count', {
+            by: 1, // like_count 값을 1 증가
+            where: {
+                diary_id: req.body.diary_id
+            }
         });
 
         const startOfWeek = dayjs().startOf('week').add(1, 'day').toDate();
@@ -38,8 +48,8 @@ exports.likeDiary = async (req, res) => {
                 await gainPoints(req, res, '일기에 좋아요', pointsToAdd);
             }
         }
-        
-    req.status(201).json({
+
+        res.status(201).json({
             message: 'Like created successfully',
             data: createLike
         });

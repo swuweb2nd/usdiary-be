@@ -26,7 +26,7 @@ const TierLog = require("./tierlog");
 const Condition = require("./condition");
 const UserCondition = require("./usercondition");
 const TodayPlace = require("./today_places");
-
+const Notice = require('./notice');
 
 
 
@@ -58,7 +58,7 @@ db.UserCondition = UserCondition;
 db.Report = Report;
 db.TodayPlace = TodayPlace;
 db.sequelize = sequelize;
-
+db.Notice = Notice;
 
 // 관계 설정
 
@@ -85,6 +85,7 @@ TierLog.initiate(sequelize);
 UserCondition.initiate(sequelize);
 Report.initiate(sequelize);
 TodayPlace.initiate(sequelize);
+Notice.initiate(sequelize);
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
@@ -113,6 +114,6 @@ Report.associate(db)
 TodayPlace.associate(db);
 Report.associate(db);
 
-
+Notice.associate(db); 
 
 module.exports = db;

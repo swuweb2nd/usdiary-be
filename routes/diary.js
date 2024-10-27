@@ -21,7 +21,7 @@ router.get('/weekly-views', sortWeeklyViews);
 router.get('/weekly-likes', sortWeeklyLikes);
 
 
-// 일기 작성 페이지 렌더링
+// 일기 조회 페이지 렌더링
 router.get('/:diary_id', verifyToken, renderDiary);
 
 // sign_id를 URL 파라미터로 받도록 설정
