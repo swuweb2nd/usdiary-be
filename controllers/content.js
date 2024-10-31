@@ -11,19 +11,40 @@ const { uploadSingle } = require('../middlewares/upload');
 const fs = require('fs');
 const path = require('path');
 
-// Todo 
-const MAX_TODOS_PER_DIARY = 5
+const MAX_TODOS_PER_DIARY = 5 //투두 개수 제한
+const MAX_ROUTINES_PER_USER = 3; //루틴 개수 제한
+
+// 사용자가 오늘 이미 투두나 루틴을 생성했는지 확인
+const checkDailyActivity = async (diaryId) => {
+    const today = dayjs().startOf('day').toDate();
+    
+    // 오늘 날짜 기준 투두 또는 루틴이 있는지 확인
+    const activity = await Todo.findOne({
+    where: {
+        diary_id: diaryId,
+        createdAt: { [Op.gte]: today }
+    }
+    }) || await Routine.findOne({
+    where: {
+        diary_id: diaryId,
+        createdAt: { [Op.gte]: today }
+    }
+    });
+    
+    return !!activity; // 오늘 활동이 있으면 true 반환
+};
+
+// Todo 생성
 exports.createTodo = async (req, res) => {
     const { diary_id, description, is_completed } = req.body;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const today = dayjs().startOf('day').toDate(); // 오늘 날짜 기준
 
     try {
         // 오늘 이미 Todo나 Routine을 생성했는지 확인
-        const hasActivityToday = await checkDailyActivity(signId);
+        const hasActivityToday = await checkDailyActivity(diary_id);
 
         const todoCount = await Todo.count({
-            where: { diary_id: diary_id }
+            where: { diary_id }
         });
 
         // 투두가 해당 일기에서 최대 개수를 넘었는지 확인
@@ -140,19 +161,18 @@ exports.deleteTodo = async (req, res) => {
         res.status(500).json({ error: 'An error occurred while deleting the todo' });
     }
 };
-// routine
-const MAX_ROUTINES_PER_USER = 3; //루틴 개수 제한
 
+// routine 생성
 exports.createRoutine = async (req, res) => {
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const today = dayjs().startOf('day').toDate(); // 오늘 날짜 기준
+    const { diary_id, description, is_completed } = req.body;
 
     try {
         // 오늘 이미 Todo나 Routine을 생성했는지 확인
-        const hasActivityToday = await checkDailyActivity(signId);
+        const hasActivityToday = await checkDailyActivity(diary_id);
 
         const routineCount = await Routine.count({
-            where: { sign_id: signId }
+            where: { diary_id }
         });
 
         if (routineCount > MAX_ROUTINES_PER_USER-1) {
@@ -163,9 +183,9 @@ exports.createRoutine = async (req, res) => {
 
         // 루틴 생성
         const newRoutine = await Routine.create({
-            description: req.body.description,
-            is_completed: req.body.is_completed || false,
-            diary_id: req.body.diary_id,
+            description,
+            is_completed,
+            diary_id,
             sign_id: signId,
         });
 
@@ -268,11 +288,9 @@ exports.deleteRoutine = async (req, res) => {
 exports.createQuestion = async (req, res) => {
     try { 
         const { question_text } = req.body;
-        const signId = res.locals.decoded.sign_id; // JWT에서 가져온 sign_id
 
         const newQuestion = await TodayQuestion.create({
-            question_text,
-            sign_id: signId // 질문 생성 시 사용자 sign_id를 저장
+            question_text
         });
             
         res.status(201).json({
@@ -284,29 +302,46 @@ exports.createQuestion = async (req, res) => {
         res.status(500).json({ message: 'Failed to create question' });
     }
 };
+// 매일 새로운 랜덤 질문 설정 (ex. 스케줄러에서 매일 자정 실행)
+async function setDailyQuestion() {
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD 형식으로 오늘 날짜 설정
+    await TodayQuestion.update({ today_date: null }, { where: { today_date: today } }); // 기존 오늘의 질문 초기화
 
-// 랜덤 질문 조회
-exports.getRandomQuestion = async (req, res) => {
+    const newQuestion = await TodayQuestion.findOne({
+        order: Sequelize.literal('RAND()')
+    });
+
+    if (newQuestion) {
+        await newQuestion.update({ today_date: today });
+    }
+}
+
+// TodayQuestion 조회
+exports.getTodayQuestion = async (req, res) => {
     try {
-        const randomQuestion = await TodayQuestion.findOne({
-            order: Sequelize.literal('RAND()')
+        const today = new Date().toISOString().split('T')[0];
+
+        // 오늘의 질문이 설정되었는지 확인
+        let todayQuestion = await TodayQuestion.findOne({
+            where: { today_date: today }
         });
 
-        if (!randomQuestion) {
-            return res.status(404).json({
-                message: '질문이 존재하지 않습니다.'
+        // 오늘의 질문이 설정되지 않은 경우 setDailyQuestion 호출
+        if (!todayQuestion) {
+            await setDailyQuestion(); // 오늘의 질문 설정 함수 호출
+            
+            todayQuestion = await TodayQuestion.findOne({
+                where: { today_date: today }
             });
         }
 
-        return res.status(200).json({
-            message: '랜덤 질문 조회 성공',
-            data: randomQuestion
+        res.status(200).json({
+            message: '오늘의 질문 조회 성공',
+            data: todayQuestion
         });
     } catch (error) {
-        console.error('랜덤 질문 조회 중 오류 발생:', error);
-        return res.status(500).json({
-            message: '랜덤 질문 조회에 실패했습니다.'
-        });
+        console.error('오늘의 질문 조회 중 오류 발생:', error);
+        res.status(500).json({ message: '오늘의 질문 조회에 실패했습니다.' });
     }
 };
 
@@ -314,7 +349,7 @@ exports.getRandomQuestion = async (req, res) => {
 exports.createAnswer = [uploadSingle, async (req, res) => {
     try {
         const { question_id } = req.params;
-        const { answer_text, diary_id } = req.body;
+        const { answer_text } = req.body;
         const signId = res.locals.decoded.sign_id;
 
         const question = await TodayQuestion.findByPk(question_id);
@@ -348,24 +383,16 @@ exports.createAnswer = [uploadSingle, async (req, res) => {
 // TodayAnswer 조회
 exports.getAnswer = async (req, res) => {
     try {
-        const { question_id, answer_id } = req.params;
+        const { answer_id } = req.params;
         const signId = res.locals.decoded.sign_id;
 
         // 답변 조회
         const answer = await TodayAnswer.findOne({
-            where: {
-                answer_id,
-                question_id,
-                sign_id: signId
-            },
+            where: { answer_id, sign_id: signId },
             include: [
                 {
                     model: TodayQuestion,
                     attributes: ['question_text']
-                },
-                {
-                    model: User,
-                    attributes: ['user_nick']
                 }
             ]
         });
@@ -379,8 +406,7 @@ exports.getAnswer = async (req, res) => {
             data: {
                 answer_text: answer.answer_text,
                 answer_photo: answer.answer_photo, // 사진 경로 포함
-                question: answer.TodayQuestion.question_text,
-                user_nick: answer.User.user_nick
+                question: answer.TodayQuestion.question_text
             }
         });
     } catch (error) {
@@ -397,10 +423,7 @@ exports.updateAnswer = [uploadSingle, async (req, res) => {
         const signId = res.locals.decoded.sign_id; 
 
         const answer = await TodayAnswer.findOne({
-            where: {
-                answer_id,
-                sign_id: signId 
-            },
+            where: { answer_id },
         });
     
         if (!answer) {
@@ -433,15 +456,11 @@ exports.updateAnswer = [uploadSingle, async (req, res) => {
 // TodayAnswer 삭제
 exports.deleteAnswer = async (req, res) => {
     try {
-        const { question_id, answer_id } = req.params;
+        const { answer_id } = req.params;
         const signId = res.locals.decoded.sign_id;
 
         const answer = await TodayAnswer.findOne({
-            where: {
-                answer_id,
-                question_id,
-                sign_id: signId
-            },
+            where: { answer_id },
         });
 
         if (!answer) {
