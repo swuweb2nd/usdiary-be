@@ -64,11 +64,9 @@ exports.createDiary = async (req, res) => {
     const newDiary = await Diary.create({
       diary_title: req.body.diary_title,
       diary_content: req.body.diary_content,
-      diary_cate: req.body.diary_cate,
-      access_level: "2",
-      // access_level: req.body.access_level,
-      board_id: "1",
-      // board_id: req.body.board_id,
+      cate_num: req.body.cate_num, 
+      access_level: req.body.access_level,
+      board_id: req.body.board_id,
       post_photo: JSON.stringify(postPhotos),
       user_id: user.user_id // JWT에서 가져온 sign_id 사용
     });

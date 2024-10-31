@@ -8,7 +8,7 @@ exports.getProfile = async (req, res) => {
     try {
         const user = await User.findOne({
             where: { user_id: user_id },
-            attributes: ['sign_id', 'user_nick', 'user_email', 'user_name', 'user_phone', 'user_birthday', 'user_gender'],
+            attributes: ['sign_id', 'user_nick', 'user_email', 'user_name', 'user_phone', 'user_birthday', 'user_gender','user_tendency'],
             include: [{
                 model: Profile,
                 attributes: ['profile_img'], // 프로필 이미지 추가

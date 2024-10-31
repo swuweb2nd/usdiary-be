@@ -116,4 +116,5 @@ Report.associate(db);
 
 Notice.associate(db); 
 
+
 module.exports = db;
