@@ -46,8 +46,14 @@ app.use(express.json()); // JSON 요청 파싱 미들웨어 추가
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
+
+app.get('/favicon.ico', (req, res) => {
+    res.sendFile(path.join(__dirname, 'node_modules/swagger-ui-dist/favicon.ico'));
+});
+
 // 라우팅
-app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile)) // docs 대신 swagger로 수정한다.
+app.use('/swagger', swaggerUi.serve);
+app.get('/swagger', swaggerUi.setup(swaggerFile)); // docs 대신 swagger로 수정한다.
 app.use('/diaries', diaryRoutes);
 app.use('/users', userRoutes);
 app.use('/register', registerRoutes);
