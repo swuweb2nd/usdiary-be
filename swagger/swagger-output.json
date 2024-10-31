@@ -7,11 +7,11 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3001",
+      "url": "http://localhost:3000",
       "description": "Local development server"
     },
     {
-      "url": "https://api.example.com",
+      "url": "https://api.usdiary.site",
       "description": "Production server"
     }
   ],
@@ -937,148 +937,8 @@
         }
       }
     },
-    "/comments/{diary_id}/comments": {
-      "get": {
-        "summary": "댓글 조회",
-        "tags": ["Comments"],
-        "description": "특정 일기에 대한 모든 댓글을 조회합니다.",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "diary_id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "댓글을 조회할 일기의 ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "댓글 조회 성공",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "commentId": {
-                        "type": "string",
-                        "description": "댓글 ID"
-                      },
-                      "author": {
-                        "type": "string",
-                        "description": "댓글 작성자의 이름"
-                      },
-                      "content": {
-                        "type": "string",
-                        "description": "댓글 내용"
-                      },
-                      "createdAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "댓글 작성일"
-                      }
-                    },
-                    "example": {
-                      "commentId": "607c191e810c19729de860ea",
-                      "author": "John Doe",
-                      "content": "This is a comment.",
-                      "createdAt": "2024-08-21T12:34:56Z"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "일기를 찾을 수 없음 또는 댓글이 없음",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "에러 메시지",
-                      "example": "일기를 찾을 수 없거나 댓글이 없습니다."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "security": [
-          { "bearerAuth": [] }
-        ]
-      }
-    },
-    "/comments/{comment_id}": {
-      "delete": {
-        "summary": "댓글 삭제",
-        "tags": ["Comments"],
-        "description": "특정 댓글을 삭제합니다.",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "comment_id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "삭제할 댓글의 ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "댓글 삭제 성공",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "삭제 성공 메시지",
-                      "example": "댓글이 성공적으로 삭제되었습니다."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "댓글을 찾을 수 없음",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "에러 메시지",
-                      "example": "댓글을 찾을 수 없습니다."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "security": [
-          { "bearerAuth": [] }
-        ]
-        
-      }
-    },
+   
+
     "/diaries/{diary_id}": {
       "get": {
         "summary": "일기 조회",

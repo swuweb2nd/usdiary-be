@@ -35,6 +35,11 @@ class Diary extends Sequelize.Model {
           allowNull: false,
           defaultValue: 0,
         },
+        cate_num: {
+          type: Sequelize.INTEGER,
+          allowNull: true
+          
+        },
         like_count: {
           type: Sequelize.BIGINT,
           allowNull: false,
