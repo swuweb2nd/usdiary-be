@@ -13,7 +13,12 @@ class TodayQuestion extends Sequelize.Model {
         question_text: {
           type: Sequelize.TEXT,
           allowNull: false,
-      }
+        },
+        today_date: {
+          type: Sequelize.DATEONLY, 
+          allowNull: true, 
+          defaultValue: null
+        }
       },
       {
         sequelize,

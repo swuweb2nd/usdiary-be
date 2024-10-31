@@ -839,10 +839,29 @@
   resolved "https://registry.npmjs.org/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
-"@img/sharp-win32-x64@0.33.5":
+"@img/sharp-libvips-linux-x64@1.0.4":
+  version "1.0.4"
+  resolved "https://registry.npmjs.org/@img/sharp-libvips-linux-x64/-/sharp-libvips-linux-x64-1.0.4.tgz"
+  integrity sha512-MmWmQ3iPFZr0Iev+BAgVMb3ZyC4KeFc3jFxnNbEPas60e1cIfevbtuyf9nDGIzOaW9PdnDciJm+wFFaTlj5xYw==
+
+"@img/sharp-libvips-linuxmusl-x64@1.0.4":
+  version "1.0.4"
+  resolved "https://registry.npmjs.org/@img/sharp-libvips-linuxmusl-x64/-/sharp-libvips-linuxmusl-x64-1.0.4.tgz"
+  integrity sha512-viYN1KX9m+/hGkJtvYYp+CCLgnJXwiQB39damAO7WMdKWlIhmYTfHjwSbQeUK/20vY154mwezd9HflVFM1wVSw==
+
+"@img/sharp-linux-x64@0.33.5":
   version "0.33.5"
-  resolved "https://registry.npmjs.org/@img/sharp-win32-x64/-/sharp-win32-x64-0.33.5.tgz"
-  integrity sha512-MpY/o8/8kj+EcnxwvrP4aTJSWw/aZ7JIGR4aBeZkZw5B7/Jn+tY9/VNwtcoGmdT7GfggGIU4kygOMSbYnOrAbg==
+  resolved "https://registry.npmjs.org/@img/sharp-linux-x64/-/sharp-linux-x64-0.33.5.tgz"
+  integrity sha512-opC+Ok5pRNAzuvq1AG0ar+1owsu842/Ab+4qvU879ippJBHvyY5n2mxF1izXqkPYlGuP/M556uh53jRLJmzTWA==
+  optionalDependencies:
+    "@img/sharp-libvips-linux-x64" "1.0.4"
+
+"@img/sharp-linuxmusl-x64@0.33.5":
+  version "0.33.5"
+  resolved "https://registry.npmjs.org/@img/sharp-linuxmusl-x64/-/sharp-linuxmusl-x64-0.33.5.tgz"
+  integrity sha512-WT+d/cgqKkkKySYmqoZ8y3pxx7lx9vVejxW/W4DOFMYVSkErR+w7mf2u8m/y4+xHe7yY9DAXQMWQhpnMuFfScw==
+  optionalDependencies:
+    "@img/sharp-libvips-linuxmusl-x64" "1.0.4"
 
 "@isaacs/cliui@^8.0.2":
   version "8.0.2"
@@ -1319,6 +1338,11 @@ available-typed-arrays@^1.0.7:
   integrity sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==
   dependencies:
     possible-typed-array-names "^1.0.0"
+
+aws-ssl-profiles@^1.1.1:
+  version "1.1.2"
+  resolved "https://registry.npmjs.org/aws-ssl-profiles/-/aws-ssl-profiles-1.1.2.tgz"
+  integrity sha512-NZKeq9AfyQvEeNlN0zSYAaWrmBffJh3IELMZfRpJVWgrpEbtEpnjvzqBPf+mxoI287JohRDoa+/nsfqqiZmF6g==
 
 axios@^1.7.2:
   version "1.7.5"
@@ -1857,7 +1881,7 @@ debug@^4.3.1:
   dependencies:
     ms "^2.1.3"
 
-debug@^4.3.4, debug@4:
+debug@^4.3.4:
   version "4.3.6"
   resolved "https://registry.npmjs.org/debug/-/debug-4.3.6.tgz"
   integrity sha512-O/09Bd4Z1fBrU4VzkhFqVgpPzaGbw6Sm9FEkBT1A/YBXQFGuuSxa1dN2nxgxS34JmKXqYx8CZAwEVoJFImUXIg==
@@ -1870,6 +1894,13 @@ debug@2.6.9:
   integrity sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==
   dependencies:
     ms "2.0.0"
+
+debug@4:
+  version "4.3.7"
+  resolved "https://registry.npmjs.org/debug/-/debug-4.3.7.tgz"
+  integrity sha512-Er2nc/H7RrMXZBFCEim6TCmMk02Z8vLC2Rbi1KEBggpo0fS6l0S1nnapwmIi3yW/+GOJap1Krg4w0Hg80oCqgQ==
+  dependencies:
+    ms "^2.1.3"
 
 deepmerge@^4.2.2:
   version "4.3.1"
@@ -3257,17 +3288,17 @@ lru-cache@^7.14.1:
   resolved "https://registry.npmjs.org/lru-cache/-/lru-cache-7.18.3.tgz"
   integrity sha512-jumlc0BIUrS3qJGgIkWZsyfAM7NCWiBcCDhnd+3NNM5KbBmLTgHVfWBcg6W+rLUsIpzpERPsvwUP7CckAQSOoA==
 
-lru-cache@^8.0.0:
-  version "8.0.5"
-  resolved "https://registry.npmjs.org/lru-cache/-/lru-cache-8.0.5.tgz"
-  integrity sha512-MhWWlVnuab1RG5/zMRRcVGXZLCXrZTgfwMikgzCegsPnG62yDQo5JnqKkrK4jO5iKqDAZGItAqN5CtKBCBWRUA==
-
 lru-queue@^0.1.0:
   version "0.1.0"
   resolved "https://registry.npmjs.org/lru-queue/-/lru-queue-0.1.0.tgz"
   integrity sha512-BpdYkt9EvGl8OfWHDQPISVpcl5xZthb+XPsbELj5AQXxIC8IriDZIQYjBJPEm5rS420sjZ0TLEzRcq5KdBhYrQ==
   dependencies:
     es5-ext "~0.10.2"
+
+lru.min@^1.0.0:
+  version "1.1.1"
+  resolved "https://registry.npmjs.org/lru.min/-/lru.min-1.1.1.tgz"
+  integrity sha512-FbAj6lXil6t8z4z3j0E5mfRlPzxkySotzUHwRXjlpRh10vc6AI6WN62ehZj82VG7M20rqogJ0GLwar2Xa05a8Q==
 
 make-dir@^3.1.0:
   version "3.1.0"
@@ -3481,16 +3512,17 @@ mysql@^2.18.1:
     safe-buffer "5.1.2"
     sqlstring "2.3.1"
 
-mysql2@^3.10.2:
-  version "3.10.2"
-  resolved "https://registry.npmjs.org/mysql2/-/mysql2-3.10.2.tgz"
-  integrity sha512-KCXPEvAkO0RcHPr362O5N8tFY2fXvbjfkPvRY/wGumh4EOemo9Hm5FjQZqv/pCmrnuxGu5OxnSENG0gTXqKMgQ==
+mysql2@^3.11.3:
+  version "3.11.3"
+  resolved "https://registry.npmjs.org/mysql2/-/mysql2-3.11.3.tgz"
+  integrity sha512-Qpu2ADfbKzyLdwC/5d4W7+5Yz7yBzCU05YWt5npWzACST37wJsB23wgOSo00qi043urkiRwXtEvJc9UnuLX/MQ==
   dependencies:
+    aws-ssl-profiles "^1.1.1"
     denque "^2.1.0"
     generate-function "^2.3.1"
     iconv-lite "^0.6.3"
     long "^5.2.1"
-    lru-cache "^8.0.0"
+    lru.min "^1.0.0"
     named-placeholders "^1.1.3"
     seq-queue "^0.0.5"
     sqlstring "^2.3.2"

@@ -7,11 +7,11 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3001",
+      "url": "http://localhost:3000",
       "description": "Local development server"
     },
     {
-      "url": "https://api.example.com",
+      "url": "https://api.usdiary.site",
       "description": "Production server"
     }
   ],
@@ -937,148 +937,8 @@
         }
       }
     },
-    "/comments/{diary_id}/comments": {
-      "get": {
-        "summary": "댓글 조회",
-        "tags": ["Comments"],
-        "description": "특정 일기에 대한 모든 댓글을 조회합니다.",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "diary_id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "댓글을 조회할 일기의 ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "댓글 조회 성공",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "commentId": {
-                        "type": "string",
-                        "description": "댓글 ID"
-                      },
-                      "author": {
-                        "type": "string",
-                        "description": "댓글 작성자의 이름"
-                      },
-                      "content": {
-                        "type": "string",
-                        "description": "댓글 내용"
-                      },
-                      "createdAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "댓글 작성일"
-                      }
-                    },
-                    "example": {
-                      "commentId": "607c191e810c19729de860ea",
-                      "author": "John Doe",
-                      "content": "This is a comment.",
-                      "createdAt": "2024-08-21T12:34:56Z"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "일기를 찾을 수 없음 또는 댓글이 없음",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "에러 메시지",
-                      "example": "일기를 찾을 수 없거나 댓글이 없습니다."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "security": [
-          { "bearerAuth": [] }
-        ]
-      }
-    },
-    "/comments/{comment_id}": {
-      "delete": {
-        "summary": "댓글 삭제",
-        "tags": ["Comments"],
-        "description": "특정 댓글을 삭제합니다.",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "comment_id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "삭제할 댓글의 ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "댓글 삭제 성공",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "삭제 성공 메시지",
-                      "example": "댓글이 성공적으로 삭제되었습니다."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "댓글을 찾을 수 없음",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "에러 메시지",
-                      "example": "댓글을 찾을 수 없습니다."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "security": [
-          { "bearerAuth": [] }
-        ]
-        
-      }
-    },
+   
+
     "/diaries/{diary_id}": {
       "get": {
         "summary": "일기 조회",
@@ -2092,7 +1952,15 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TodayQuestion"
+                "type": "object",
+                "properties": {
+                  "question_text": {
+                    "type": "string",
+                    "description": "생성할 질문의 텍스트",
+                    "example": "오늘의 목표는 무엇인가요?"
+                  }
+                },
+                "required": ["question_text"]
               }
             }
           }
@@ -2103,33 +1971,11 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TodayQuestion"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "서버 오류로 질문 생성에 실패했습니다."
-          }
-        }
-      }
-    },
-    "/contents/questions/random": {
-      "get": {
-        "summary": "랜덤 질문 조회",
-        "tags": ["Today's Q&A"],
-        "description": "데이터베이스에서 랜덤으로 오늘의 질문 중 하나를 조회합니다.",
-        "responses": {
-          "200": {
-            "description": "랜덤 질문 조회 성공",
-            "content": {
-              "application/json": {
-                "schema": {
                   "type": "object",
                   "properties": {
                     "message": {
                       "type": "string",
-                      "example": "랜덤 질문 조회 성공"
+                      "example": "질문이 생성되었습니다."
                     },
                     "data": {
                       "$ref": "#/components/schemas/TodayQuestion"
@@ -2139,8 +1985,45 @@
               }
             }
           },
+          "500": {
+            "description": "서버 오류로 질문 생성에 실패했습니다."
+          },
           "404": {
-            "description": "질문이 존재하지 않음"
+            "description": "요청한 리소스를 찾을 수 없습니다."
+          },
+          "403": {
+            "description": "요청에 대한 권한이 없습니다."
+          },
+          "400": {
+            "description": "잘못된 요청입니다. 요청 데이터를 확인해주세요."
+          }
+        }
+      }
+    },
+    "/contents/questions/today": {
+      "get": {
+        "summary": "오늘의 질문 조회",
+        "tags": ["Today's Q&A"],
+        "description": "하루 동안 고정된 오늘의 질문을 조회합니다.",
+        "responses": {
+          "200": {
+            "description": "오늘의 질문 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "오늘의 질문 조회 성공"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/TodayQuestion"
+                    }
+                  }
+                }
+              }
+            }
           },
           "500": {
             "description": "서버 오류"
@@ -2152,7 +2035,7 @@
       "post": {
         "summary": "오늘의 답변 등록",
         "tags": ["Today's Q&A"],
-        "description": "사용자가 특정 질문에 대한 답변을 생성합니다. 사진을 첨부할 수 있습니다.",
+        "description": "사용자가 오늘의 질문에 대한 답변을 생성합니다. 사진을 첨부할 수 있습니다.",
         "parameters": [
           {
             "name": "question_id",
@@ -2161,7 +2044,8 @@
             "description": "답변을 생성할 질문의 ID",
             "schema": {
               "type": "integer"
-            }
+            },
+            "description": "답변을 등록할 질문의 ID"
           }
         ],
         "requestBody": {
@@ -2171,14 +2055,9 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "diary_id": {
-                    "type": "integer",
-                    "example": 1,
-                    "description": "다이어리 ID"
-                  },
                   "answer_text": {
                     "type": "string",
-                    "description": "답변 텍스트"
+                    "description": "사용자가 작성한 답변 내용"
                   },
                   "answer_photo": {
                     "type": "string",
@@ -2193,11 +2072,20 @@
         },
         "responses": {
           "201": {
-            "description": "답변이 성공적으로 생성되었습니다.",
+            "description": "답변 등록 성공",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Answer"
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "답변이 등록되었습니다."
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/TodayAnswer"
+                    }
+                  }
                 }
               }
             }
@@ -2250,7 +2138,16 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Answer"
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "답변이 조회되었습니다."
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/TodayAnswer"
+                    }
+                  }
                 }
               }
             }
@@ -2320,7 +2217,16 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Answer"
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "답변이 수정되었습니다."
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/TodayAnswer"
+                    }
+                  }
                 }
               }
             }
@@ -2392,7 +2298,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Place"
+                "$ref": "#/components/schemas/TodayPlace"
               }
             }
           }
@@ -2403,7 +2309,16 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Place"
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "오늘의 장소가 성공적으로 등록되었습니다."
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/TodayPlace"
+                    }
+                  }
                 }
               }
             }
@@ -2441,7 +2356,16 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Place"
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "오늘의 장소 조회 성공"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/TodayPlace"
+                    }
+                  }
                 }
               }
             }
@@ -2479,7 +2403,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Place"
+                "$ref": "#/components/schemas/TodayPlace"
               }
             }
           }
@@ -2490,7 +2414,16 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Place"
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "장소가 성공적으로 수정되었습니다."
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/TodayPlace"
+                    }
+                  }
                 }
               }
             }
@@ -2525,7 +2458,20 @@
         ],
         "responses": {
           "200": {
-            "description": "장소가 성공적으로 삭제되었습니다."
+            "description": "장소가 성공적으로 삭제되었습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "장소가 성공적으로 삭제되었습니다."
+                    }
+                  }
+                }
+              }
+            }
           },
           "404": {
             "description": "장소를 찾을 수 없습니다."
@@ -4322,6 +4268,11 @@
             "type": "string",
             "description": "질문의 내용"
           },
+          "today_date": {
+            "type": "string",
+            "format": "date",
+            "description": "오늘의 질문이 설정된 날짜 (YYYY-MM-DD 형식)"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time",
@@ -4334,7 +4285,7 @@
           }
         }
       },
-      "Answer": {
+      "TodayAnswer": {
         "type": "object",
         "properties": {
           "answer_id": {
@@ -4376,7 +4327,7 @@
         },
         "required": ["answer_id", "question_id", "sign_id", "diary_id", "answer_text"]
       },
-      "Place": {
+      "TodayPlace": {
         "type": "object",
         "properties": {
           "place_id": {
