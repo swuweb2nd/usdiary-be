@@ -125,7 +125,7 @@ exports.renderComments = async (req, res) => {
             });
             
             if (!comments) {
-                return res.status(404).json({ message: 'Comment not found' });
+                return res.status(200).json({ data: [] });
             }
         } else {
             // 해당 일기에 대한 모든 댓글을 조회
@@ -147,11 +147,11 @@ exports.renderComments = async (req, res) => {
             });
 
             if (!comments || comments.length === 0) {
-                return res.status(404).json({ message: 'No comments found' });
+                return res.status(200).json({ data: [] });
             }
         }
         
-        res.json({data: comments});
+        res.json({ data: comments });
     } catch (error) {
         console.error('Error fetching comments:', error);
         res.status(500).json({ message: 'Server error', error });
