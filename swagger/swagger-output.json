@@ -2044,8 +2044,7 @@
             "description": "답변을 생성할 질문의 ID",
             "schema": {
               "type": "integer"
-            },
-            "description": "답변을 등록할 질문의 ID"
+            }
           }
         ],
         "requestBody": {
