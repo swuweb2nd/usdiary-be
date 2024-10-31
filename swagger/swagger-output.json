@@ -2032,7 +2032,7 @@
       }
     },
     "/contents/questions/{question_id}/answers": {
-      "post": {
+      "post": { 
         "summary": "오늘의 답변 등록",
         "tags": ["Today's Q&A"],
         "description": "사용자가 오늘의 질문에 대한 답변을 생성합니다. 사진을 첨부할 수 있습니다.",

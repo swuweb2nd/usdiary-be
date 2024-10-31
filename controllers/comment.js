@@ -125,7 +125,7 @@ exports.renderComments = async (req, res) => {
             });
             
             if (!comments) {
-                return res.status(200).json({ data: [] });  // 댓글이 없을 경우 빈 배열 반환
+                return res.status(200).json({ data: [] });  
             }
         } else {
             // 해당 일기에 대한 모든 댓글을 조회
@@ -147,7 +147,7 @@ exports.renderComments = async (req, res) => {
             });
 
             if (!comments || comments.length === 0) {
-                return res.status(200).json({ data: [] }); // 댓글이 없을 경우 빈 배열 반환
+                return res.status(200).json({ data: [] }); 
             }
         }
         
