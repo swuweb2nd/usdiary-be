@@ -10,7 +10,7 @@
 const express = require('express');
 const router = express.Router();
 const { uploadMultiple } = require('../middlewares/upload');
-const { sortDiary, sortWeeklyViews, sortWeeklyLikes, renderDiary,createDiary,updateDiary,deleteDiary } = require('../controllers/diary');
+const { sortDiary, sortWeeklyViews, sortWeeklyLikes, renderDiary,createDiary,updateDiary,deleteDiary,renderDiaryuser } = require('../controllers/diary');
 const { verifyToken } = require('../middlewares/jwt');
 
 // 일기 목록 페이지 렌더링 (최신순)
@@ -21,8 +21,11 @@ router.get('/weekly-views', sortWeeklyViews);
 router.get('/weekly-likes', sortWeeklyLikes);
 
 
-// 일기 조회 페이지 렌더링
+// 일기 상세 조회 페이지 렌더링
 router.get('/:diary_id', verifyToken, renderDiary);
+// 특정 사용자의 일기 조회
+router.get('/:diary_id/details', verifyToken, renderDiaryuser);
+
 
 // sign_id를 URL 파라미터로 받도록 설정
 router.post('/',verifyToken, uploadMultiple, createDiary);
