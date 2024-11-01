@@ -3,10 +3,12 @@ const User = require('../models/user');
 const Board = require('../models/board');
 const { gainPoints } = require('../controllers/point'); 
 const dayjs = require('dayjs');
+const sharp = require('sharp'); // sharp 라이브러리 임포트
+const fs = require('fs'); // 파일 시스템 모듈 임포트
 
 //특정 사용자 일기 조회
 // handlers.js
-exports.renderDiary = async (req, res) => {
+exports.renderDiaryuser = async (req, res) => {
   try {
       const diaryId = req.params.diary_id;
       const signId = res.locals.decoded.sign_id; // JWT에서 사용자 sign_id 가져오기
@@ -28,30 +30,44 @@ exports.renderDiary = async (req, res) => {
 //해당 글 조회
 exports.renderDiary = async (req, res) => {
   try {
-      const diaryId = req.params.diary_id;
-      
-      
-      const diary = await Diary.findOne({
-        where: {
-            diary_id: diaryId,
-            
-        },
-        include: [
-          { model: User,attributes: ['sign_id','user_nick']},
+    const diaryId = req.params.diary_id;
+
+    const diary = await Diary.findOne({
+      where: {
+        diary_id: diaryId,
+      },
+      include: [
+        { model: User, attributes: ['sign_id', 'user_nick'] },
         { model: Board, attributes: ['board_name'] },
-        ]
-      });
-      
-      if (!diary) {
-          return res.status(404).json({ message: 'Diary not found', data: { diary } });
-      }
-      
-      console.log(diary);
-      return res.json({ data: { diary } });
+      ],
+    });
+
+    if (!diary) {
+      return res.status(404).json({ message: 'Diary not found', data: {} });
+    }
+
+    // post_photo를 JSON으로 파싱하여 이미지 경로 배열로 변환
+    let postPhotos = [];
+    try {
+      postPhotos = JSON.parse(diary.post_photo);
+    } catch (error) {
+      console.error('Error parsing post_photo:', error);
+    }
+
+    // diary 객체에 post_photo 추가
+    const diaryData = {
+      ...diary.get(), // diary를 일반 객체로 변환
+      post_photo: postPhotos, // 파싱된 이미지 경로 추가
+    };
+
+    console.log(diaryData);
+    return res.json({ data: { diary: diaryData } });
   } catch (error) {
+    console.error('Server error:', error);
     return res.status(500).json({ message: 'Server error', error });
   }
 };
+
 
 
 //일기 작성
@@ -89,6 +105,9 @@ exports.createDiary = async (req, res) => {
       await gainPoints(signId, '일기에 사진 3장 이상 첨부 시');
     }
 
+    // 이미지 압축 처리
+    await processImages(postPhotos);
+
     // 응답은 여기서 한 번만 보냅니다.
     return res.status(201).json({
       message: 'Diary created successfully',
@@ -101,6 +120,26 @@ exports.createDiary = async (req, res) => {
   }
 };
 
+// 이미지 처리 함수 (예: 압축)
+async function processImages(images) {
+  for (const image of images) {
+    await compressImage(image); // 비동기로 이미지 압축
+  }
+}
+
+// 이미지 압축 함수
+async function compressImage(imagePath) {
+  const outputPath = imagePath.replace(/(\.[\w\d]+)$/, '-compressed$1'); // 압축된 파일 경로 설정
+
+  try {
+    await sharp(imagePath)
+      .resize(800) // 필요한 경우 크기 조정
+      .toFile(outputPath); // 압축된 이미지 저장
+    fs.unlinkSync(imagePath); // 원본 이미지 삭제 (원하는 경우)
+  } catch (error) {
+    console.error('Error compressing image:', error);
+  }
+}
 
 // 일기 수정
 exports.updateDiary = async (req, res) => {
@@ -110,7 +149,7 @@ exports.updateDiary = async (req, res) => {
     const {
       diary_title,
       diary_content,
-      diary_cate,
+      cate_num,
       access_level
     } = req.body;
     
@@ -129,7 +168,7 @@ exports.updateDiary = async (req, res) => {
       const updatedDiary = await diary.update({
         diary_title: diary_title || diary.diary_title,
         diary_content: diary_content || diary.diary_content,
-        diary_cate: diary_cate || diary.diary_cate,
+        cate_num: cate_num || diary.cate_num,
         access_level: access_level || diary.access_level,
         post_photo:  JSON.stringify(postPhotos),
       });

@@ -937,7 +937,48 @@
         }
       }
     },
-   
+   "/diaries/{diary_id}/details": {
+    "get": {
+      "summary": "특정 사용자의 일기 조회",
+      "description": "사용자의 ID와 일기 ID를 기반으로 특정 일기를 가져옵니다.",
+      "tags": ["Diary"],
+      "parameters": [
+        {
+          "name": "diary_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "성공적으로 일기를 가져왔습니다.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Diary"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "일기를 찾을 수 없습니다."
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "default": {
+          "description": "기타 오류"
+        }
+      },
+      "security": [
+        { "bearerAuth": [] }
+      ]
+    }
+  },
 
     "/diaries/{diary_id}": {
       "get": {
