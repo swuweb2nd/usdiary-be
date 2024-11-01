@@ -4,6 +4,11 @@ const path = require('path');
 const morgan = require('morgan');
 const swaggerUi = require("swagger-ui-express");
 const swaggerFile = require('./swagger/swagger-output.json')
+
+// 라우팅
+// Place Swagger setup at the top of routes
+
+
 const cors = require('cors');
 const permissionRoutes = require('./routes/checkPermissions');
 const diaryRoutes = require('./routes/diary');
@@ -20,11 +25,25 @@ const qnaRoutes = require('./routes/qna');
 const noticeRoutes = require('./routes/notice');
 
 const { sequelize } = require('./models'); // db.sequelize 객체
+
+
 app.use(cors({
-  origin: ['http://localhost:3001', 'https://api.usdiary.site'],// 허용할 출처
-  methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE','OPTIONS'], // 허용할 HTTP 메서드
-  credentials: true // 필요한 경우 인증 정보 허용
+  origin: ['http://localhost:3001', 'https://api.usdiary.site'], // 배포된 도메인 추가
+  methods: 'GET, POST, DELETE, PATCH, OPTIONS',
+  allowedHeaders: 'Content-Type, Authorization',
 }));
+app.use(
+  '/swagger',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerFile, {
+      swaggerOptions: {
+          url: '/swagger/swagger-output.json', // swagger-output.json의 URL
+          layout: "StandaloneLayout"
+      }
+  })
+);
+
+
 
 app.set('port', process.env.PORT || 3000);
 
@@ -47,13 +66,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 
-app.get('/favicon.ico', (req, res) => {
-    res.sendFile(path.join(__dirname, 'node_modules/swagger-ui-dist/favicon.ico'));
-});
 
-// 라우팅
-app.use('/swagger', swaggerUi.serve);
-app.get('/swagger', swaggerUi.setup(swaggerFile)); // docs 대신 swagger로 수정한다.
+// docs 대신 swagger로 수정한다.
 app.use('/diaries', diaryRoutes);
 app.use('/users', userRoutes);
 app.use('/register', registerRoutes);
