@@ -64,26 +64,26 @@ exports.updateProfile = async (req, res) => {
     }
 };
 
-// 캘린더 조회 및 일기의 숲, 바다, 도시 비율 계산
-exports.getDiariesByDate = async (req, res) => {
-  const { date } = req.params; // 선택된 날짜
+// 월별 일기 조회 및 숲, 바다, 도시 비율 계산
+exports.getDiariesByMonth = async (req, res) => {
+  const { user_id, year, month } = req.query;
 
   try {
-    // 선택된 날짜의 시작과 끝 설정
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
+    // 해당 월의 시작과 끝 설정
+    const startOfMonth = new Date(year, month - 1, 1);
+    const endOfMonth = new Date(year, month, 0); // month+1의 0번째 날은 해당 월의 마지막 날
+    endOfMonth.setHours(23, 59, 59, 999);
 
-    // 선택된 날짜에 작성된 일기 조회
-    const diaries = await Diary.findAll({
+    // 해당 월에 작성된 일기 조회
+    const monthlyDiaries = await Diary.findAll({
       where: {
+        user_id, // 특정 사용자의 일기만 조회
         createdAt: {
-          [Op.between]: [startOfDay, endOfDay],
+          [Op.between]: [startOfMonth, endOfMonth],
         },
       },
       order: [['createdAt', 'DESC']],
-      attributes: ['diary_id', 'diary_title', 'diary_content', 'board_id'],
+      attributes: ['diary_id', 'diary_title', 'diary_content', 'board_id', 'createdAt'],
       include: [
         {
           model: Board,
@@ -92,29 +92,9 @@ exports.getDiariesByDate = async (req, res) => {
       ],
     });
 
-    if (diaries.length === 0) {
-      return res.status(404).json({ message: '해당 날짜에 작성된 일기가 없습니다.' });
+    if (monthlyDiaries.length === 0) {
+      return res.status(404).json({ message: '해당 월에 작성된 일기가 없습니다.' });
     }
-
-    // 선택된 날짜가 속한 달의 시작과 끝 설정
-    const startOfMonth = new Date(startOfDay.getFullYear(), startOfDay.getMonth(), 1);
-    const endOfMonth = new Date(startOfDay.getFullYear(), startOfDay.getMonth() + 1, 0);
-    endOfMonth.setHours(23, 59, 59, 999);
-
-    // 해당 달에 작성된 일기들을 모두 조회하여 '숲', '도시', '바다' 비율 계산
-    const monthlyDiaries = await Diary.findAll({
-      where: {
-        createdAt: {
-          [Op.between]: [startOfMonth, endOfMonth],
-        },
-      },
-      include: [
-        {
-          model: Board,
-          attributes: ['board_name'],
-        },
-      ],
-    });
 
     // 숲, 도시, 바다 비율 계산
     const diaryCounts = monthlyDiaries.reduce(
@@ -136,9 +116,9 @@ exports.getDiariesByDate = async (req, res) => {
     };
 
     res.status(200).json({
-      message: '일기 조회 및 월별 통계 조회 성공',
-      data: diaries, // 선택된 날짜의 일기
-      statistics, // 해당 달의 숲, 도시, 바다 비율
+      message: '월별 일기 조회 및 통계 계산 성공',
+      data: monthlyDiaries,
+      statistics, // 해당 월의 숲, 도시, 바다 비율
     });
   } catch (error) {
     console.error('Error fetching diaries and statistics:', error);
