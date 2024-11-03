@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getProfile, updateProfile, getDiariesByDate } = require('../controllers/mypage');
+const { getProfile, updateProfile, getDiariesByMonth } = require('../controllers/mypage');
 const { uploadSingle } = require('../middlewares/upload.js');
 
 // 프로필 조회
