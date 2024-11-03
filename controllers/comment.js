@@ -18,12 +18,6 @@ exports.createComment = async (req, res) => {
         if (!diary) {
             return res.status(404).json({ message: 'Diary not found' });
         }
-        
-        // 해당 사용자의 ID 조회
-        const user = await User.findOne({ where: { sign_id: signId } });
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
 
         // 새로운 댓글 생성
         const comment = await Comment.create({
@@ -152,6 +146,9 @@ exports.renderComments = async (req, res) => {
         }
         
         res.json({ data: comments });
+
+        console.log('Comments Response:', comments);
+
     } catch (error) {
         console.error('Error fetching comments:', error);
         res.status(500).json({ message: 'Server error', error });
