@@ -406,3 +406,57 @@ exports.getFriendDiaries = async (req, res) => {
         res.status(500).json({ error: 'An error occurred while retrieving friend posts' });
     }
 };
+// 닉네임으로 사용자 검색 후 최근 게시물 3개 포함
+exports.searchUserByNickname = async (req, res) => {
+    try {
+        const searchNickname = req.query.user_nick; // 검색할 닉네임
+
+        // 닉네임으로 사용자 정보 가져오기
+        const user = await User.findOne({
+            where: { user_nick: searchNickname },
+            attributes: ['sign_id', 'user_nick','user_tendency'],
+            include: [
+                {
+                    model: Profile,
+                    attributes: ['profile_img']
+                }
+            ]
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: '해당 닉네임의 사용자를 찾을 수 없습니다.' });
+        }
+
+        // 최근 게시물 3개 가져오기
+        const recentDiaries = await Diary.findAll({
+            where: { user_nick: user.user_nick },
+            order: [['createdAt', 'DESC']],
+            limit: 3,
+            attributes: ['diary_id', 'diary_title', 'diary_content', 'createdAt', 'access_level','post_photo'],
+        });
+
+        // 응답 데이터 구성
+        const response = {
+            user: {
+                sign_id: user.sign_id,
+                user_name: user.user_name,
+                user_nick: user.user_nick,
+                profile_img: user.Profile ? user.Profile.profile_img : null
+            },
+            recent_diaries: recentDiaries.map(diary => ({
+                diary_id: diary.diary_id,
+                diary_title: diary.diary_title,
+                diary_content: diary.diary_content.slice(0, 30) + (diary.diary_content.length > 30 ? '...' : ''), // 30자만 표시하고, 30자 초과 시 '...' 추가
+                createdAt: diary.createdAt
+            }))
+        };
+
+        return res.status(200).json({
+            message: '닉네임으로 사용자 정보와 최근 게시물을 찾았습니다.',
+            data: response
+        });
+    } catch (error) {
+        console.error('Error searching user by nickname with recent diaries:', error);
+        return res.status(500).json({ error: '닉네임으로 사용자와 최근 게시물을 검색하는 중 오류가 발생했습니다.' });
+    }
+};
