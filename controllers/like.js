@@ -8,11 +8,19 @@ const gainPoints = require('../controllers/point').gainPoints; // 포인트 획�
 exports.likeDiary = async (req, res) => {
     try {
         const signId = req.locals.decoded.sign_id; // 유저 아이디 가져오기
+        const user = await User.findOne({ where: { sign_id: signId } });
+        const diary = await Diary.findOne({
+            where: {
+                diary_id: diaryId,
+                sign_id: signId // 사용자 sign_id로 필터링
+            }
+        });
 
         // 좋아요 생성
         const createLike = await Like.create({
-            user_id: signId,
-            diary_id: req.body.diary_id
+            user_id: user.user_id,
+            diary_id: req.body.diary_id,
+            diary_user: diary.user_id
         });
 
         // 해당 일기의 like_count 증가
@@ -29,7 +37,7 @@ exports.likeDiary = async (req, res) => {
         // 이번 주에 사용자가 누른 좋아요 수 계산
         const likesThisWeek = await Like.count({
             where: {
-                user_id: signId,
+                user_id: user.user_id,
                 createdAt: {
                     [Op.between]: [startOfWeek, endOfWeek],
                 },
@@ -64,12 +72,13 @@ exports.deleteLike = async (req, res) => {
     try {
         const likeId = req.params.like_id;
         const signId = req.locals.decoded.sign_id;
-
+        const user = await User.findOne({ where: { sign_id: signId } });
+  
         // 좋아요가 존재하는지 확인
         const like = await Like.findOne({
             where: {
                 like_id: likeId,
-                user_id: signId 
+                user_id: user.user_id 
             }
         });
         if (!like) {
