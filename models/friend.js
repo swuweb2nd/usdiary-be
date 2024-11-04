@@ -11,12 +11,12 @@ class Friend extends Sequelize.Model {
           autoIncrement: true
         },
         follower_id: {
-          type: Sequelize.BIGINT,   // 팔로우하는 유저의 sign_id
+          type: Sequelize.STRING(255),   // 팔로우하는 유저의 sign_id
           allowNull: false,
         
         },
         following_id: {
-          type: Sequelize.BIGINT,  // 팔로잉되는 유저의 sign_id
+          type: Sequelize.STRING(255),  // 팔로잉되는 유저의 sign_id
           allowNull: false,
         },
         status: {
@@ -38,10 +38,10 @@ class Friend extends Sequelize.Model {
   }
   static associate(models) {
     // 팔로워 관계 (N:1) 여러 명의 사용자가 팔로잉될 수 있음
-    this.belongsTo(models.User, { foreignKey: "follower_id", targetKey: "user_id", as: 'Follower' });
+    this.belongsTo(models.User, { foreignKey: "follower_id", targetKey: "sign_id", as: 'Follower' });
 
     // 팔로잉 관계 (N:1) 한 사용자가 여러 명의 친구를 팔로우할 수 있음
-    this.belongsTo(models.User, { foreignKey: "following_id", targetKey: "user_id", as: 'Following' });
+    this.belongsTo(models.User, { foreignKey: "following_id", targetKey: "sign_id", as: 'Following' });
   }
 }
 
