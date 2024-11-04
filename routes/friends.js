@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {getFriendDiaries,getFollowers,deleteFollowers, sendFollowRequest, handleFollowRequest, getFollowing, deleteFollowing, searchFriend, getFriends} = require('../controllers/friendlist');  // Controller 파일 가져오기
+const {searchUserByNickname,getFriendDiaries,getFollowers,deleteFollowers, sendFollowRequest, handleFollowRequest, getFollowing, deleteFollowing, searchFriend, getFriends} = require('../controllers/friendlist');  // Controller 파일 가져오기
 const { verifyToken } = require('../middlewares/jwt');
 
 // 팔로워 목록 조회
@@ -22,5 +22,7 @@ router.get('/:sign_id/search', verifyToken, searchFriend);
 router.get('/:sign_id/friends', verifyToken, getFriends);
 // 친구 게시글 조회
 router.get('/:sign_id/followings/:following_sign_id/diaries', verifyToken, getFriendDiaries);
+// 닉네임으로 사용자 검색 및 최근 게시물 3개 조회
+router.get('/search/nickname', searchUserByNickname);
 
 module.exports = router;

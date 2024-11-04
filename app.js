@@ -28,8 +28,8 @@ const { sequelize } = require('./models'); // db.sequelize 객체
 
 
 app.use(cors({
-  origin: ['http://localhost:3001', 'https://api.usdiary.site'], // 배포된 도메인 추가
-  methods: 'GET, POST, DELETE, PATCH, OPTIONS',
+  origin: ['http://localhost:3001', 'https://usdiary.site'], // 배포된 도메인 추가
+  methods: 'GET, POST, DELETE, PATCH,PUT, OPTIONS',
   allowedHeaders: 'Content-Type, Authorization',
 }));
 app.use(
@@ -45,7 +45,7 @@ app.use(
 
 
 
-app.set('port', process.env.PORT || 3001);
+app.set('port', process.env.PORT || 3000);
 
 
 // 데이터베이스 연결
