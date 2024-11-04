@@ -9,22 +9,24 @@ exports.getFriends = async (req, res) => {
     try {
         const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
         console.log(signId)
+        const user = await User.findOne({ where: { sign_id: signId } });
+  
         // 팔로우 중인 유저 목록 조회 (팔로잉)
         const following = await Friend.findAll({
-            where: { follower_sign_id: signId },
-            attributes: ['following_sign_id']
+            where: { follower_id: user.user_id },
+            attributes: ['following_id']
         });
 
         // 나를 팔로우 중인 유저 목록 조회 (팔로워)
         const followers = await Friend.findAll({
-            where: { following_sign_id: signId },
-            attributes: ['follower_sign_id']
+            where: { following_id: user.user_id },
+            attributes: ['follower_id']
         });
 
         // 친구 목록 (팔로우와 팔로워 관계가 일치하는 유저)
         const friends = following
-            .map(f => f.following_sign_id)
-            .filter(followingId => followers.some(f => f.follower_sign_id  === followingId));
+            .map(f => f.following_id)
+            .filter(followingId => followers.some(f => f.follower_id  === followingId));
 
         // 친구 수 계산
         const friendCount = friends.length;
@@ -54,10 +56,12 @@ exports.getFriends = async (req, res) => {
 exports.getFollowers = async (req, res) => {
     try {
         const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
+        const user = await User.findOne({ where: { sign_id: signId } });
+  
 
         // 나를 팔로우 중인 유저 목록 조회
         const followers = await Friend.findAll({
-            where: { following_sign_id: signId  },
+            where: { following_id: user.user_id  },
             include: [{
                 model: User,  // 팔로워 유저 정보
                 as: 'Follower',  // 팔로워 유저와의 관계 (별칭)
@@ -84,10 +88,11 @@ exports.getFollowers = async (req, res) => {
 exports.getFollowing = async (req, res) => {
     try {
         const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-
+        const user = await User.findOne({ where: { sign_id: signId } });
+  
         // 내가 팔로우 중인 유저 목록 조회
         const following = await Friend.findAll({
-            where: { follower_sign_id: signId },
+            where: { follower_id: user.user_id },
             include: [{
                 model: User,  // 팔로우된 유저 정보
                 as: 'Following',  // 팔로우된 유저와의 관계 (별칭)
@@ -115,13 +120,14 @@ exports.getFollowing = async (req, res) => {
 exports.deleteFollowers = async (req, res) => {
     try {
         const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-        const followerId = req.body.follower_sign_id; // 삭제할 팔로워의 sign_id
-
+        const user = await User.findOne({ where: { sign_id: signId } });
+        const followerId = req.body.follower_id; // 삭제할 팔로워의 sign_id
+        
         // 특정 팔로워 삭제
         const result = await Friend.destroy({
             where: {
-                follower_sign_id: followerId,
-                following_sign_id: signId
+                follower_id: followerId,
+                following_id: user.user_id
             }
         });
 
@@ -139,13 +145,14 @@ exports.deleteFollowers = async (req, res) => {
 exports.deleteFollowing = async (req, res) => {
     try {
         const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-        const followingId = req.body.following_sign_id; // 삭제할 팔로잉의 sign_id
+        const user = await User.findOne({ where: { sign_id: signId } });
+        const followingId = req.body.following_id; // 삭제할 팔로잉의 sign_id
 
         // 특정 팔로잉 삭제
         const result = await Friend.destroy({
             where: {
-                follower_sign_id: signId,
-                following_sign_id: followingId
+                follower__id: user.user_id,
+                following_id: followingId
             }
         });
 
@@ -159,17 +166,19 @@ exports.deleteFollowing = async (req, res) => {
         res.status(500).json({ error: 'An error occurred while deleting the following' });
     }
 };
+
 // 5. 팔로우 요청
 exports.sendFollowRequest = async (req, res) => {
     try {
         const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
+        const me = await User.findOne({ where: { sign_id: signId } });
         const requestedId = req.body.requested_sign_id; // 팔로우 요청을 보낼 대상 sign_id
 
         // 이미 요청이 있는지 확인
         const existingRequest = await Friend.findOne({
             where: {
-                follower_sign_id: signId,
-                following_sign_id: requestedId
+                follower_id: me.user_id,
+                following_id: requestedId
             }
         });
 
@@ -188,8 +197,8 @@ exports.sendFollowRequest = async (req, res) => {
         } else {
             // 새로운 팔로우 요청 생성
             await Friend.create({
-                follower_sign_id: signId,
-                following_sign_id: requestedId,
+                follower_id: signId,
+                following_id: requestedId,
                 status: 'pending'
             });
         }
@@ -222,14 +231,15 @@ exports.sendFollowRequest = async (req, res) => {
 exports.handleFollowRequest = async (req, res) => {
     try {
         const signId = res.locals.decoded.sign_id; // JWT에서 요청 처리하는 유저의 sign_id 가져오기
-        const followerSignId = req.body.follower_sign_id; // 팔로우 요청을 보낸 유저의 sign_id
+        const user = await User.findOne({ where: { sign_id: signId } });
+        const followerSignId = req.body.follower_id; // 팔로우 요청을 보낸 유저의 sign_id
         const action = req.body.action; // "accepted" 또는 "rejected"
 
         // 팔로우 요청이 있는지 확인
         const followRequest = await Friend.findOne({
             where: {
-                follower_sign_id: followerSignId, // 팔로우 요청을 보낸 유저
-                following_sign_id: signId, // 팔로우 요청을 받은 유저 (현재 로그인된 유저)
+                follower_id: followerSignId, // 팔로우 요청을 보낸 유저
+                following_id: user.user_id, // 팔로우 요청을 받은 유저 (현재 로그인된 유저)
                 status: 'pending' // 대기 중인 요청만 처리
             }
         });
@@ -259,16 +269,16 @@ exports.handleFollowRequest = async (req, res) => {
 
             // 팔로우 관계 설정
             await Friend.create({
-                follower_sign_id: followerSignId, 
-                following_sign_id: signId, 
+                follower_id: followerSignId, 
+                following_id: signId, 
                 status: 'accepted' // 팔로우 관계 수락
             });
 
             // 팔로우 관계 확인: 서로 팔로우하는지 확인
             const reciprocalFollow = await Friend.findOne({
                 where: {
-                    follower_sign_id: signId, // 현재 사용자가 팔로워
-                    following_sign_id: followerSignId, // 팔로우 요청을 보낸 유저가 팔로잉
+                    follower_id: signId, // 현재 사용자가 팔로워
+                    following_id: followerSignId, // 팔로우 요청을 보낸 유저가 팔로잉
                     status: 'accepted'
                 }
             });
@@ -281,7 +291,7 @@ exports.handleFollowRequest = async (req, res) => {
             return res.status(200).json({
                 message: `${followerUser.user_nick}님의 팔로우 요청을 수락하였습니다.`,
                 data: {
-                    follower_sign_id: followerUser.sign_id, // 팔로우 요청을 보낸 유저의 sign_id
+                    follower_id: followerUser.sign_id, // 팔로우 요청을 보낸 유저의 sign_id
                     follower_user_nick: followerUser.user_nick, // 팔로우 요청을 보낸 유저의 닉네임
                     follower_profile_img: followerUser.Profile ? followerUser.Profile.profile_img : null,
                     status: 'accepted'
@@ -307,20 +317,21 @@ exports.handleFollowRequest = async (req, res) => {
 exports.searchFriend = async (req, res) => {
     try {
         const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
+        const user = await User.findOne({ where: { sign_id: signId } });
         const searchSignId = req.query.sign_id; // 검색할 친구의 sign_id
 
         const following = await Friend.findOne({
             where: {
-                follower_sign_id: signId,
-                following_sign_id: searchSignId,
+                follower_id: user.user_id,
+                following_id: searchSignId,
                 status: 'accepted'
             }
         });
 
         const follower = await Friend.findOne({
             where: {
-                follower_sign_id: searchSignId,
-                following_sign_id: signId,
+                follower_id: searchSignId,
+                following_id: user.user_id,
                 status: 'accepted'
             }
         });
@@ -360,16 +371,16 @@ exports.searchFriend = async (req, res) => {
 exports.getFriendDiaries = async (req, res) => {
     try {
         const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-        const followingId = req.params.following_sign_id; // 조회할 친구의 ID (팔로우하는 친구 sign_id))
+        const followingId = req.params.following_id; // 조회할 친구의 ID (팔로우하는 친구 sign_id))
 
         // 현재 유저가 팔로우하고 있는 친구 목록 조회
         const following = await Friend.findAll({
-            where: { follower_sign_id: signId  },
-            attributes: ['following_sign_id']
+            where: { follower_id: signId  },
+            attributes: ['following_id']
         });
 
         // 팔로우하는 친구 목록에서 선택한 친구 ID가 존재하는지 확인
-        const followingIds = following.map(f => f.following_sign_id);
+        const followingIds = following.map(f => f.following_id);
         if (!followingIds.includes(followingId)) {
             return res.status(404).json({ message: 'Selected following ID is not in the following list' });
         }
