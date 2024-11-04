@@ -45,7 +45,7 @@ app.use(
 
 
 
-app.set('port', process.env.PORT || 3001);
+app.set('port', process.env.PORT || 3000);
 
 
 // 데이터베이스 연결
