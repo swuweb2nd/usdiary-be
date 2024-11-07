@@ -414,40 +414,43 @@ exports.searchUserByNickname = async (req, res) => {
         // 닉네임으로 사용자 정보 가져오기
         const user = await User.findOne({
             where: { user_nick: searchNickname },
-            attributes: ['sign_id', 'user_nick','user_tendency'],
-            include: [
-                {
-                    model: Profile,
-                    attributes: ['profile_img']
-                }
-            ]
+            attributes: ['sign_id', 'user_id', 'user_tendency', 'user_nick']
         });
 
         if (!user) {
             return res.status(404).json({ message: '해당 닉네임의 사용자를 찾을 수 없습니다.' });
         }
 
-        // 최근 게시물 3개 가져오기
+        // user_id로 프로필 정보 가져오기
+        const profile = await Profile.findOne({
+            where: { user_id: user.user_id },
+            attributes: ['profile_img']
+        });
+
+        // sign_id로 최근 게시물 3개 가져오기
         const recentDiaries = await Diary.findAll({
-            where: { user_nick: user.user_nick },
+            where: { user_id: user.user_id },
             order: [['createdAt', 'DESC']],
             limit: 3,
-            attributes: ['diary_id', 'diary_title', 'diary_content', 'createdAt', 'access_level','post_photo'],
+            attributes: ['diary_id', 'diary_title', 'diary_content', 'createdAt', 'access_level', 'post_photo'],
         });
 
         // 응답 데이터 구성
         const response = {
             user: {
                 sign_id: user.sign_id,
-                user_name: user.user_name,
+                user_id: user.user_id,
+                user_tendency: user.user_tendency,
                 user_nick: user.user_nick,
-                profile_img: user.Profile ? user.Profile.profile_img : null
+                profile_img: profile ? profile.profile_img : null
             },
             recent_diaries: recentDiaries.map(diary => ({
                 diary_id: diary.diary_id,
                 diary_title: diary.diary_title,
                 diary_content: diary.diary_content.slice(0, 30) + (diary.diary_content.length > 30 ? '...' : ''), // 30자만 표시하고, 30자 초과 시 '...' 추가
-                createdAt: diary.createdAt
+                createdAt: diary.createdAt,
+                access_level: diary.access_level,
+                post_photo: diary.post_photo
             }))
         };
 

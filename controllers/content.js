@@ -83,7 +83,7 @@ exports.getTodoList = async (req, res) => {
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
 
     try {
-        const todo = await Todo.findOne({
+        const todo = await Todo.findAll({
             where: {
                 diary_id,
                 sign_id: signId, // 사용자 sign_id로 필터링
@@ -208,7 +208,7 @@ exports.getRoutineList = async (req, res) => {
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
 
     try {
-        const routine = await Routine.findOne({
+        const routine = await Routine.findAll({
             where: {
                 diary_id,
                 sign_id: signId // 사용자 sign_id로 필터링

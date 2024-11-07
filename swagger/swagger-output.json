@@ -2992,60 +2992,59 @@
         ]
       }
     },
-  
-      "/friends/search/nickname": {
-    "get": {
-      "summary": "닉네임으로 사용자 검색 및 최근 게시물 3개 조회",
-      "tags": ["User"],
-      "description": "주어진 닉네임으로 사용자를 검색하고, 해당 사용자의 최근 게시물 3개를 포함한 정보를 반환합니다.",
-      "parameters": [
-        {
-          "name": "user_nick",
-          "in": "query",
-          "required": true,
-          "description": "검색할 사용자의 닉네임",
-          "schema": {
-            "type": "string",
-            "example": "길동이"
-          }
+  "/friends/search/nickname": {
+  "get": {
+    "summary": "닉네임으로 사용자 검색 및 최근 게시물 3개 조회",
+    "tags": ["Mooner"],
+    "description": "주어진 닉네임으로 사용자를 검색하고, 해당 사용자의 최근 게시물 3개를 포함한 정보를 반환합니다.",
+    "parameters": [
+      {
+        "name": "user_nick",
+        "in": "query",
+        "required": true,
+        "description": "검색할 사용자의 닉네임",
+        "schema": {
+          "type": "string",
+          "example": "길동이"
         }
-      ],
-      "responses": {
-        "200": {
-          "description": "사용자 정보와 최근 게시물 목록을 성공적으로 찾았습니다.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "message": {
-                    "type": "string",
-                    "example": "닉네임으로 사용자 정보와 최근 게시물을 찾았습니다."
-                  },
-                  "data": {
-                    "type": "object",
-                    "properties": {
-                      "user": {
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "사용자 정보와 최근 게시물 목록을 성공적으로 찾았습니다.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "닉네임으로 사용자 정보와 최근 게시물을 찾았습니다."
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "sign_id": { "type": "string", "example": "user123" },
+                        "user_id": { "type": "string", "example": "uid456" },
+                        "user_nick": { "type": "string", "example": "길동이" },
+                        "user_tendency": { "type": "string", "example": "모험가" },
+                        "profile_img": { "type": "string", "example": "http://example.com/profile.jpg" }
+                      }
+                    },
+                    "recent_diaries": {
+                      "type": "array",
+                      "items": {
                         "type": "object",
                         "properties": {
-                          "sign_id": { "type": "string", "example": "user123" },
-                          "user_name": { "type": "string", "example": "홍길동" },
-                          "user_nick": { "type": "string", "example": "길동이" },
-                          "profile_img": { "type": "string", "example": "http://example.com/profile.jpg" },
-                          "user_tendency": { "type": "string", "example": "모험가" }
-                        }
-                      },
-                      "recent_diaries": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "diary_id": { "type": "string", "example": "diary456" },
-                            "diary_title": { "type": "string", "example": "여행 일기" },
-                            "diary_content": { "type": "string", "example": "오늘은 정말..." },
-                            "createdAt": { "type": "string", "format": "date-time", "example": "2024-10-01T12:34:56Z" },
-                            "post_photo": { "type": "string", "example": "http://example.com/photo.jpg" }
-                          }
+                          "diary_id": { "type": "string", "example": "diary456" },
+                          "diary_title": { "type": "string", "example": "여행 일기" },
+                          "diary_content": { "type": "string", "example": "오늘은 정말..." },
+                          "createdAt": { "type": "string", "format": "date-time", "example": "2024-10-01T12:34:56Z" },
+                          "access_level": { "type": "integer", "example": 0 },
+                          "post_photo": { "type": "string", "example": "http://example.com/photo.jpg" }
                         }
                       }
                     }
@@ -3054,22 +3053,23 @@
               }
             }
           }
-        },
-        "404": {
-          "description": "해당 닉네임의 사용자를 찾을 수 없습니다."
-        },
-        "500": {
-          "description": "사용자 검색 중 오류가 발생했습니다."
         }
       },
-      "security": [
-        {
-          "bearerAuth": []
-        }
-      ]
-    }
-  },
-    
+      "404": {
+        "description": "해당 닉네임의 사용자를 찾을 수 없습니다."
+      },
+      "500": {
+        "description": "사용자 검색 중 오류가 발생했습니다."
+      }
+    },
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ]
+  }
+},
+
     
     "/friends/{sign_id}/friends": {
       "get": {
