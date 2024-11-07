@@ -2108,6 +2108,65 @@
         ]
       }
     },
+    "/contents/questions/today": {
+      "get": {
+        "summary": "오늘의 질문 조회",
+        "description": "오늘의 질문을 조회합니다. 오늘의 질문이 설정되지 않은 경우, 자동으로 새 질문이 선택됩니다.",
+        "tags": ["TodayQuestion"],
+        "responses": {
+          "200": {
+            "description": "오늘의 질문 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "오늘의 질문 조회 성공"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "question_id": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "question_text": {
+                          "type": "string",
+                          "example": "오늘의 기분은 어떤가요?"
+                        },
+                        "today_date": {
+                          "type": "string",
+                          "format": "date",
+                          "example": "2024-11-07"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "오늘의 질문 조회 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "오늘의 질문 조회에 실패했습니다."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/contents/{diary_id}/answers": {
       "post": {
         "summary": "오늘의 답변 등록",
@@ -4431,6 +4490,24 @@
             "items": {
               "$ref": "#/components/schemas/RoutineResponse"
             }
+          }
+        }
+      },
+      "TodayQuestion": {
+        "type": "object",
+        "properties": {
+          "question_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "question_text": {
+            "type": "string",
+            "example": "오늘의 기분은 어떤가요?"
+          },
+          "today_date": {
+            "type": "string",
+            "format": "date",
+            "example": "2024-11-07"
           }
         }
       },
