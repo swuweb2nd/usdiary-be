@@ -2932,7 +2932,7 @@
       "/friends/search/nickname": {
     "get": {
       "summary": "닉네임으로 사용자 검색 및 최근 게시물 3개 조회",
-      "tags": ["User"],
+      "tags": ["Mooner"],
       "description": "주어진 닉네임으로 사용자를 검색하고, 해당 사용자의 최근 게시물 3개를 포함한 정보를 반환합니다.",
       "parameters": [
         {
