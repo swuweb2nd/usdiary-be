@@ -22,8 +22,8 @@ class TodayPlace extends Sequelize.Model {
           type: Sequelize.TEXT,
           allowNull: false,
         },
-        diary_id: { 
-          type: Sequelize.BIGINT,
+        sign_id: {
+          type: Sequelize.STRING(255),
           allowNull: false,
         }
       },
@@ -40,9 +40,9 @@ class TodayPlace extends Sequelize.Model {
     );
   }
   static associate(db) {
-    db.TodayPlace.belongsTo(db.Diary, {
-      foreignKey: "diary_id",
-      targetKey: "diary_id",
+    db.TodayPlace.belongsTo(db.User, {
+      foreignKey: "sign_id",
+      targetKey: "sign_id",
       onDelete: "CASCADE",  // 일기가 삭제되면 해당 장소도 삭제됨
     });
   }
