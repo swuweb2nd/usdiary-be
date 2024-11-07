@@ -14,11 +14,6 @@ class TodayQuestion extends Sequelize.Model {
           type: Sequelize.TEXT,
           allowNull: false,
         },
-        today_date: {
-          type: Sequelize.DATEONLY, 
-          allowNull: true, 
-          defaultValue: null
-        }
       },
       {
         sequelize,
@@ -38,6 +33,10 @@ class TodayQuestion extends Sequelize.Model {
       sourceKey: "question_id",
       onDelete: "CASCADE",
     });
+    /*db.TodayQuestion.hasMany(db.Diary, {
+      foreignKey: "question_id",
+      sourceKey: "question_id",
+    });*/
   }
 }
 
