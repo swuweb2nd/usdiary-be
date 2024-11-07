@@ -77,41 +77,39 @@ exports.createTodo = async (req, res) => {
     }
 };
 
-exports.getTodo = async (req, res) => {
-    const { todo_id } = req.params;
+// 투두 목록 조회
+exports.getTodoList = async (req, res) => {
+    const { diary_id } = req.params;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
 
     try {
         const todo = await Todo.findOne({
             where: {
-                todo_id,
-                sign_id: signId // 사용자 sign_id로 필터링
-            }
+                diary_id,
+                sign_id: signId, // 사용자 sign_id로 필터링
+            },
+            order: [['createdAt', 'ASC']]
         });
-
-        if (!todo) {
-            return res.status(404).json({ message: 'Todo not found' });
-        }
 
         res.status(200).json({
-            message: 'Todo retrieved successfully',
-            data: todo
+            message: '투두 목록 조회 성공',
+            data: todo.length ? todo : []
         });
     } catch (error) {
-        console.error('Error retrieving todo:', error);
-        res.status(500).json({ error: 'An error occurred while retrieving the todo' });
+        console.error('투두 목록 조회 중 오류 발생:', error);
+        res.status(500).json({ error: '투두 목록 조회 중 오류가 발생했습니다.' });
     }
 };
 
-
 exports.updateTodo = async (req, res) => {
-    const { todo_id } = req.params;
+    const { todo_id, diary_id } = req.params;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
     
     try {
         const todo = await Todo.findOne({
             where: {
                 todo_id,
+                diary_id,
                 sign_id: signId // 사용자 sign_id로 필터링
             }
         });
@@ -136,13 +134,14 @@ exports.updateTodo = async (req, res) => {
 
 
 exports.deleteTodo = async (req, res) => {
-    const { todo_id } = req.params;
+    const { todo_id, diary_id } = req.params;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
 
     try {
         const todo = await Todo.findOne({
             where: {
                 todo_id,
+                diary_id,
                 sign_id: signId // 사용자 sign_id로 필터링
             }
         });
@@ -203,30 +202,30 @@ exports.createRoutine = async (req, res) => {
         res.status(500).json({ error: 'An error occurred while creating the routine' });
     }
 };
-exports.getRoutine = async (req, res) => {
-    const { routine_id } = req.params;
+// 루틴 목록 조회
+exports.getRoutineList = async (req, res) => {
+    const { diary_id } = req.params;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
 
     try {
         const routine = await Routine.findOne({
             where: {
-                routine_id,
+                diary_id,
                 sign_id: signId // 사용자 sign_id로 필터링
-            }
+            },
+            order: [['createdAt', 'ASC']] 
         });
-        if (!routine) {
-            return res.status(404).json({ message: 'Routine not found' });
-        }
-
+        
         res.status(200).json({
-            message: 'Routine retrieved successfully',
-            data: routine
+            message: '루틴 목록 조회 성공',
+            data: routine.length ? routine : []
         });
     } catch (error) {
-        console.error('Error retrieving routine:', error);
-        res.status(500).json({ error: 'An error occurred while retrieving the routine' });
+        console.error('루틴 목록 조회 중 오류 발생:', error);
+        res.status(500).json({ error: '루틴 목록 조회 중 오류가 발생했습니다.' });
     }
 };
+
 exports.updateRoutine = async (req, res) => {
     const { routine_id } = req.params;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
@@ -236,6 +235,7 @@ exports.updateRoutine = async (req, res) => {
         const routine = await Routine.findOne({
             where: {
                 routine_id,
+                diary_id,
                 sign_id: signId // 사용자 sign_id로 필터링
             }
         });
@@ -265,6 +265,7 @@ exports.deleteRoutine = async (req, res) => {
         const routine = await Routine.findOne({
             where: {
                 routine_id,
+                diary_id,
                 sign_id: signId // 사용자 sign_id로 필터링
             }
         });
@@ -284,71 +285,10 @@ exports.deleteRoutine = async (req, res) => {
     }
 };
 
-// TodayQuestion 생성
-exports.createQuestion = async (req, res) => {
-    try { 
-        const { question_text } = req.body;
-
-        const newQuestion = await TodayQuestion.create({
-            question_text
-        });
-            
-        res.status(201).json({
-            message: '질문이 생성되었습니다.',
-            data: newQuestion
-        });
-    } catch (error) {
-        console.error('질문 생성 중 오류 발생:', error);
-        res.status(500).json({ message: 'Failed to create question' });
-    }
-};
-// 매일 새로운 랜덤 질문 설정 (ex. 스케줄러에서 매일 자정 실행)
-async function setDailyQuestion() {
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD 형식으로 오늘 날짜 설정
-    await TodayQuestion.update({ today_date: null }, { where: { today_date: today } }); // 기존 오늘의 질문 초기화
-
-    const newQuestion = await TodayQuestion.findOne({
-        order: Sequelize.literal('RAND()')
-    });
-
-    if (newQuestion) {
-        await newQuestion.update({ today_date: today });
-    }
-}
-
-// TodayQuestion 조회
-exports.getTodayQuestion = async (req, res) => {
-    try {
-        const today = new Date().toISOString().split('T')[0];
-
-        // 오늘의 질문이 설정되었는지 확인
-        let todayQuestion = await TodayQuestion.findOne({
-            where: { today_date: today }
-        });
-
-        // 오늘의 질문이 설정되지 않은 경우 setDailyQuestion 호출
-        if (!todayQuestion) {
-            await setDailyQuestion(); // 오늘의 질문 설정 함수 호출
-            
-            todayQuestion = await TodayQuestion.findOne({
-                where: { today_date: today }
-            });
-        }
-
-        res.status(200).json({
-            message: '오늘의 질문 조회 성공',
-            data: todayQuestion
-        });
-    } catch (error) {
-        console.error('오늘의 질문 조회 중 오류 발생:', error);
-        res.status(500).json({ message: '오늘의 질문 조회에 실패했습니다.' });
-    }
-};
-
 // TodayAnswer 등록
 exports.createAnswer = [uploadSingle, async (req, res) => {
     try {
-        const { question_id } = req.params;
+        const { question_id, diary_id } = req.params;
         const { answer_text } = req.body;
         const signId = res.locals.decoded.sign_id;
 
@@ -383,55 +323,42 @@ exports.createAnswer = [uploadSingle, async (req, res) => {
 // TodayAnswer 조회
 exports.getAnswer = async (req, res) => {
     try {
-        const { answer_id } = req.params;
+        const { answer_id, diary_id } = req.params;
         const signId = res.locals.decoded.sign_id;
 
         // 답변 조회
         const answer = await TodayAnswer.findOne({
-            where: { answer_id, sign_id: signId },
-            include: [
-                {
-                    model: TodayQuestion,
-                    attributes: ['question_text']
-                }
-            ]
+            where: { answer_id, diary_id, sign_id: signId }
         });
-
-        if (!answer) {
-            return res.status(404).json({ message: '답변을 찾을 수 없습니다.' });
-        }
 
         res.status(200).json({
             message: '답변 조회 성공',
-            data: {
-                answer_text: answer.answer_text,
-                answer_photo: answer.answer_photo, // 사진 경로 포함
-                question: answer.TodayQuestion.question_text
-            }
+            data: answer
+                ? {
+                    answer_text: answer.answer_text,
+                    answer_photo: answer.answer_photo // 사진 경로 포함
+                }
+                : {} // 답변이 없을 경우 빈 객체 반환
         });
     } catch (error) {
         console.error('답변 조회 중 오류 발생:', error);
-        res.status(500).json({ message: '답변 조회 중 오류가 발생했습니다.' });
+        res.status(500).json({ message: '답변 조회 중 오류가 발생했습니다.', data: {} });
     }
 };
 
 // TodayAnswer 수정
 exports.updateAnswer = [uploadSingle, async (req, res) => {
     try {
-        const { answer_id } = req.params;
+        const { answer_id, diary_id } = req.params;
         const { answer_text } = req.body;
         const signId = res.locals.decoded.sign_id; 
 
         const answer = await TodayAnswer.findOne({
-            where: { answer_id },
+            where: { answer_id, diary_id, sign_id: signId },
         });
     
         if (!answer) {
             return res.status(404).json({ message: '답변을 찾을 수 없습니다.' });
-        }
-
-        if (answer.sign_id !== signId) {
-            return res.status(403).json({ message: '이 답변을 수정할 권한이 없습니다.' });
         }
 
         // 사진 파일이 있으면 새로운 경로 저장
@@ -456,20 +383,17 @@ exports.updateAnswer = [uploadSingle, async (req, res) => {
 // TodayAnswer 삭제
 exports.deleteAnswer = async (req, res) => {
     try {
-        const { answer_id } = req.params;
+        const { answer_id, diary_id } = req.params;
         const signId = res.locals.decoded.sign_id;
 
         const answer = await TodayAnswer.findOne({
-            where: { answer_id },
+            where: { answer_id, diary_id, sign_id: signId },
         });
 
         if (!answer) {
             return res.status(404).json({ message: '답변을 찾을 수 없습니다.' });
         }
 
-        if (answer.sign_id !== signId) {
-            return res.status(403).json({ message: '이 답변을 삭제할 권한이 없습니다.' });
-        }
         // 파일 삭제: answer_photo가 존재하면 파일 삭제
         if (answer.answer_photo) {
             const filePath = path.join(__dirname, '../', answer.answer_photo); // 파일 경로 설정
@@ -521,36 +445,34 @@ exports.createPlace = async (req, res) => {
     }
 };
 
-// TodayPlace 조회
-exports.getPlace = async (req, res) => {
-    const { place_id } = req.params;
+// TodayPlace 목록 조회
+exports.getPlaceList = async (req, res) => {
+    const { diary_id } = req.params;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
 
     try {
-        const place = await TodayPlace.findOne({
+        // 특정 다이어리와 사용자에 해당하는 장소 목록 조회
+        const places = await TodayPlace.findAll({
             where: {
-                place_id,
-                sign_id: signId // 사용자 sign_id로 필터링
-            }
+                diary_id,
+                sign_id: signId
+            },
+            order: [['createdAt', 'ASC']] // 생성 날짜 순으로 정렬
         });
-
-        if (!place) {
-            return res.status(404).json({ message: '장소를 찾을 수 없습니다.' });
-        }
 
         res.status(200).json({
-            message: '장소 조회에 성공했습니다.',
-            data: place
+            message: '장소 목록 조회 성공',
+            data: places.length ? places : []
         });
     } catch (error) {
-        console.error('장소 조회 중 오류 발생:', error);
-        res.status(500).json({ error: '장소 조회 중 오류가 발생했습니다.' });
+        console.error('장소 목록 조회 중 오류 발생:', error);
+        res.status(500).json({ message: '장소 목록 조회 중 오류가 발생했습니다.', data: [] });
     }
 };
 
 // TodayPlace 수정
 exports.updatePlace = async (req, res) => {
-    const { place_id } = req.params;
+    const { place_id, diary_id } = req.params;
     const { cate_num, today_mood, place_memo } = req.body;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
 
@@ -558,6 +480,7 @@ exports.updatePlace = async (req, res) => {
         const place = await TodayPlace.findOne({
             where: {
                 place_id,
+                diary_id,
                 sign_id: signId // 사용자 sign_id로 필터링
             }
         });
@@ -585,13 +508,14 @@ exports.updatePlace = async (req, res) => {
 
 // TodayPlace 삭제
 exports.deletePlace = async (req, res) => {
-    const { place_id } = req.params;
+    const { place_id, diary_id } = req.params;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
 
     try {
         const place = await TodayPlace.findOne({
             where: {
                 place_id,
+                diary_id,
                 sign_id: signId// 사용자 sign_id로 필터링
             }
         });

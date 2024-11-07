@@ -49,7 +49,15 @@ class Diary extends Sequelize.Model {
           type: Sequelize.TEXT,
           allowNull: true,
           defaultValue: 0,
-        }
+        },
+        /*question_id: {  // 오늘의 질문 id
+          type: Sequelize.BIGINT,
+          allowNull: true,
+          references: {
+            model: "TodayQuestion",
+            key: "question_id",
+          },
+        },*/
       },
       {
         sequelize,
@@ -71,6 +79,7 @@ class Diary extends Sequelize.Model {
     db.Diary.hasMany(db.Report, { foreignKey: "diary_id", sourceKey: "diary_id", onDelete: "CASCADE" });
     db.Diary.hasMany(db.TodayPlace, { foreignKey: "diary_id", sourceKey: "diary_id", onDelete: "CASCADE" });
     db.Diary.hasMany(db.TodayAnswer,{foreignKey : "diary_id", targetKey: "diary_id", onDelete: "CASCADE"})
+    //db.Diary.belongsTo(db.TodayQuestion, { foreignKey: "question_id", targetKey: "question_id" });
   }
 }
 
