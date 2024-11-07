@@ -284,7 +284,48 @@ exports.deleteRoutine = async (req, res) => {
         res.status(500).json({ error: 'An error occurred while deleting the routine' });
     }
 };
+// 매일 새로운 랜덤 질문 설정 (ex. 스케줄러에서 매일 자정 실행)
+async function setDailyQuestion() {
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD 형식으로 오늘 날짜 설정
+    await TodayQuestion.update({ today_date: null }, { where: { today_date: today } }); // 기존 오늘의 질문 초기화
 
+    const newQuestion = await TodayQuestion.findOne({
+        order: Sequelize.literal('RAND()')
+    });
+
+    if (newQuestion) {
+        await newQuestion.update({ today_date: today });
+    }
+}
+
+// TodayQuestion 조회
+exports.getTodayQuestion = async (req, res) => {
+    try {
+        const today = new Date().toISOString().split('T')[0];
+
+        // 오늘의 질문이 설정되었는지 확인
+        let todayQuestion = await TodayQuestion.findOne({
+            where: { today_date: today }
+        });
+
+        // 오늘의 질문이 설정되지 않은 경우 setDailyQuestion 호출
+        if (!todayQuestion) {
+            await setDailyQuestion(); // 오늘의 질문 설정 함수 호출
+
+            todayQuestion = await TodayQuestion.findOne({
+                where: { today_date: today }
+            });
+        }
+
+        res.status(200).json({
+            message: '오늘의 질문 조회 성공',
+            data: todayQuestion
+        });
+    } catch (error) {
+        console.error('오늘의 질문 조회 중 오류 발생:', error);
+        res.status(500).json({ message: '오늘의 질문 조회에 실패했습니다.' });
+    }
+};
 // TodayAnswer 등록
 exports.createAnswer = [uploadSingle, async (req, res) => {
     try {

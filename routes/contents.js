@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { createTodo,getTodoList,updateTodo,deleteTodo,
         createRoutine,getRoutineList,updateRoutine,deleteRoutine,
+        getTodayQuestion,
         createAnswer, getAnswer, updateAnswer,deleteAnswer,
         createPlace, getPlaceList, updatePlace, deletePlace
       }= require('../controllers/content');
@@ -19,6 +20,9 @@ router.post('/:diary_id/routines', verifyToken, createRoutine);
 router.get('/:diary_id/routines', verifyToken, getRoutineList);
 router.patch('/:diary_id/:routine_id', verifyToken, updateRoutine);
 router.delete('/:diary_id/:routine_id', verifyToken, deleteRoutine);
+
+// 오늘의 질문 조회
+router.get('/questions/today', getTodayQuestion);
 
 // TodayAnswer
 router.post('/:diary_id/answers', verifyToken, uploadSingle, createAnswer);
