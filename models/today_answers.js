@@ -28,7 +28,7 @@ class TodayAnswer extends Sequelize.Model {
         },
         date: { 
           type: Sequelize.DATEONLY, 
-          allowNull: false,
+          allowNull: true,
         }
       },
       {

@@ -38,11 +38,6 @@ module.exports = {
       });
     }
 
-    // diary_id 컬럼이 존재하는 경우 제거
-    if (routineTableDesc.diary_id) {
-      await queryInterface.removeColumn('routines', 'diary_id');
-    }
-
     // 'user_id' 컬럼 제거
     if (routineTableDesc.user_id) {
       await queryInterface.removeColumn('routines', 'user_id');

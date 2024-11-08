@@ -13,19 +13,19 @@ const MAX_TODOS_PER_DIARY = 5 //투두 개수 제한
 const MAX_ROUTINES_PER_USER = 3; //루틴 개수 제한
 
 // 사용자가 오늘 이미 투두나 루틴을 생성했는지 확인
-const checkDailyActivity = async (signId) => {
+const checkDailyActivity = async (signId, date) => {
     const today = new Date(); // 오늘 날짜
     
     // 오늘 날짜 기준 투두 또는 루틴이 있는지 확인
     const activity = await Todo.findOne({
     where: {
             sign_id: signId,
-            date: today
+            date
         }
     }) || await Routine.findOne({
     where: {
             sign_id: signId,
-            date: today
+            date
         }
     });
     
@@ -35,37 +35,33 @@ const checkDailyActivity = async (signId) => {
 // Todo 생성
 exports.createTodo = async (req, res) => {
     const { description, is_completed } = req.body;
-    const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const today = new Date();
+    const signId = res.locals.decoded.sign_id;
+    const date = req.body.date || new Date().toISOString().split('T')[0]; // date가 없으면 오늘 날짜로 설정
 
     try {
-        // 오늘 이미 Todo나 Routine을 생성했는지 확인
-        const hasActivityToday = await checkDailyActivity(signId);
+        const hasActivityOnDate = await checkDailyActivity(signId, date);
 
         const todoCount = await Todo.count({
             where: {
                 sign_id: signId,
-                date: today
+                date
             }
         });
 
-        // 투두가 해당 일기에서 최대 개수를 넘었는지 확인
         if (todoCount >= MAX_TODOS_PER_DIARY) {
             return res.status(400).json({
                 message: `최대 ${MAX_TODOS_PER_DIARY}개의 Todo만 생성할 수 있습니다.`
             });
         }
 
-        // 투두 생성
         const newTodo = await Todo.create({
             description,
             is_completed,
-            sign_id: signId, // 사용자 sign_id 추가
-            date: today
+            sign_id: signId,
+            date
         });
 
-        // 포인트 획득: 오늘 처음 생성한 경우에만 포인트 추가
-        if (!hasActivityToday) {
+        if (!hasActivityOnDate) {
             await gainPoints(req, res, '콘텐츠 사용', 1);
         }
 
@@ -82,14 +78,13 @@ exports.createTodo = async (req, res) => {
 // Todo 목록 조회
 exports.getTodoList = async (req, res) => {
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const { date } = req.query; // 요청에서 date 쿼리 가져오기
-    const queryDate = date ? new Date(date) : new Date(); // 쿼리 날짜가 없으면 오늘 날짜 사용
+    const date = req.query.date || new Date().toISOString().split('T')[0]; // 쿼리 날짜가 없으면 오늘 날짜로 설정
 
     try {
         const todo = await Todo.findAll({
             where: {
-                sign_id: signId, // 사용자 sign_id로 필터링
-                date: queryDate, // 요청된 날짜 또는 오늘 날짜 기준으로 필터링
+                sign_id: signId,
+                date
             },
             order: [['createdAt', 'ASC']]
         });
@@ -107,23 +102,24 @@ exports.getTodoList = async (req, res) => {
 // Todo 수정
 exports.updateTodo = async (req, res) => {
     const { todo_id } = req.params;
-    const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const today = new Date();
-    
+    const signId = res.locals.decoded.sign_id;
+    const { description, is_completed } = req.body;
+
     try {
         const todo = await Todo.findOne({
             where: {
                 todo_id,
-                sign_id: signId, // 사용자 sign_id로 필터링
-                date: today
+                sign_id: signId // 사용자 sign_id로 필터링
             }
         });
+
         if (!todo) {
             return res.status(404).json({ message: 'Todo를 찾을 수 없습니다.' });
         }
 
-        todo.description = req.body.description !== undefined ? req.body.description : todo.description;
-        todo.is_completed = req.body.is_completed !== undefined ? req.body.is_completed : todo.is_completed;
+        // description과 is_completed 필드 업데이트
+        todo.description = description !== undefined ? description : todo.description;
+        todo.is_completed = is_completed !== undefined ? is_completed : todo.is_completed;
 
         await todo.save();
 
@@ -140,15 +136,13 @@ exports.updateTodo = async (req, res) => {
 // Todo 삭제
 exports.deleteTodo = async (req, res) => {
     const { todo_id } = req.params;
-    const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const today = new Date();
+    const signId = res.locals.decoded.sign_id;
 
     try {
         const todo = await Todo.findOne({
             where: {
                 todo_id,
-                sign_id: signId, // 사용자 sign_id로 필터링
-                date: today
+                sign_id: signId // 사용자 sign_id로 필터링
             }
         });
 
@@ -171,16 +165,16 @@ exports.deleteTodo = async (req, res) => {
 exports.createRoutine = async (req, res) => {
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
     const { description, is_completed } = req.body;
-    const today = new Date();
+    const date = req.body.date || new Date().toISOString().split('T')[0]; // date가 없으면 오늘 날짜로 설정
 
     try {
-        // 오늘 이미 Todo나 Routine을 생성했는지 확인
-        const hasActivityToday = await checkDailyActivity(signId);
+        // 선택한 날짜에 이미 Todo나 Routine을 생성했는지 확인
+        const hasActivityToday = await checkDailyActivity(signId, date);
 
         const routineCount = await Routine.count({
             where: {  
                 sign_id: signId,
-                date: today 
+                date
             }
         });
 
@@ -195,10 +189,10 @@ exports.createRoutine = async (req, res) => {
             description,
             is_completed,
             sign_id: signId,
-            date: today
+            date
         });
 
-        // 포인트 획득: 오늘 처음 생성한 경우에만 포인트 추가
+        // 포인트 획득: 선택한 날짜에 처음 생성한 경우에만 포인트 추가
         if (!hasActivityToday) {
             await gainPoints(req, res, '콘텐츠 사용', 1);
         }
@@ -216,14 +210,13 @@ exports.createRoutine = async (req, res) => {
 // routine 목록 조회
 exports.getRoutineList = async (req, res) => {
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const { date } = req.query; // 쿼리에서 날짜 가져오기
-    const queryDate = date ? new Date(date) : new Date(); // 쿼리 날짜가 없으면 오늘 날짜 사용
+    const date = req.query.date || new Date().toISOString().split('T')[0]; // 쿼리 날짜가 없으면 오늘 날짜로 설정
 
     try {
         const routine = await Routine.findAll({
             where: {
                 sign_id: signId, // 사용자 sign_id로 필터링
-                date: queryDate // 선택한 날짜로 필터링
+                date // 선택한 날짜로 필터링
             },
             order: [['createdAt', 'ASC']] 
         });
@@ -242,21 +235,21 @@ exports.getRoutineList = async (req, res) => {
 exports.updateRoutine = async (req, res) => {
     const { routine_id } = req.params;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const today = new Date();
     const { description, is_completed } = req.body;
 
     try {
         const routine = await Routine.findOne({
             where: {
                 routine_id,
-                sign_id: signId, // 사용자 sign_id로 필터링
-                date: today
+                sign_id: signId // 사용자 sign_id로 필터링
             }
         });
+
         if (!routine) {
             return res.status(404).json({ message: '루틴을 찾을 수 없습니다.' });
         }
 
+        // description과 is_completed 필드 업데이트
         routine.description = description !== undefined ? description : routine.description;
         routine.is_completed = is_completed !== undefined ? is_completed : routine.is_completed;
 
@@ -276,14 +269,12 @@ exports.updateRoutine = async (req, res) => {
 exports.deleteRoutine = async (req, res) => {
     const { routine_id } = req.params;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const today = new Date();
 
     try {
         const routine = await Routine.findOne({
             where: {
                 routine_id,
-                sign_id: signId, // 사용자 sign_id로 필터링
-                date: today
+                sign_id: signId // 사용자 sign_id로 필터링
             }
         });
 
@@ -298,7 +289,7 @@ exports.deleteRoutine = async (req, res) => {
         });
     } catch (error) {
         console.error('루틴 삭제 중 오류 발생:', error);
-        res.status(500).json({ error: '루틴을 삭제하는 중 오류가 발생했습니다.' });
+        res.status(500).json({ message: '루틴을 삭제하는 중 오류가 발생했습니다.' });
     }
 };
 
@@ -320,7 +311,9 @@ async function setDailyQuestion() {
 // TodayQuestion 조회
 exports.getTodayQuestion = async (req, res) => {
     try {
-        const date = req.query.date || new Date(); // 쿼리 파라미터가 없을 경우 오늘 날짜 사용
+         // 쿼리 파라미터가 없을 경우 오늘 날짜 사용
+        const dateParam = req.query.date || new Date(); 
+        const date = new Date(dateParam); 
 
         // 해당 날짜의 질문이 설정되었는지 확인
         let todayQuestion = await TodayQuestion.findOne({
