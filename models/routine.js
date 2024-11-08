@@ -23,6 +23,10 @@ class Routine extends Sequelize.Model {
           type: Sequelize.STRING(255),
           allowNull: false,
         },
+        date: {
+          type: Sequelize.DATEONLY,
+          allowNull: false,
+        }
       },
       {
         sequelize,
