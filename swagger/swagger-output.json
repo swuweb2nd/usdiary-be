@@ -1674,23 +1674,11 @@
       ]
     }
   },
-"/contents/{diary_id}/todos": {
+    "/contents/todos": {
       "post": {
         "summary": "투두 생성",
         "description": "새로운 투두를 생성합니다.",
         "tags": ["Todo"],
-        "parameters": [
-          {
-            "name": "diary_id",
-            "in": "path",
-            "required": true,
-            "description": "투두가 속한 다이어리의 ID",
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1734,17 +1722,17 @@
       },
       "get": {
         "summary": "투두 목록 조회",
-        "description": "특정 다이어리에 속한 투두 목록을 가져옵니다.",
+        "description": "사용자에 속한 투두 목록을 가져옵니다.",
         "tags": ["Todo"],
         "parameters": [
           {
-            "name": "diary_id",
-            "in": "path",
-            "required": true,
-            "description": "다이어리의 ID",
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "description": "조회할 날짜 (YYYY-MM-DD 형식)",
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string",
+              "format": "date"
             }
           }
         ],
@@ -1768,22 +1756,12 @@
         ]
       }
     },
-    "/contents/{diary_id}/todos/{todo_id}": {
+    "/contents/todos/{todo_id}": {
       "patch": {
         "summary": "투두 수정",
         "description": "특정 투두를 수정합니다.",
         "tags": ["Todo"],
         "parameters": [
-          {
-            "name": "diary_id",
-            "in": "path",
-            "required": true,
-            "description": "다이어리의 ID",
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
           {
             "name": "todo_id",
             "in": "path",
@@ -1842,16 +1820,6 @@
         "tags": ["Todo"],
         "parameters": [
           {
-            "name": "diary_id",
-            "in": "path",
-            "required": true,
-            "description": "다이어리의 ID",
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          {
             "name": "todo_id",
             "in": "path",
             "required": true,
@@ -1891,255 +1859,254 @@
         ]
       }
     },
-    "/contents/{diary_id}/routines": {
-      "post": {
-        "summary": "루틴 생성",
-        "description": "특정 다이어리에 새로운 루틴을 생성합니다.",
-        "tags": ["Routine"],
-        "parameters": [
-          {
-            "name": "diary_id",
-            "in": "path",
+      "/contents/routines": {
+        "post": {
+          "summary": "루틴 생성",
+          "description": "사용자가 새로운 루틴을 생성합니다. 생성 시 오늘 날짜가 자동으로 설정됩니다.",
+          "tags": ["Routine"],
+          "requestBody": {
             "required": true,
-            "description": "루틴을 생성할 다이어리의 ID",
-            "schema": {
-              "type": "integer",
-              "format": "int64"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoutineRequest"
+                }
+              }
             }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
+          },
+          "responses": {
+            "201": {
+              "description": "루틴이 성공적으로 생성되었습니다.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": {
+                        "type": "string",
+                        "example": "루틴 생성 완료"
+                      },
+                      "data": {
+                        "$ref": "#/components/schemas/RoutineResponse"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "루틴 생성 개수 제한을 초과했습니다."
+            },
+            "500": {
+              "description": "서버 오류"
+            }
+          },
+          "security": [
+            { "bearerAuth": [] }
+          ]
+        },
+        "get": {
+          "summary": "루틴 목록 조회",
+          "description": "사용자가 특정 날짜의 루틴 목록을 조회합니다. 날짜가 없으면 기본적으로 오늘 날짜로 조회합니다.",
+          "tags": ["Routine"],
+          "parameters": [
+            {
+              "name": "date",
+              "in": "query",
+              "required": false,
+              "description": "조회할 날짜 (YYYY-MM-DD 형식). 없을 시 오늘 날짜로 조회",
               "schema": {
-                "$ref": "#/components/schemas/RoutineRequest"
+                "type": "string",
+                "format": "date"
               }
             }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "루틴이 성공적으로 생성되었습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Routine created successfully"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/RoutineResponse"
-                    }
+          ],
+          "responses": {
+            "200": {
+              "description": "루틴 목록 조회 성공",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/RoutineListResponse"
                   }
                 }
               }
+            },
+            "500": {
+              "description": "서버 오류"
             }
           },
-          "400": {
-            "description": "루틴 생성 개수 제한을 초과했습니다."
-          },
-          "500": {
-            "description": "서버 오류"
-          }
-        },
-        "security": [
-          { "bearerAuth": [] }
-        ]
+          "security": [
+            { "bearerAuth": [] }
+          ]
+        }
       },
-      "get": {
-        "summary": "루틴 목록 조회",
-        "description": "특정 다이어리에 속한 루틴 목록을 가져옵니다.",
-        "tags": ["Routine"],
-        "parameters": [
-          {
-            "name": "diary_id",
-            "in": "path",
-            "required": true,
-            "description": "다이어리의 ID",
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "루틴 목록 조회 성공",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RoutineListResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "서버 오류"
-          }
-        },
-        "security": [
-          { "bearerAuth": [] }
-        ]
-      }
-    },
-    "/contents/{diary_id}/routines/{routine_id}": {
-      "patch": {
-        "summary": "루틴 수정",
-        "description": "특정 루틴을 수정합니다.",
-        "tags": ["Routine"],
-        "parameters": [
-          {
-            "name": "diary_id",
-            "in": "path",
-            "required": true,
-            "description": "다이어리의 ID",
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          {
-            "name": "routine_id",
-            "in": "path",
-            "required": true,
-            "description": "루틴의 ID",
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
+      "/contents/routines/{routine_id}": {
+        "patch": {
+          "summary": "루틴 수정",
+          "description": "특정 루틴을 수정합니다.",
+          "tags": ["Routine"],
+          "parameters": [
+            {
+              "name": "routine_id",
+              "in": "path",
+              "required": true,
+              "description": "수정할 루틴의 ID",
               "schema": {
-                "$ref": "#/components/schemas/RoutineRequest"
+                "type": "integer",
+                "format": "int64"
               }
             }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "루틴 수정 성공",
+          ],
+          "requestBody": {
+            "required": true,
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Routine updated successfully"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/RoutineResponse"
-                    }
-                  }
+                  "$ref": "#/components/schemas/RoutineRequest"
                 }
               }
             }
           },
-          "404": {
-            "description": "루틴을 찾을 수 없습니다."
+          "responses": {
+            "200": {
+              "description": "루틴 수정 성공",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": {
+                        "type": "string",
+                        "example": "루틴이 성공적으로 수정되었습니다."
+                      },
+                      "data": {
+                        "$ref": "#/components/schemas/RoutineResponse"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "루틴을 찾을 수 없습니다."
+            },
+            "500": {
+              "description": "서버 오류"
+            }
           },
-          "500": {
-            "description": "서버 오류"
-          }
+          "security": [
+            { "bearerAuth": [] }
+          ]
         },
-        "security": [
-          { "bearerAuth": [] }
-        ]
+        "delete": {
+          "summary": "루틴 삭제",
+          "description": "특정 루틴을 삭제합니다.",
+          "tags": ["Routine"],
+          "parameters": [
+            {
+              "name": "routine_id",
+              "in": "path",
+              "required": true,
+              "description": "삭제할 루틴의 ID",
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "루틴이 성공적으로 삭제되었습니다.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": {
+                        "type": "string",
+                        "example": "루틴이 성공적으로 삭제되었습니다."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "루틴을 찾을 수 없습니다."
+            },
+            "500": {
+              "description": "서버 오류"
+            }
+          },
+          "security": [
+            { "bearerAuth": [] }
+          ]
+        }
       },
-      "delete": {
-        "summary": "루틴 삭제",
-        "description": "특정 루틴을 삭제합니다.",
-        "tags": ["Routine"],
-        "parameters": [
-          {
-            "name": "diary_id",
-            "in": "path",
-            "required": true,
-            "description": "다이어리의 ID",
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          {
-            "name": "routine_id",
-            "in": "path",
-            "required": true,
-            "description": "루틴의 ID",
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "루틴이 성공적으로 삭제되었습니다.",
-            "content": {
-              "application/json": {
+      "/contents/questions/today": {
+          "get": {
+            "summary": "오늘의 질문 조회",
+            "description": "오늘의 질문을 조회합니다. 오늘의 질문이 설정되지 않은 경우, 자동으로 새 질문이 선택됩니다.",
+            "tags": ["TodayQuestion"],
+            "parameters": [
+              {
+                "name": "date",
+                "in": "query",
+                "required": false,
+                "description": "조회할 날짜 (YYYY-MM-DD 형식). 기본값은 오늘 날짜입니다.",
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Routine deleted successfully"
-                    }
-                  }
+                  "type": "string",
+                  "format": "date"
                 }
               }
-            }
-          },
-          "404": {
-            "description": "루틴을 찾을 수 없습니다."
-          },
-          "500": {
-            "description": "서버 오류"
-          }
-        },
-        "security": [
-          { "bearerAuth": [] }
-        ]
-      }
-    },
-    "/contents/questions/today": {
-      "get": {
-        "summary": "오늘의 질문 조회",
-        "description": "오늘의 질문을 조회합니다. 오늘의 질문이 설정되지 않은 경우, 자동으로 새 질문이 선택됩니다.",
-        "tags": ["TodayQuestion"],
-        "responses": {
-          "200": {
-            "description": "오늘의 질문 조회 성공",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "오늘의 질문 조회 성공"
-                    },
-                    "data": {
+            ],
+            "responses": {
+              "200": {
+                "description": "오늘의 질문 조회 성공",
+                "content": {
+                  "application/json": {
+                    "schema": {
                       "type": "object",
                       "properties": {
-                        "question_id": {
-                          "type": "integer",
-                          "example": 1
-                        },
-                        "question_text": {
+                        "message": {
                           "type": "string",
-                          "example": "오늘의 기분은 어떤가요?"
+                          "example": "오늘의 질문 조회 성공"
                         },
-                        "today_date": {
+                        "data": {
+                          "$ref": "#/components/schemas/TodayQuestionResponse"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "404": {
+                "description": "해당 날짜의 질문을 찾을 수 없습니다.",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
                           "type": "string",
-                          "format": "date",
-                          "example": "2024-11-07"
+                          "example": "해당 날짜의 질문을 찾을 수 없습니다."
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "500": {
+                "description": "서버 오류로 인해 질문 조회에 실패했습니다.",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "오늘의 질문 조회에 실패했습니다."
                         }
                       }
                     }
@@ -2147,509 +2114,410 @@
                 }
               }
             }
-          },
-          "500": {
-            "description": "오늘의 질문 조회 실패",
-            "content": {
-              "application/json": {
+          }
+        },
+        "/contents/answers": {
+          "post": {
+            "summary": "오늘의 답변 등록",
+            "tags": ["TodayAnswer"],
+            "description": "사용자가 오늘의 질문에 대한 답변을 생성합니다. 사진을 첨부할 수 있습니다.",
+            "parameters": [
+              {
+                "name": "question_id",
+                "in": "path",
+                "required": true,
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "오늘의 질문 조회에 실패했습니다."
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/contents/{diary_id}/answers": {
-      "post": {
-        "summary": "오늘의 답변 등록",
-        "tags": ["Today's Answer"],
-        "description": "사용자가 오늘의 질문에 대한 답변을 생성합니다. 사진을 첨부할 수 있습니다.",
-        "parameters": [
-          {
-            "name": "diary_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "description": "답변이 속한 다이어리의 ID"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "$ref": "#/components/schemas/TodayAnswerRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "답변 등록 성공",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TodayAnswerResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "질문을 찾을 수 없습니다."
-          },
-          "500": {
-            "description": "서버 오류로 답변 생성에 실패했습니다."
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/contents/{diary_id}/answers/{answer_id}": {
-      "get": {
-        "summary": "오늘의 답변 조회",
-        "tags": ["Today's Answer"],
-        "description": "사용자가 특정 질문에 대한 답변을 조회합니다.",
-        "parameters": [
-          {
-            "name": "diary_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "description": "답변이 속한 다이어리의 ID"
-          },
-          {
-            "name": "answer_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "description": "조회할 답변의 ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "답변 조회 성공",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TodayAnswerResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "답변을 찾을 수 없습니다."
-          },
-          "500": {
-            "description": "서버 오류로 답변 조회에 실패했습니다."
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "patch": {
-        "summary": "오늘의 답변 수정",
-        "tags": ["Today's Answer"],
-        "description": "사용자가 특정 질문에 대한 기존 답변을 수정합니다. 사진 수정도 가능합니다.",
-        "parameters": [
-          {
-            "name": "diary_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "description": "수정할 답변이 속한 다이어리의 ID"
-          },
-          {
-            "name": "answer_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "description": "수정할 답변의 ID"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "$ref": "#/components/schemas/TodayAnswerRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "답변 수정 성공",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TodayAnswerResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "답변을 찾을 수 없습니다."
-          },
-          "500": {
-            "description": "서버 오류로 답변 수정에 실패했습니다."
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "delete": {
-        "summary": "오늘의 답변 삭제",
-        "tags": ["Today's Answer"],
-        "description": "사용자가 특정 질문에 대한 답변을 삭제합니다.",
-        "parameters": [
-          {
-            "name": "diary_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "description": "삭제할 답변이 속한 다이어리의 ID"
-          },
-          {
-            "name": "answer_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "description": "삭제할 답변의 ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "답변 삭제 성공",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "답변이 삭제되었습니다."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "답변을 찾을 수 없습니다."
-          },
-          "500": {
-            "description": "서버 오류로 답변 삭제에 실패했습니다."
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/contents/{diary_id}/places": {
-      "post": {
-        "summary": "오늘의 장소 등록",
-        "description": "특정 다이어리에 새로운 장소를 추가합니다.",
-        "tags": ["TodayPlace"],
-        "parameters": [
-          {
-            "name": "diary_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "description": "다이어리 ID"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "cate_num": {
-                    "type": "integer",
-                    "description": "카테고리 번호"
-                  },
-                  "today_mood": {
-                    "type": "string",
-                    "description": "오늘의 기분"
-                  },
-                  "place_memo": {
-                    "type": "string",
-                    "description": "장소 메모"
-                  }
+                  "type": "integer",
+                  "format": "int64"
                 },
-                "required": ["cate_num", "today_mood", "place_memo"]
+                "description": "답변을 작성할 질문의 ID"
               }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "오늘의 장소가 성공적으로 생성되었습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "오늘의 장소가 성공적으로 생성되었습니다."
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/TodayPlace"
-                    }
+            ],
+            "requestBody": {
+              "required": true,
+              "content": {
+                "multipart/form-data": {
+                  "schema": {
+                    "$ref": "#/components/schemas/TodayAnswerRequest"
                   }
                 }
               }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "get": {
-        "summary": "장소 목록 조회",
-        "description": "특정 다이어리와 사용자에 대한 모든 장소를 조회합니다.",
-        "tags": ["TodayPlace"],
-        "parameters": [
-          {
-            "name": "diary_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
             },
-            "description": "다이어리 ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "장소 목록 조회 성공",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "장소 목록 조회 성공"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/TodayPlace"
+            "responses": {
+              "201": {
+                "description": "답변 등록 성공",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "답변이 등록되었습니다."
+                        },
+                        "data": {
+                          "$ref": "#/components/schemas/TodayAnswerResponse"
+                        }
                       }
                     }
                   }
                 }
+              },
+              "404": {
+                "description": "질문을 찾을 수 없습니다."
+              },
+              "400": {
+                "description": "이미 오늘의 질문에 답변을 등록했습니다."
+              },
+              "500": {
+                "description": "서버 오류로 답변 등록에 실패했습니다."
               }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error"
+            },
+            "security": [
+              {
+                "bearerAuth": []
+              }
+            ]
           }
         },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/contents/{diary_id}/places/{place_id}": {
-      "patch": {
-        "summary": "오늘의 장소 수정",
-        "description": "특정 장소를 수정합니다.",
-        "tags": ["TodayPlace"],
-        "parameters": [
-          {
-            "name": "diary_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
+        "/contents/answers/{answer_id}": {
+          "get": {
+            "summary": "오늘의 답변 조회",
+            "tags": ["TodayAnswer"],
+            "description": "사용자가 특정 질문에 대한 답변을 조회합니다.",
+            "parameters": [
+              {
+                "name": "answer_id",
+                "in": "path",
+                "required": true,
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "description": "조회할 답변의 ID"
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "답변 조회 성공",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "답변 조회 성공"
+                        },
+                        "data": {
+                          "$ref": "#/components/schemas/TodayAnswerResponse"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "404": {
+                "description": "답변을 찾을 수 없습니다."
+              },
+              "500": {
+                "description": "서버 오류로 답변 조회에 실패했습니다."
+              }
             },
-            "description": "다이어리 ID"
+            "security": [
+              {
+                "bearerAuth": []
+              }
+            ]
           },
-          {
-            "name": "place_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
+          "patch": {
+            "summary": "오늘의 답변 수정",
+            "tags": ["TodayAnswer"],
+            "description": "사용자가 특정 질문에 대한 기존 답변을 수정합니다. 사진 수정도 가능합니다.",
+            "parameters": [
+              {
+                "name": "answer_id",
+                "in": "path",
+                "required": true,
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "description": "수정할 답변의 ID"
+              }
+            ],
+            "requestBody": {
+              "required": true,
+              "content": {
+                "multipart/form-data": {
+                  "schema": {
+                    "$ref": "#/components/schemas/TodayAnswerRequest"
+                  }
+                }
+              }
             },
-            "description": "장소 ID"
+            "responses": {
+              "200": {
+                "description": "답변 수정 성공",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "답변이 수정되었습니다."
+                        },
+                        "data": {
+                          "$ref": "#/components/schemas/TodayAnswerResponse"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "404": {
+                "description": "답변을 찾을 수 없습니다."
+              },
+              "500": {
+                "description": "서버 오류로 답변 수정에 실패했습니다."
+              }
+            },
+            "security": [
+              {
+                "bearerAuth": []
+              }
+            ]
+          },
+          "delete": {
+            "summary": "오늘의 답변 삭제",
+            "tags": ["TodayAnswer"],
+            "description": "사용자가 특정 질문에 대한 답변을 삭제합니다.",
+            "parameters": [
+              {
+                "name": "answer_id",
+                "in": "path",
+                "required": true,
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "description": "삭제할 답변의 ID"
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "답변 삭제 성공",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "답변이 삭제되었습니다."
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "404": {
+                "description": "답변을 찾을 수 없습니다."
+              },
+              "500": {
+                "description": "서버 오류로 답변 삭제에 실패했습니다."
+              }
+            },
+            "security": [
+              {
+                "bearerAuth": []
+              }
+            ]
           }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "cate_num": {
+        },    
+          "/contents/places": {
+            "post": {
+              "summary": "오늘의 장소 등록",
+              "description": "사용자가 오늘의 장소를 등록합니다.",
+              "tags": ["TodayPlace"],
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/TodayPlaceRequest"
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "201": {
+                  "description": "오늘의 장소가 성공적으로 생성되었습니다.",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "message": {
+                            "type": "string",
+                            "example": "오늘의 장소가 성공적으로 생성되었습니다."
+                          },
+                          "data": {
+                            "$ref": "#/components/schemas/TodayPlaceResponse"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "500": {
+                  "description": "장소 생성 중 서버 오류"
+                }
+              },
+              "security": [
+                { "bearerAuth": [] }
+              ]
+            },
+            "get": {
+              "summary": "장소 목록 조회",
+              "description": "사용자가 특정 날짜의 장소 목록을 조회합니다.",
+              "tags": ["TodayPlace"],
+              "parameters": [
+                {
+                  "name": "date",
+                  "in": "query",
+                  "required": false,
+                  "description": "조회할 날짜 (YYYY-MM-DD 형식). 기본값은 오늘 날짜입니다.",
+                  "schema": {
+                    "type": "string",
+                    "format": "date"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "장소 목록 조회 성공",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/TodayPlaceListResponse"
+                      }
+                    }
+                  }
+                },
+                "500": {
+                  "description": "장소 목록 조회 중 서버 오류"
+                }
+              },
+              "security": [
+                { "bearerAuth": [] }
+              ]
+            }
+          },
+          "/contents/places/{place_id}": {
+            "patch": {
+              "summary": "오늘의 장소 수정",
+              "description": "사용자가 오늘의 특정 장소를 수정합니다.",
+              "tags": ["TodayPlace"],
+              "parameters": [
+                {
+                  "name": "place_id",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
                     "type": "integer",
-                    "description": "카테고리 번호"
+                    "format": "int64"
                   },
-                  "today_mood": {
-                    "type": "string",
-                    "description": "오늘의 기분"
-                  },
-                  "place_memo": {
-                    "type": "string",
-                    "description": "장소 메모"
-                  }
+                  "description": "수정할 장소의 ID"
                 }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "장소가 성공적으로 수정되었습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "장소가 성공적으로 수정되었습니다."
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/TodayPlace"
+              ],
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/TodayPlaceRequest"
                     }
                   }
                 }
-              }
-            }
-          },
-          "404": {
-            "description": "장소를 찾을 수 없습니다."
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "delete": {
-        "summary": "오늘의 장소 삭제",
-        "description": "특정 장소를 삭제합니다.",
-        "tags": ["TodayPlace"],
-        "parameters": [
-          {
-            "name": "diary_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "description": "다이어리 ID"
-          },
-          {
-            "name": "place_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "description": "장소 ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "장소가 성공적으로 삭제되었습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "장소가 성공적으로 삭제되었습니다."
+              },
+              "responses": {
+                "200": {
+                  "description": "장소가 성공적으로 수정되었습니다.",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "message": {
+                            "type": "string",
+                            "example": "장소가 성공적으로 수정되었습니다."
+                          },
+                          "data": {
+                            "$ref": "#/components/schemas/TodayPlaceResponse"
+                          }
+                        }
+                      }
                     }
                   }
+                },
+                "404": {
+                  "description": "수정할 장소를 찾을 수 없습니다."
+                },
+                "500": {
+                  "description": "장소 수정 중 서버 오류"
                 }
-              }
+              },
+              "security": [
+                { "bearerAuth": [] }
+              ]
+            },
+            "delete": {
+              "summary": "오늘의 장소 삭제",
+              "description": "사용자가 오늘의 특정 장소를 삭제합니다.",
+              "tags": ["TodayPlace"],
+              "parameters": [
+                {
+                  "name": "place_id",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "description": "삭제할 장소의 ID"
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "장소가 성공적으로 삭제되었습니다.",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "message": {
+                            "type": "string",
+                            "example": "장소가 성공적으로 삭제되었습니다."
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "404": {
+                  "description": "삭제할 장소를 찾을 수 없습니다."
+                },
+                "500": {
+                  "description": "장소 삭제 중 서버 오류"
+                }
+              },
+              "security": [
+                { "bearerAuth": [] }
+              ]
             }
-          },
-          "404": {
-            "description": "장소를 찾을 수 없습니다."
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
+          },  
     "/friends/{sign_id}/followers": {
       "get": {
         "summary": "팔로워 목록 조회",
@@ -4370,47 +4238,40 @@
         "properties": {
           "description": {
             "type": "string",
-            "description": "할 일의 내용"
+            "description": "투두 설명"
           },
           "is_completed": {
             "type": "boolean",
-            "description": "할 일 완료 여부"
+            "description": "투두 완료 상태",
+            "default": false
           }
         },
-        "required": ["description", "is_completed"]
+        "required": ["description"]
       },
       "TodoResponse": {
         "type": "object",
         "properties": {
-          "id": {
+          "todo_id": {
             "type": "integer",
-            "description": "할 일의 ID"
+            "format": "int64",
+            "description": "투두의 고유 ID"
           },
           "description": {
             "type": "string",
-            "description": "할 일의 내용"
+            "description": "투두 설명"
           },
           "is_completed": {
             "type": "boolean",
-            "description": "할 일 완료 여부"
+            "description": "투두 완료 상태"
           },
-          "diary_id": {
-            "type": "integer",
-            "description": "할 일이 속한 다이어리의 ID"
+          "date": {
+            "type": "string",
+            "format": "date",
+            "description": "투두가 속한 날짜 (YYYY-MM-DD 형식)"
           },
           "sign_id": {
-            "type": "integer",
-            "description": "사용자의 ID"
-          },
-          "createdAt": {
             "type": "string",
-            "format": "date-time",
-            "description": "할 일 생성 시간"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "할 일 마지막 수정 시간"
+            "description": "사용자의 고유 sign_id"
           }
         }
       },
@@ -4434,176 +4295,192 @@
         "properties": {
           "description": {
             "type": "string",
-            "description": "루틴의 내용"
+            "example": "운동하기",
+            "description": "루틴에 대한 설명"
           },
           "is_completed": {
             "type": "boolean",
+            "example": false,
             "description": "루틴 완료 여부"
           }
         },
-        "required": ["description", "is_completed"]
+        "required": ["description"]
       },
       "RoutineResponse": {
         "type": "object",
         "properties": {
-          "id": {
+          "routine_id": {
             "type": "integer",
-            "description": "루틴의 ID"
+            "format": "int64",
+            "example": 1,
+            "description": "루틴 ID"
           },
           "description": {
             "type": "string",
-            "description": "루틴의 내용"
+            "example": "운동하기",
+            "description": "루틴에 대한 설명"
           },
           "is_completed": {
             "type": "boolean",
+            "example": false,
             "description": "루틴 완료 여부"
           },
-          "diary_id": {
-            "type": "integer",
-            "description": "루틴이 속한 다이어리의 ID"
-          },
           "sign_id": {
-            "type": "integer",
-            "description": "사용자의 ID"
-          },
-          "createdAt": {
             "type": "string",
-            "format": "date-time",
-            "description": "루틴 생성 시간"
+            "example": "user123",
+            "description": "사용자 ID (JWT에서 가져온 sign_id)"
           },
-          "updatedAt": {
+          "date": {
             "type": "string",
-            "format": "date-time",
-            "description": "루틴 마지막 수정 시간"
+            "format": "date",
+            "example": "2024-11-07",
+            "description": "루틴이 생성된 날짜 (YYYY-MM-DD)"
           }
         }
       },
       "RoutineListResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "example": "루틴 목록 조회 성공"
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RoutineResponse"
-            }
-          }
-        }
-      },
-      "TodayQuestion": {
-        "type": "object",
-        "properties": {
-          "question_id": {
-            "type": "integer",
-            "example": 1
-          },
-          "question_text": {
-            "type": "string",
-            "example": "오늘의 기분은 어떤가요?"
-          },
-          "today_date": {
-            "type": "string",
-            "format": "date",
-            "example": "2024-11-07"
-          }
-        }
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/RoutineResponse"
+        },
+        "description": "루틴 목록"
       },
       "TodayAnswerRequest": {
         "type": "object",
         "properties": {
           "answer_text": {
             "type": "string",
-            "description": "답변 내용",
-            "example": "오늘의 질문에 대한 답변입니다."
+            "example": "오늘 기분이 좋습니다.",
+            "description": "사용자의 답변 내용"
           },
           "answer_photo": {
             "type": "string",
             "format": "binary",
-            "description": "답변 사진 파일 (선택 사항)"
+            "description": "첨부된 사진 파일 (선택 사항)"
           }
-        }
+        },
+        "required": ["answer_text"]
       },
       "TodayAnswerResponse": {
         "type": "object",
         "properties": {
           "answer_id": {
             "type": "integer",
-            "example": 1
-          },
-          "diary_id": {
-            "type": "integer",
-            "example": 123
-          },
-          "sign_id": {
-            "type": "integer",
-            "example": 456
+            "example": 1,
+            "description": "답변 ID"
           },
           "answer_text": {
             "type": "string",
-            "example": "오늘의 질문에 대한 사용자의 답변입니다."
+            "example": "오늘 기분이 좋습니다.",
+            "description": "답변 내용"
           },
           "answer_photo": {
             "type": "string",
-            "example": "/uploads/photo.jpg"
+            "example": "/uploads/photo.jpg",
+            "description": "답변에 첨부된 사진 경로 (선택 사항)"
           },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "example": "2023-10-25T14:48:00.000Z"
+          "question_id": {
+            "type": "integer",
+            "example": 1,
+            "description": "관련 질문의 ID"
           },
-          "updatedAt": {
+          "sign_id": {
             "type": "string",
-            "format": "date-time",
-            "example": "2023-10-26T10:30:00.000Z"
+            "example": "user123",
+            "description": "사용자 ID"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2024-11-07",
+            "description": "답변이 생성된 날짜"
           }
         }
       },
-      "TodayPlace": {
+      "TodayQuestionResponse": {
         "type": "object",
         "properties": {
-          "place_id": {
+          "question_id": {
             "type": "integer",
-            "format": "int64",
-            "description": "장소 ID",
-            "example": 1
+            "example": 1,
+            "description": "질문 ID"
           },
-          "diary_id": {
-            "type": "integer",
-            "format": "int64",
-            "description": "연결된 일기 ID"
-          },
-          "cate_num": {
-            "type": "integer",
-            "description": "카테고리 번호 (영화관:1, 놀이공원:2 등)",
-            "example": 3
-          },
-          "today_mood": {
+          "question_text": {
             "type": "string",
-            "description": "오늘의 기분",
-            "example": "행복"
+            "example": "오늘의 기분은 어떤가요?",
+            "description": "질문의 텍스트"
           },
-          "place_memo": {
+          "today_date": {
             "type": "string",
-            "description": "장소에 대한 메모",
-            "example": "카페에서 커피마시기"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "장소 생성 시간",
-            "example": "2023-09-24T12:34:56Z"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "장소 수정 시간",
-            "example": "2023-09-24T13:00:00Z"
+            "format": "date",
+            "example": "2024-11-07",
+            "description": "질문 날짜"
           }
         }
       },
+      "TodayPlaceRequest": {
+            "type": "object",
+            "properties": {
+              "cate_num": {
+                "type": "integer",
+                "description": "카테고리 번호"
+              },
+              "today_mood": {
+                "type": "string",
+                "description": "오늘의 기분"
+              },
+              "place_memo": {
+                "type": "string",
+                "description": "장소 메모"
+              }
+            },
+            "required": ["cate_num", "today_mood", "place_memo"]
+          },
+          "TodayPlaceResponse": {
+            "type": "object",
+            "properties": {
+              "place_id": {
+                "type": "integer",
+                "example": 1
+              },
+              "cate_num": {
+                "type": "integer",
+                "example": 2
+              },
+              "today_mood": {
+                "type": "string",
+                "example": "행복함"
+              },
+              "place_memo": {
+                "type": "string",
+                "example": "공원에서 산책"
+              },
+              "date": {
+                "type": "string",
+                "format": "date",
+                "example": "2024-11-07"
+              },
+              "sign_id": {
+                "type": "string",
+                "example": "user123"
+              }
+            }
+          },
+          "TodayPlaceListResponse": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string",
+                "example": "장소 목록 조회 성공"
+              },
+              "data": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/TodayPlaceResponse"
+                }
+              }
+            }
+          },
       "AddFollowingRequest": {
       "type": "object",
       "properties": {
