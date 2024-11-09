@@ -38,10 +38,6 @@ class TodayQuestion extends Sequelize.Model {
       sourceKey: "question_id",
       onDelete: "CASCADE",
     });
-    /*db.TodayQuestion.hasMany(db.Diary, {
-      foreignKey: "question_id",
-      sourceKey: "question_id",
-    });*/
   }
 }
 

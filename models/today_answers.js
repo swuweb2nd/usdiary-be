@@ -18,10 +18,18 @@ class TodayAnswer extends Sequelize.Model {
           type: Sequelize.TEXT, 
           allowNull: true, // 사진은 선택사항
         },
-        diary_id: {
+        question_id: { 
           type: Sequelize.BIGINT,
           allowNull: false,
         },
+        sign_id: {
+          type: Sequelize.STRING(255),
+          allowNull: false,
+        },
+        date: { 
+          type: Sequelize.DATEONLY, 
+          allowNull: true,
+        }
       },
       {
         sequelize,
@@ -41,10 +49,10 @@ class TodayAnswer extends Sequelize.Model {
       targetKey: "question_id",
       onDelete: "CASCADE",
     });
-    
-    db.TodayAnswer.belongsTo(db.Diary, {
-      foreignKey: "diary_id",
-      targetKey: "diary_id",
+
+    db.TodayAnswer.belongsTo(db.User, {
+      foreignKey: "sign_id",
+      targetKey: "sign_id",
       onDelete: "CASCADE",
     });
   }
