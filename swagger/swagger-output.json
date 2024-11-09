@@ -2358,188 +2358,200 @@
             ]
           }
         },    
-          "/contents/places": {
-            "post": {
-              "summary": "오늘의 장소 등록",
-              "description": "사용자가 오늘의 장소를 등록합니다.",
-              "tags": ["TodayPlace"],
-              "requestBody": {
-                "required": true,
+        "/contents/places": {
+          "post": {
+            "summary": "오늘의 장소 등록",
+            "description": "새로운 장소를 등록합니다. 요청 본문에 date를 포함하지 않으면 기본값으로 오늘 날짜가 설정됩니다.",
+            "tags": ["TodayPlace"],
+            "requestBody": {
+              "required": true,
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PlaceRequest"
+                  }
+                }
+              }
+            },
+            "responses": {
+              "201": {
+                "description": "오늘의 장소가 성공적으로 생성되었습니다.",
                 "content": {
                   "application/json": {
                     "schema": {
-                      "$ref": "#/components/schemas/TodayPlaceRequest"
-                    }
-                  }
-                }
-              },
-              "responses": {
-                "201": {
-                  "description": "오늘의 장소가 성공적으로 생성되었습니다.",
-                  "content": {
-                    "application/json": {
-                      "schema": {
-                        "type": "object",
-                        "properties": {
-                          "message": {
-                            "type": "string",
-                            "example": "오늘의 장소가 성공적으로 생성되었습니다."
-                          },
-                          "data": {
-                            "$ref": "#/components/schemas/TodayPlaceResponse"
-                          }
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "오늘의 장소가 성공적으로 생성되었습니다."
+                        },
+                        "data": {
+                          "$ref": "#/components/schemas/PlaceResponse"
                         }
                       }
                     }
                   }
-                },
-                "500": {
-                  "description": "장소 생성 중 서버 오류"
                 }
               },
-              "security": [
-                { "bearerAuth": [] }
-              ]
+              "500": {
+                "description": "서버 오류"
+              }
             },
-            "get": {
-              "summary": "장소 목록 조회",
-              "description": "사용자가 특정 날짜의 장소 목록을 조회합니다.",
-              "tags": ["TodayPlace"],
-              "parameters": [
-                {
-                  "name": "date",
-                  "in": "query",
-                  "required": false,
-                  "description": "조회할 날짜 (YYYY-MM-DD 형식). 기본값은 오늘 날짜입니다.",
-                  "schema": {
-                    "type": "string",
-                    "format": "date"
-                  }
-                }
-              ],
-              "responses": {
-                "200": {
-                  "description": "장소 목록 조회 성공",
-                  "content": {
-                    "application/json": {
-                      "schema": {
-                        "$ref": "#/components/schemas/TodayPlaceListResponse"
-                      }
-                    }
-                  }
-                },
-                "500": {
-                  "description": "장소 목록 조회 중 서버 오류"
-                }
-              },
-              "security": [
-                { "bearerAuth": [] }
-              ]
-            }
+            "security": [
+              { "bearerAuth": [] }
+            ]
           },
-          "/contents/places/{place_id}": {
-            "patch": {
-              "summary": "오늘의 장소 수정",
-              "description": "사용자가 오늘의 특정 장소를 수정합니다.",
-              "tags": ["TodayPlace"],
-              "parameters": [
-                {
-                  "name": "place_id",
-                  "in": "path",
-                  "required": true,
-                  "schema": {
-                    "type": "integer",
-                    "format": "int64"
-                  },
-                  "description": "수정할 장소의 ID"
+          "get": {
+            "summary": "장소 목록 조회",
+            "description": "특정 날짜의 장소 목록을 조회합니다. 날짜가 없으면 오늘 날짜로 조회합니다.",
+            "tags": ["TodayPlace"],
+            "parameters": [
+              {
+                "name": "date",
+                "in": "query",
+                "required": false,
+                "description": "조회할 날짜 (YYYY-MM-DD 형식). 없을 시 오늘 날짜로 조회",
+                "schema": {
+                  "type": "string",
+                  "format": "date"
                 }
-              ],
-              "requestBody": {
-                "required": true,
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "장소 목록 조회 성공",
                 "content": {
                   "application/json": {
                     "schema": {
-                      "$ref": "#/components/schemas/TodayPlaceRequest"
-                    }
-                  }
-                }
-              },
-              "responses": {
-                "200": {
-                  "description": "장소가 성공적으로 수정되었습니다.",
-                  "content": {
-                    "application/json": {
-                      "schema": {
-                        "type": "object",
-                        "properties": {
-                          "message": {
-                            "type": "string",
-                            "example": "장소가 성공적으로 수정되었습니다."
-                          },
-                          "data": {
-                            "$ref": "#/components/schemas/TodayPlaceResponse"
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "장소 목록 조회 성공"
+                        },
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/PlaceResponse"
                           }
                         }
                       }
                     }
                   }
-                },
-                "404": {
-                  "description": "수정할 장소를 찾을 수 없습니다."
-                },
-                "500": {
-                  "description": "장소 수정 중 서버 오류"
                 }
               },
-              "security": [
-                { "bearerAuth": [] }
-              ]
+              "500": {
+                "description": "서버 오류"
+              }
             },
-            "delete": {
-              "summary": "오늘의 장소 삭제",
-              "description": "사용자가 오늘의 특정 장소를 삭제합니다.",
-              "tags": ["TodayPlace"],
-              "parameters": [
-                {
-                  "name": "place_id",
-                  "in": "path",
-                  "required": true,
-                  "schema": {
-                    "type": "integer",
-                    "format": "int64"
-                  },
-                  "description": "삭제할 장소의 ID"
+            "security": [
+              { "bearerAuth": [] }
+            ]
+          }
+        },
+        "/contents/places/{place_id}": {
+          "patch": {
+            "summary": "장소 수정",
+            "description": "특정 장소의 today_mood와 place_memo를 수정합니다.",
+            "tags": ["TodayPlace"],
+            "parameters": [
+              {
+                "name": "place_id",
+                "in": "path",
+                "required": true,
+                "description": "수정할 장소의 ID",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
                 }
-              ],
-              "responses": {
-                "200": {
-                  "description": "장소가 성공적으로 삭제되었습니다.",
-                  "content": {
-                    "application/json": {
-                      "schema": {
-                        "type": "object",
-                        "properties": {
-                          "message": {
-                            "type": "string",
-                            "example": "장소가 성공적으로 삭제되었습니다."
-                          }
+              }
+            ],
+            "requestBody": {
+              "required": true,
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PlaceUpdateRequest"
+                  }
+                }
+              }
+            },
+            "responses": {
+              "200": {
+                "description": "장소 수정 성공",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "장소가 성공적으로 수정되었습니다."
+                        },
+                        "data": {
+                          "$ref": "#/components/schemas/PlaceResponse"
                         }
                       }
                     }
                   }
-                },
-                "404": {
-                  "description": "삭제할 장소를 찾을 수 없습니다."
-                },
-                "500": {
-                  "description": "장소 삭제 중 서버 오류"
                 }
               },
-              "security": [
-                { "bearerAuth": [] }
-              ]
-            }
-          },  
+              "404": {
+                "description": "장소를 찾을 수 없습니다."
+              },
+              "500": {
+                "description": "서버 오류"
+              }
+            },
+            "security": [
+              { "bearerAuth": [] }
+            ]
+          },
+          "delete": {
+            "summary": "장소 삭제",
+            "description": "특정 장소를 삭제합니다.",
+            "tags": ["TodayPlace"],
+            "parameters": [
+              {
+                "name": "place_id",
+                "in": "path",
+                "required": true,
+                "description": "삭제할 장소의 ID",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "장소가 성공적으로 삭제되었습니다.",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "장소가 성공적으로 삭제되었습니다."
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "404": {
+                "description": "장소를 찾을 수 없습니다."
+              },
+              "500": {
+                "description": "서버 오류"
+              }
+            },
+            "security": [
+              { "bearerAuth": [] }
+            ]
+          }
+        }, 
     "/friends/{sign_id}/followers": {
       "get": {
         "summary": "팔로워 목록 조회",
@@ -4481,69 +4493,97 @@
           }
         }
       },
-      "TodayPlaceRequest": {
-            "type": "object",
-            "properties": {
-              "cate_num": {
-                "type": "integer",
-                "description": "카테고리 번호"
-              },
-              "today_mood": {
-                "type": "string",
-                "description": "오늘의 기분"
-              },
-              "place_memo": {
-                "type": "string",
-                "description": "장소 메모"
-              }
-            },
-            "required": ["cate_num", "today_mood", "place_memo"]
+      "PlaceRequest": {
+        "type": "object",
+        "properties": {
+          "cate_num": {
+            "type": "integer",
+            "description": "카테고리 번호",
+            "example": 1
           },
-          "TodayPlaceResponse": {
-            "type": "object",
-            "properties": {
-              "place_id": {
-                "type": "integer",
-                "example": 1
-              },
-              "cate_num": {
-                "type": "integer",
-                "example": 2
-              },
-              "today_mood": {
-                "type": "string",
-                "example": "행복함"
-              },
-              "place_memo": {
-                "type": "string",
-                "example": "공원에서 산책"
-              },
-              "date": {
-                "type": "string",
-                "format": "date",
-                "example": "2024-11-07"
-              },
-              "sign_id": {
-                "type": "string",
-                "example": "user123"
-              }
-            }
+          "today_mood": {
+            "type": "string",
+            "description": "오늘의 기분",
+            "example": "좋음"
           },
-          "TodayPlaceListResponse": {
-            "type": "object",
-            "properties": {
-              "message": {
-                "type": "string",
-                "example": "장소 목록 조회 성공"
-              },
-              "data": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/TodayPlaceResponse"
-                }
-              }
-            }
+          "place_memo": {
+            "type": "string",
+            "description": "장소 메모",
+            "example": "공원에서 산책"
           },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "description": "장소 등록 날짜. 기본값은 오늘 날짜.",
+            "example": "2024-11-09"
+          }
+        },
+        "required": ["cate_num", "today_mood", "place_memo"]
+      },
+      "PlaceUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "today_mood": {
+            "type": "string",
+            "description": "수정할 오늘의 기분",
+            "example": "행복함"
+          },
+          "place_memo": {
+            "type": "string",
+            "description": "수정할 장소 메모",
+            "example": "카페에서 공부"
+          }
+        }
+      },
+      "PlaceResponse": {
+        "type": "object",
+        "properties": {
+          "place_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "장소 ID",
+            "example": 1
+          },
+          "cate_num": {
+            "type": "integer",
+            "description": "카테고리 번호",
+            "example": 1
+          },
+          "today_mood": {
+            "type": "string",
+            "description": "오늘의 기분",
+            "example": "좋음"
+          },
+          "place_memo": {
+            "type": "string",
+            "description": "장소 메모",
+            "example": "공원에서 산책"
+          },
+          "sign_id": {
+            "type": "string",
+            "description": "사용자 ID",
+            "example": "user123"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "description": "장소 등록 날짜",
+            "example": "2024-11-09"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성 시각",
+            "example": "2024-11-09T14:48:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정 시각",
+            "example": "2024-11-09T15:20:00.000Z"
+          }
+        }
+      },
       "AddFollowingRequest": {
       "type": "object",
       "properties": {

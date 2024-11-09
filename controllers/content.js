@@ -516,7 +516,7 @@ exports.deleteAnswer = async (req, res) => {
 exports.createPlace = async (req, res) => {
     const { cate_num, today_mood, place_memo } = req.body;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const today = new Date(); // 오늘 날짜 설정
+    const date = req.body.date || new Date().toISOString().split('T')[0]; // date가 없으면 오늘 날짜로 설정
 
     try {
         const newPlace = await TodayPlace.create({
@@ -524,7 +524,7 @@ exports.createPlace = async (req, res) => {
             today_mood,
             place_memo,
             sign_id: signId,
-            date: today // 오늘 날짜 저장
+            date
         });
 
         // 포인트 획득
@@ -543,15 +543,14 @@ exports.createPlace = async (req, res) => {
 // TodayPlace 목록 조회
 exports.getPlaceList = async (req, res) => {
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const { date } = req.query; // 요청에서 date 쿼리 가져오기
-    const queryDate = date ? new Date(date) : new Date(); // 쿼리 날짜가 없으면 오늘 날짜 사용
+    const date = req.query.date || new Date().toISOString().split('T')[0]; // 쿼리 날짜가 없으면 오늘 날짜로 설정
 
     try {
         // 특정 날짜와 사용자에 해당하는 장소 목록 조회
         const places = await TodayPlace.findAll({
             where: {
                 sign_id: signId,
-                date: queryDate // 요청된 날짜 또는 오늘 날짜 기준으로 필터링
+                date // 요청된 날짜 또는 오늘 날짜 기준으로 필터링
             },
             order: [['createdAt', 'ASC']] // 생성 날짜 순으로 정렬
         });
@@ -569,16 +568,14 @@ exports.getPlaceList = async (req, res) => {
 // TodayPlace 수정
 exports.updatePlace = async (req, res) => {
     const { place_id } = req.params;
-    const { cate_num, today_mood, place_memo } = req.body;
+    const { today_mood, place_memo } = req.body;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const today = new Date(); // 오늘 날짜 설정
 
     try {
         const place = await TodayPlace.findOne({
             where: {
                 place_id,
                 sign_id: signId,
-                date: today // 오늘 날짜로 필터링
             }
         });
 
@@ -589,7 +586,7 @@ exports.updatePlace = async (req, res) => {
         // 필드 업데이트
         place.today_mood = today_mood !== undefined ? today_mood : place.today_mood;
         place.place_memo = place_memo !== undefined ? place_memo : place.place_memo;
-        place.cate_num = cate_num !== undefined ? cate_num : place.cate_num;
+
 
         await place.save();
 
@@ -607,14 +604,12 @@ exports.updatePlace = async (req, res) => {
 exports.deletePlace = async (req, res) => {
     const { place_id } = req.params;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const today = new Date(); // 오늘 날짜 설정
 
     try {
         const place = await TodayPlace.findOne({
             where: {
                 place_id,
                 sign_id: signId,
-                date: today // 오늘 날짜로 필터링
             }
         });
 
