@@ -19,10 +19,14 @@ class Todo extends Sequelize.Model {
           allowNull: false,
           defaultValue: false,
         },
-        diary_id: {
-          type: Sequelize.BIGINT,
+        sign_id: {
+          type: Sequelize.STRING(255),
           allowNull: false,
         },
+        date: {
+          type: Sequelize.DATEONLY,
+          allowNull: true,
+        }
       },
       {
         sequelize,
@@ -37,9 +41,9 @@ class Todo extends Sequelize.Model {
     );
   }
   static associate(db){
-    db.Todo.belongsTo(db.Diary, {
-      foreignKey: "diary_id",
-      targetKey: "diary_id",
+    db.Todo.belongsTo(db.User, {
+      foreignKey: "sign_id",
+      targetKey: "sign_id",
       onDelete: "CASCADE",
     });
   }

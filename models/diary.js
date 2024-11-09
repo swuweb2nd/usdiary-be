@@ -46,15 +46,7 @@ class Diary extends Sequelize.Model {
           type: Sequelize.TEXT,
           allowNull: true,
           defaultValue: 0,
-        },
-        /*question_id: {  // 오늘의 질문 id
-          type: Sequelize.BIGINT,
-          allowNull: true,
-          references: {
-            model: "TodayQuestion",
-            key: "question_id",
-          },
-        },*/
+        }
       },
       {
         sequelize,
@@ -71,12 +63,7 @@ class Diary extends Sequelize.Model {
   static associate(db){
     db.Diary.belongsTo(db.User,{foreignKey : "user_id", targetKey: "user_id", onDelete: "CASCADE"});
     db.Diary.belongsTo(db.Board,{foreignKey : "board_id", targetKey: "board_id", onDelete: "CASCADE"})
-    db.Diary.hasMany(db.Todo,{foreignKey : "diary_id", targetKey: "diary_id", onDelete: "CASCADE"})
-    db.Diary.hasMany(db.Routine,{foreignKey : "diary_id", targetKey: "diary_id", onDelete: "CASCADE"})
     db.Diary.hasMany(db.Report, { foreignKey: "diary_id", sourceKey: "diary_id", onDelete: "CASCADE" });
-    db.Diary.hasMany(db.TodayPlace, { foreignKey: "diary_id", sourceKey: "diary_id", onDelete: "CASCADE" });
-    db.Diary.hasMany(db.TodayAnswer,{foreignKey : "diary_id", targetKey: "diary_id", onDelete: "CASCADE"})
-    //db.Diary.belongsTo(db.TodayQuestion, { foreignKey: "question_id", targetKey: "question_id" });
   }
 }
 
