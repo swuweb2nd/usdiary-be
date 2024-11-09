@@ -294,37 +294,35 @@ exports.deleteRoutine = async (req, res) => {
 };
 
 // 오늘의 질문 설정하는 함수
-async function setDailyQuestion() {
-    const today = new Date();
-    
-    await TodayQuestion.update({ today_date: null }, { where: { today_date: today } }); // 기존 오늘의 질문 초기화
+async function setDailyQuestion(date) {
+    await TodayQuestion.update({ today_date: null }, { where: { today_date: date } }); // 기존 해당 날짜의 질문 초기화
 
     const newQuestion = await TodayQuestion.findOne({
         order: Sequelize.literal('RAND()') // 무작위로 질문 선택
     });
 
     if (newQuestion) {
-        await newQuestion.update({ today_date: today }); // 오늘의 날짜로 업데이트하여 설정
+        await newQuestion.update({ today_date: date }); // 해당 날짜로 업데이트하여 설정
     }
 }
 
 // TodayQuestion 조회
 exports.getTodayQuestion = async (req, res) => {
     try {
-         // 쿼리 파라미터가 없을 경우 오늘 날짜 사용
+        // 쿼리 파라미터가 없을 경우 오늘 날짜 사용
         const dateParam = req.query.date || new Date(); 
-        const date = new Date(dateParam); 
+        const date = new Date(dateParam);
 
-        // 해당 날짜의 질문이 설정되었는지 확인
+        // 요청된 날짜의 질문을 찾음
         let todayQuestion = await TodayQuestion.findOne({
             where: { today_date: date }
         });
 
-        // 오늘 날짜의 질문이 설정되지 않은 경우, 새 질문 설정
-        if (!todayQuestion && date.toDateString() === new Date().toDateString()) {
-            await setDailyQuestion(); // 오늘의 질문 설정 함수 호출
+        // 해당 날짜의 질문이 설정되지 않은 경우, 새 질문 설정
+        if (!todayQuestion) {
+            await setDailyQuestion(date); // 요청된 날짜에 대한 질문 설정
 
-            // 다시 오늘 날짜로 질문을 찾음
+            // 다시 요청된 날짜의 질문을 찾음
             todayQuestion = await TodayQuestion.findOne({
                 where: { today_date: date }
             });
@@ -332,7 +330,7 @@ exports.getTodayQuestion = async (req, res) => {
 
         if (!todayQuestion) {
             return res.status(404).json({
-                message: '해당 날짜의 질문을 찾을 수 없습니다.'
+                message: '질문을 생성할 수 없습니다.'
             });
         }
 
