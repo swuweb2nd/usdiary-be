@@ -27,7 +27,7 @@ router.get('/questions/today', getTodayQuestion);
 
 // TodayAnswer
 router.post('/answers', verifyToken, uploadSingle, createAnswer);
-router.get('/answers/:answer_id', verifyToken, getAnswer);
+router.get('/answers', verifyToken, getAnswer);
 router.patch('/answers/:answer_id', verifyToken, uploadSingle, updateAnswer);
 router.delete('/answers/:answer_id', verifyToken, deleteAnswer);
 

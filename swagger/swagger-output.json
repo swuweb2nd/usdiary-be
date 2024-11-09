@@ -2112,226 +2112,184 @@
             }
           }
         },
-        "/contents/answers": {
-          "post": {
-            "summary": "오늘의 답변 등록",
-            "tags": ["TodayAnswer"],
-            "description": "사용자가 오늘의 질문에 대한 답변을 생성합니다. 사진을 첨부할 수 있습니다.",
-            "parameters": [
-              {
-                "name": "question_id",
-                "in": "path",
-                "required": true,
-                "schema": {
-                  "type": "integer",
-                  "format": "int64"
-                },
-                "description": "답변을 작성할 질문의 ID"
-              }
-            ],
-            "requestBody": {
-              "required": true,
-              "content": {
-                "multipart/form-data": {
-                  "schema": {
-                    "$ref": "#/components/schemas/TodayAnswerRequest"
-                  }
-                }
-              }
-            },
-            "responses": {
-              "201": {
-                "description": "답변 등록 성공",
-                "content": {
-                  "application/json": {
+            "/contents/answers": {
+              "post": {
+                "summary": "오늘의 질문에 대한 답변 등록",
+                "description": "주어진 날짜의 질문에 대한 답변을 등록합니다.",
+                "tags": ["TodayAnswer"],
+                "parameters": [
+                  {
+                    "name": "date",
+                    "in": "query",
+                    "description": "답변을 등록할 날짜 (형식: YYYY-MM-DD). 없을 시 오늘 날짜로 설정됩니다.",
+                    "required": false,
                     "schema": {
-                      "type": "object",
-                      "properties": {
-                        "message": {
-                          "type": "string",
-                          "example": "답변이 등록되었습니다."
-                        },
-                        "data": {
-                          "$ref": "#/components/schemas/TodayAnswerResponse"
-                        }
+                      "type": "string",
+                      "format": "date"
+                    }
+                  }
+                ],
+                "requestBody": {
+                  "content": {
+                    "multipart/form-data": {
+                      "schema": {
+                        "$ref": "#/components/schemas/CreateAnswerRequest"
                       }
                     }
                   }
-                }
-              },
-              "404": {
-                "description": "질문을 찾을 수 없습니다."
-              },
-              "400": {
-                "description": "이미 오늘의 질문에 답변을 등록했습니다."
-              },
-              "500": {
-                "description": "서버 오류로 답변 등록에 실패했습니다."
-              }
-            },
-            "security": [
-              {
-                "bearerAuth": []
-              }
-            ]
-          }
-        },
-        "/contents/answers/{answer_id}": {
-          "get": {
-            "summary": "오늘의 답변 조회",
-            "tags": ["TodayAnswer"],
-            "description": "사용자가 특정 질문에 대한 답변을 조회합니다.",
-            "parameters": [
-              {
-                "name": "answer_id",
-                "in": "path",
-                "required": true,
-                "schema": {
-                  "type": "integer",
-                  "format": "int64"
                 },
-                "description": "조회할 답변의 ID"
-              }
-            ],
-            "responses": {
-              "200": {
-                "description": "답변 조회 성공",
-                "content": {
-                  "application/json": {
-                    "schema": {
-                      "type": "object",
-                      "properties": {
-                        "message": {
-                          "type": "string",
-                          "example": "답변 조회 성공"
-                        },
-                        "data": {
-                          "$ref": "#/components/schemas/TodayAnswerResponse"
+                "responses": {
+                  "201": {
+                    "description": "답변이 성공적으로 등록되었습니다.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "message": { "type": "string" },
+                            "data": { "$ref": "#/components/schemas/TodayAnswerResponse" }
+                          }
                         }
                       }
                     }
+                  },
+                  "400": {
+                    "description": "이미 해당 날짜에 답변이 존재합니다."
+                  },
+                  "404": {
+                    "description": "해당 날짜의 질문을 찾을 수 없습니다."
                   }
-                }
-              },
-              "404": {
-                "description": "답변을 찾을 수 없습니다."
-              },
-              "500": {
-                "description": "서버 오류로 답변 조회에 실패했습니다."
-              }
-            },
-            "security": [
-              {
-                "bearerAuth": []
-              }
-            ]
-          },
-          "patch": {
-            "summary": "오늘의 답변 수정",
-            "tags": ["TodayAnswer"],
-            "description": "사용자가 특정 질문에 대한 기존 답변을 수정합니다. 사진 수정도 가능합니다.",
-            "parameters": [
-              {
-                "name": "answer_id",
-                "in": "path",
-                "required": true,
-                "schema": {
-                  "type": "integer",
-                  "format": "int64"
                 },
-                "description": "수정할 답변의 ID"
-              }
-            ],
-            "requestBody": {
-              "required": true,
-              "content": {
-                "multipart/form-data": {
-                  "schema": {
-                    "$ref": "#/components/schemas/TodayAnswerRequest"
-                  }
-                }
-              }
-            },
-            "responses": {
-              "200": {
-                "description": "답변 수정 성공",
-                "content": {
-                  "application/json": {
+                "security": [
+                  { "bearerAuth": [] }
+                ]
+              },
+              "get": {
+                "summary": "특정 날짜의 답변 조회",
+                "description": "지정된 날짜의 답변을 조회합니다.",
+                "tags": ["TodayAnswer"],
+                "parameters": [
+                  {
+                    "name": "date",
+                    "in": "query",
+                    "description": "조회할 답변의 날짜 (형식: YYYY-MM-DD). 없을 시 오늘 날짜로 설정됩니다.",
+                    "required": false,
                     "schema": {
-                      "type": "object",
-                      "properties": {
-                        "message": {
-                          "type": "string",
-                          "example": "답변이 수정되었습니다."
-                        },
-                        "data": {
-                          "$ref": "#/components/schemas/TodayAnswerResponse"
+                      "type": "string",
+                      "format": "date"
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "답변 조회 성공",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "message": { "type": "string" },
+                            "data": { "$ref": "#/components/schemas/TodayAnswerResponse" }
+                          }
                         }
                       }
                     }
+                  },
+                  "404": {
+                    "description": "해당 날짜의 답변을 찾을 수 없습니다."
                   }
-                }
-              },
-              "404": {
-                "description": "답변을 찾을 수 없습니다."
-              },
-              "500": {
-                "description": "서버 오류로 답변 수정에 실패했습니다."
+                },
+                "security": [
+                  { "bearerAuth": [] }
+                ]
               }
             },
-            "security": [
-              {
-                "bearerAuth": []
-              }
-            ]
-          },
-          "delete": {
-            "summary": "오늘의 답변 삭제",
-            "tags": ["TodayAnswer"],
-            "description": "사용자가 특정 질문에 대한 답변을 삭제합니다.",
-            "parameters": [
-              {
-                "name": "answer_id",
-                "in": "path",
-                "required": true,
-                "schema": {
-                  "type": "integer",
-                  "format": "int64"
-                },
-                "description": "삭제할 답변의 ID"
-              }
-            ],
-            "responses": {
-              "200": {
-                "description": "답변 삭제 성공",
-                "content": {
-                  "application/json": {
+            "/contents/answers/{answer_id}": {
+              "patch": {
+                "summary": "답변 수정",
+                "description": "특정 ID의 답변을 수정합니다.",
+                "tags": ["TodayAnswer"],
+                "parameters": [
+                  {
+                    "name": "answer_id",
+                    "in": "path",
+                    "description": "수정할 답변의 ID",
+                    "required": true,
                     "schema": {
-                      "type": "object",
-                      "properties": {
-                        "message": {
-                          "type": "string",
-                          "example": "답변이 삭제되었습니다."
-                        }
+                      "type": "integer"
+                    }
+                  }
+                ],
+                "requestBody": {
+                  "content": {
+                    "multipart/form-data": {
+                      "schema": {
+                        "$ref": "#/components/schemas/UpdateAnswerRequest"
                       }
                     }
                   }
-                }
+                },
+                "responses": {
+                  "200": {
+                    "description": "답변이 성공적으로 수정되었습니다.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "message": { "type": "string" },
+                            "data": { "$ref": "#/components/schemas/TodayAnswerResponse" }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "404": {
+                    "description": "수정할 답변을 찾을 수 없습니다."
+                  }
+                },
+                "security": [
+                  { "bearerAuth": [] }
+                ]
               },
-              "404": {
-                "description": "답변을 찾을 수 없습니다."
-              },
-              "500": {
-                "description": "서버 오류로 답변 삭제에 실패했습니다."
+              "delete": {
+                "summary": "답변 삭제",
+                "description": "특정 ID의 답변을 삭제합니다.",
+                "tags": ["TodayAnswer"],
+                "parameters": [
+                  {
+                    "name": "answer_id",
+                    "in": "path",
+                    "description": "삭제할 답변의 ID",
+                    "required": true,
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "답변이 성공적으로 삭제되었습니다.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "message": { "type": "string" }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "404": {
+                    "description": "삭제할 답변을 찾을 수 없습니다."
+                  }
+                },
+                "security": [
+                  { "bearerAuth": [] }
+                ]
               }
             },
-            "security": [
-              {
-                "bearerAuth": []
-              }
-            ]
-          }
-        },    
         "/contents/places": {
           "post": {
             "summary": "오늘의 장소 등록",
@@ -4410,42 +4368,6 @@
           }
         }
       },
-      "TodayAnswerResponse": {
-        "type": "object",
-        "properties": {
-          "answer_id": {
-            "type": "integer",
-            "example": 1,
-            "description": "답변 ID"
-          },
-          "answer_text": {
-            "type": "string",
-            "example": "오늘 기분이 좋습니다.",
-            "description": "답변 내용"
-          },
-          "answer_photo": {
-            "type": "string",
-            "example": "/uploads/photo.jpg",
-            "description": "답변에 첨부된 사진 경로 (선택 사항)"
-          },
-          "question_id": {
-            "type": "integer",
-            "example": 1,
-            "description": "관련 질문의 ID"
-          },
-          "sign_id": {
-            "type": "string",
-            "example": "user123",
-            "description": "사용자 ID"
-          },
-          "date": {
-            "type": "string",
-            "format": "date",
-            "example": "2024-11-07",
-            "description": "답변이 생성된 날짜"
-          }
-        }
-      },
       "TodayQuestionResponse": {
         "type": "object",
         "properties": {
@@ -4467,6 +4389,43 @@
           }
         }
       },
+      "TodayAnswerResponse": {
+          "type": "object",
+          "properties": {
+            "answer_text": { "type": "string" },
+            "photo": { "type": "string" }
+          }
+        },
+        "CreateAnswerRequest": {
+          "type": "object",
+          "properties": {
+            "answer_text": {
+              "type": "string",
+              "description": "답변 내용"
+            },
+            "photo": {
+              "type": "string",
+              "format": "binary",
+              "description": "첨부 이미지 파일 (선택)"
+            }
+          },
+          "required": ["answer_text"]
+        },
+        "UpdateAnswerRequest": {
+          "type": "object",
+          "properties": {
+            "answer_text": {
+              "type": "string",
+              "description": "수정할 답변 내용"
+            },
+            "photo": {
+              "type": "string",
+              "format": "binary",
+              "description": "새로운 첨부 이미지 파일 (선택)"
+            }
+          },
+          "required": ["answer_text"]
+        },
       "PlaceRequest": {
         "type": "object",
         "properties": {
