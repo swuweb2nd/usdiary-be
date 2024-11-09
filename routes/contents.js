@@ -4,7 +4,8 @@ const { createTodo,getTodoList,updateTodo,deleteTodo,
         createRoutine,getRoutineList,updateRoutine,deleteRoutine,
         getTodayQuestion,
         createAnswer, getAnswer, updateAnswer,deleteAnswer,
-        createPlace, getPlaceList, updatePlace, deletePlace
+        createPlace, getPlaceList, updatePlace, deletePlace,
+        createSea,getAllSeas,updateSea,deleteSea
       }= require('../controllers/content');
 const { verifyToken } = require('../middlewares/jwt');
 const { uploadSingle } = require('../middlewares/upload');
@@ -35,5 +36,13 @@ router.post('/:diary_id/places', verifyToken, createPlace);
 router.get('/:diary_id/places', verifyToken, getPlaceList);
 router.patch('/:diary_id/places/:place_id', verifyToken, updatePlace);
 router.delete('/:diary_id/places/:place_id', verifyToken, deletePlace);
+
+
+// SEA
+router.post('/',verifyToken, createSea); 
+router.get('/',verifyToken, getAllSeas); 
+router.get('/:sea_id',verifyToken, getSeaById); 
+router.patch('/:sea_id', verifyToken,updateSea); 
+router.delete('/:sea_id',verifyToken, deleteSea); 
 
 module.exports = router;
