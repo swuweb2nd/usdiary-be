@@ -294,37 +294,35 @@ exports.deleteRoutine = async (req, res) => {
 };
 
 // 오늘의 질문 설정하는 함수
-async function setDailyQuestion() {
-    const today = new Date();
-    
-    await TodayQuestion.update({ today_date: null }, { where: { today_date: today } }); // 기존 오늘의 질문 초기화
+async function setDailyQuestion(date) {
+    await TodayQuestion.update({ today_date: null }, { where: { today_date: date } }); // 기존 해당 날짜의 질문 초기화
 
     const newQuestion = await TodayQuestion.findOne({
         order: Sequelize.literal('RAND()') // 무작위로 질문 선택
     });
 
     if (newQuestion) {
-        await newQuestion.update({ today_date: today }); // 오늘의 날짜로 업데이트하여 설정
+        await newQuestion.update({ today_date: date }); // 해당 날짜로 업데이트하여 설정
     }
 }
 
 // TodayQuestion 조회
 exports.getTodayQuestion = async (req, res) => {
     try {
-         // 쿼리 파라미터가 없을 경우 오늘 날짜 사용
+        // 쿼리 파라미터가 없을 경우 오늘 날짜 사용
         const dateParam = req.query.date || new Date(); 
-        const date = new Date(dateParam); 
+        const date = new Date(dateParam);
 
-        // 해당 날짜의 질문이 설정되었는지 확인
+        // 요청된 날짜의 질문을 찾음
         let todayQuestion = await TodayQuestion.findOne({
             where: { today_date: date }
         });
 
-        // 오늘 날짜의 질문이 설정되지 않은 경우, 새 질문 설정
-        if (!todayQuestion && date.toDateString() === new Date().toDateString()) {
-            await setDailyQuestion(); // 오늘의 질문 설정 함수 호출
+        // 해당 날짜의 질문이 설정되지 않은 경우, 새 질문 설정
+        if (!todayQuestion) {
+            await setDailyQuestion(date); // 요청된 날짜에 대한 질문 설정
 
-            // 다시 오늘 날짜로 질문을 찾음
+            // 다시 요청된 날짜의 질문을 찾음
             todayQuestion = await TodayQuestion.findOne({
                 where: { today_date: date }
             });
@@ -332,7 +330,7 @@ exports.getTodayQuestion = async (req, res) => {
 
         if (!todayQuestion) {
             return res.status(404).json({
-                message: '해당 날짜의 질문을 찾을 수 없습니다.'
+                message: '질문을 생성할 수 없습니다.'
             });
         }
 
@@ -347,48 +345,65 @@ exports.getTodayQuestion = async (req, res) => {
     }
 };
 
+// 이미지 압축 함수
+async function compressImage(imagePath) {
+    const outputPath = imagePath.replace(/(\.[\w\d]+)$/, '-compressed$1'); // 압축된 파일 경로 설정
+
+    try {
+        await sharp(imagePath)
+            .resize(800) // 필요한 경우 크기 조정
+            .toFile(outputPath); // 압축된 이미지 저장
+        await fs.promises.unlink(imagePath); // 원본 이미지 삭제 (비동기)
+        return outputPath; // 압축된 경로 반환
+    } catch (error) {
+        console.error('Error compressing image:', error);
+        return imagePath; // 오류 발생 시 원본 경로 반환
+    }
+}
+
 // TodayAnswer 등록
 exports.createAnswer = [uploadSingle, async (req, res) => {
     try {
-        const { question_id } = req.params;
         const { answer_text } = req.body;
         const signId = res.locals.decoded.sign_id;
+        const date = req.query.date || new Date().toISOString().split('T')[0]; // 쿼리 날짜가 없으면 오늘 날짜로 설정
 
-        // 오늘의 날짜
-        const today = new Date();
-
-        // 해당 question_id가 유효한지 확인
+        // 해당 날짜의 question_id가 유효한지 확인
         const question = await TodayQuestion.findOne({
-            where: { question_id, today_date: today }
+            where: { today_date: date },
+            attributes: ['question_id']
         });
-        
+
         if (!question) {
-            return res.status(404).json({ message: '오늘의 질문을 찾을 수 없습니다.' });
+            return res.status(404).json({ message: '해당 날짜의 질문을 찾을 수 없습니다.' });
         }
 
         // 중복 답변 방지: 이미 답변을 작성했는지 확인
         const existingAnswer = await TodayAnswer.findOne({
             where: {
-                question_id,
+                question_id: question.question_id,
                 sign_id: signId,
-                date: today
+                date: date
             }
         });
 
         if (existingAnswer) {
-            return res.status(400).json({ message: '이미 오늘의 질문에 답변하셨습니다.' });
+            return res.status(400).json({ message: '이미 해당 날짜의 질문에 답변하셨습니다.' });
         }
 
-        // 사진 파일이 있으면 경로 저장
-        const answerPhotoPath = req.file ? req.file.path : null;
+        // 사진 파일이 있으면 경로 저장 후 압축 처리
+        let answerPhotoPath = req.file ? req.file.path : null;
+        if (answerPhotoPath) {
+            answerPhotoPath = await compressImage(answerPhotoPath); // 압축 후 경로 업데이트
+        }
 
         // 새 답변 생성
         const newAnswer = await TodayAnswer.create({
-            question_id,
+            question_id: question.question_id,
             answer_text,
             sign_id: signId,
-            date: today,
-            answer_photo: answerPhotoPath // 사진 경로 저장
+            date: date,
+            answer_photo: answerPhotoPath // 압축된 사진 경로 저장
         });
 
         // 포인트 획득
@@ -396,7 +411,13 @@ exports.createAnswer = [uploadSingle, async (req, res) => {
 
         res.status(201).json({
             message: '답변이 등록되었습니다.',
-            data: newAnswer
+            data: {
+                question_id: newAnswer.question_id,
+                answer_text: newAnswer.answer_text,
+                sign_id: newAnswer.sign_id,
+                date: newAnswer.date,
+                photo: newAnswer.answer_photo,
+            }
         });
 
     } catch (error) {
@@ -408,22 +429,27 @@ exports.createAnswer = [uploadSingle, async (req, res) => {
 // TodayAnswer 조회
 exports.getAnswer = async (req, res) => {
     try {
-        const { answer_id } = req.params;
         const signId = res.locals.decoded.sign_id;
+        const date = req.query.date || new Date().toISOString().split('T')[0]; // 쿼리 날짜가 없으면 오늘 날짜로 설정
 
-        // 답변 조회
+        // 해당 날짜와 사용자 ID에 맞는 답변 조회
         const answer = await TodayAnswer.findOne({
-            where: { answer_id, sign_id: signId }
+            where: {
+                sign_id: signId,
+                date: date // 문자열 형식의 날짜로 조회
+            },
+            attributes: ['answer_text', 'answer_photo'] // 필요한 필드만 가져옴
         });
 
-        // 일치하는 답변이 없을 때 404 오류 반환
+        // 일치하는 답변이 없을 때 빈 객체 반환
         if (!answer) {
-            return res.status(404).json({
-                message: '답변을 찾을 수 없습니다.'
+            return res.status(200).json({
+                message: '해당 날짜에 대한 답변이 없습니다.',
+                data: {}
             });
         }
 
-        // 일치하는 답변이 있을 때 데이터 반환
+        // 일치하는 답변이 있을 때 객체 형태로 반환
         res.status(200).json({
             message: '답변 조회 성공',
             data: {
@@ -442,24 +468,31 @@ exports.updateAnswer = [uploadSingle, async (req, res) => {
     try {
         const { answer_id } = req.params;
         const { answer_text } = req.body;
-        const signId = res.locals.decoded.sign_id; 
+        const signId = res.locals.decoded.sign_id;
 
+        // 기존 답변 조회
         const answer = await TodayAnswer.findOne({
             where: { answer_id, sign_id: signId },
         });
-    
+
         if (!answer) {
             return res.status(404).json({ message: '답변을 찾을 수 없습니다.' });
         }
 
-        // 사진 파일이 있으면 새로운 경로 저장
+        // 사진 파일이 있으면 새로운 경로 저장 및 압축 처리
         if (req.file) {
-            answer.answer_photo = req.file.path;
+            // 기존 파일 삭제
+            if (answer.answer_photo) {
+                await fs.promises.unlink(answer.answer_photo); // 비동기 파일 삭제
+            }
+            // 새 파일 압축 및 경로 업데이트
+            answer.answer_photo = await compressImage(req.file.path); // 새 사진 압축 및 경로 저장
         }
 
+        // 답변 텍스트 업데이트
         answer.answer_text = answer_text;
         await answer.save();
-    
+
         res.status(200).json({
             message: '답변이 수정되었습니다.',
             data: {
@@ -480,6 +513,7 @@ exports.deleteAnswer = async (req, res) => {
         const { answer_id } = req.params;
         const signId = res.locals.decoded.sign_id;
 
+        // 답변 조회
         const answer = await TodayAnswer.findOne({
             where: { answer_id, sign_id: signId },
         });
@@ -490,16 +524,16 @@ exports.deleteAnswer = async (req, res) => {
 
         // 파일 삭제: answer_photo가 존재하면 파일 삭제
         if (answer.answer_photo) {
-            const filePath = path.join(__dirname, '../', answer.answer_photo); // 파일 경로 설정
-            fs.unlink(filePath, (err) => {
-                if (err) {
-                    console.error('파일 삭제 중 오류 발생:', err);
-                } else {
-                    console.log('사진 파일이 성공적으로 삭제되었습니다.');
-                }
-            });
+            const filePath = path.resolve(__dirname, '../', answer.answer_photo); // 보안성을 위해 resolve 사용
+            try {
+                await fs.promises.unlink(filePath); // 비동기로 파일 삭제
+                console.log('사진 파일이 성공적으로 삭제되었습니다.');
+            } catch (err) {
+                console.error('파일 삭제 중 오류 발생:', err);
+            }
         }
 
+        // 답변 삭제
         await answer.destroy();
 
         res.status(200).json({
@@ -516,7 +550,7 @@ exports.deleteAnswer = async (req, res) => {
 exports.createPlace = async (req, res) => {
     const { cate_num, today_mood, place_memo } = req.body;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const today = new Date(); // 오늘 날짜 설정
+    const date = req.body.date || new Date().toISOString().split('T')[0]; // date가 없으면 오늘 날짜로 설정
 
     try {
         const newPlace = await TodayPlace.create({
@@ -524,7 +558,7 @@ exports.createPlace = async (req, res) => {
             today_mood,
             place_memo,
             sign_id: signId,
-            date: today // 오늘 날짜 저장
+            date
         });
 
         // 포인트 획득
@@ -543,15 +577,14 @@ exports.createPlace = async (req, res) => {
 // TodayPlace 목록 조회
 exports.getPlaceList = async (req, res) => {
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const { date } = req.query; // 요청에서 date 쿼리 가져오기
-    const queryDate = date ? new Date(date) : new Date(); // 쿼리 날짜가 없으면 오늘 날짜 사용
+    const date = req.query.date || new Date().toISOString().split('T')[0]; // 쿼리 날짜가 없으면 오늘 날짜로 설정
 
     try {
         // 특정 날짜와 사용자에 해당하는 장소 목록 조회
         const places = await TodayPlace.findAll({
             where: {
                 sign_id: signId,
-                date: queryDate // 요청된 날짜 또는 오늘 날짜 기준으로 필터링
+                date // 요청된 날짜 또는 오늘 날짜 기준으로 필터링
             },
             order: [['createdAt', 'ASC']] // 생성 날짜 순으로 정렬
         });
@@ -569,16 +602,14 @@ exports.getPlaceList = async (req, res) => {
 // TodayPlace 수정
 exports.updatePlace = async (req, res) => {
     const { place_id } = req.params;
-    const { cate_num, today_mood, place_memo } = req.body;
+    const { today_mood, place_memo } = req.body;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const today = new Date(); // 오늘 날짜 설정
 
     try {
         const place = await TodayPlace.findOne({
             where: {
                 place_id,
                 sign_id: signId,
-                date: today // 오늘 날짜로 필터링
             }
         });
 
@@ -589,7 +620,7 @@ exports.updatePlace = async (req, res) => {
         // 필드 업데이트
         place.today_mood = today_mood !== undefined ? today_mood : place.today_mood;
         place.place_memo = place_memo !== undefined ? place_memo : place.place_memo;
-        place.cate_num = cate_num !== undefined ? cate_num : place.cate_num;
+
 
         await place.save();
 
@@ -607,14 +638,12 @@ exports.updatePlace = async (req, res) => {
 exports.deletePlace = async (req, res) => {
     const { place_id } = req.params;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const today = new Date(); // 오늘 날짜 설정
 
     try {
         const place = await TodayPlace.findOne({
             where: {
                 place_id,
                 sign_id: signId,
-                date: today // 오늘 날짜로 필터링
             }
         });
 
