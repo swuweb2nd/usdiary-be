@@ -20,7 +20,7 @@ class TodayAnswer extends Sequelize.Model {
         },
         question_id: { 
           type: Sequelize.BIGINT,
-          allowNull: false,
+          allowNull: true,
         },
         sign_id: {
           type: Sequelize.STRING(255),
