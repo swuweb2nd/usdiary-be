@@ -10,6 +10,10 @@ class Routine extends Sequelize.Model {
           primaryKey: true,
           autoIncrement: true
         },
+        routine_title: {
+          type: Sequelize.TEXT,
+          allowNull: false,
+        },
         description: {
           type: Sequelize.TEXT,
           allowNull: true,

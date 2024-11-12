@@ -20,7 +20,7 @@ class TodayPlace extends Sequelize.Model {
         },
         place_memo: { //메모
           type: Sequelize.TEXT,
-          allowNull: false,
+          allowNull: true,
         },
         sign_id: {
           type: Sequelize.STRING(255),
