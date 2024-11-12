@@ -71,23 +71,23 @@ exports.updateComment = async (req, res) => {
         if (!diary) {
             return res.status(404).json({ message: 'Diary not found' });
         }
-        console.log('Diary found:', diary);
+      
 
         // 수정할 댓글이 존재하는지 확인
         const comment = await Comment.findOne({
             where: { comment_id: comment_id, diary_id: diary_id, sign_id: signId }
         });
-        console.log("댓글 수벙",comment)
+        
         if (!comment) {
             return res.status(404).json({ message: 'Comment not found or you do not have permission to edit this comment' });
         }
 
         comment.comment_text = content 
-        console.log('Updated comment content:', comment.content);
+       
 
         // 변경사항 저장
         await comment.save();
-        console.log('Comment saved successfully:', comment);
+     
 
         res.status(200).json({ message: '댓글이 성공적으로 수정되었습니다.', data: { comment } });
     } catch (error) {
