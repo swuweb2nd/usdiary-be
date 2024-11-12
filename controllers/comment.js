@@ -14,7 +14,7 @@ exports.createComment = async (req, res) => {
         const signId = res.locals.decoded.sign_id; // JWT에서 사용자 sign_id 가져오기
 
         // 해당 일기가 존재하는지 확인
-        const diary = await Diary.findByPk(diaryId);
+        const diary = await Diary.findOne({ where: { diary_id: diary_id } });
         if (!diary) {
             return res.status(404).json({ message: 'Diary not found' });
         }
@@ -60,7 +60,6 @@ exports.createComment = async (req, res) => {
 };
 
 // 댓글 수정
-// 댓글 수정
 exports.updateComment = async (req, res) => {
     try {
         const { diary_id, comment_id } = req.params;
@@ -72,7 +71,6 @@ exports.updateComment = async (req, res) => {
             return res.status(404).json({ message: 'Diary not found' });
         }
       
-
         // 수정할 댓글이 존재하는지 확인
         const comment = await Comment.findOne({
             where: { comment_id: comment_id, diary_id: diary_id, sign_id: signId }
