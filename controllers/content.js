@@ -34,9 +34,8 @@ const checkDailyActivity = async (signId, date) => {
 
 // Todo 생성
 exports.createTodo = async (req, res) => {
-    const { description, is_completed } = req.body;
+    const { todo_title, description, is_completed, date } = req.body;
     const signId = res.locals.decoded.sign_id;
-    const date = req.body.date || new Date().toISOString().split('T')[0]; // date가 없으면 오늘 날짜로 설정
 
     try {
         const hasActivityOnDate = await checkDailyActivity(signId, date);
@@ -55,6 +54,7 @@ exports.createTodo = async (req, res) => {
         }
 
         const newTodo = await Todo.create({
+            todo_title,
             description,
             is_completed,
             sign_id: signId,
@@ -78,7 +78,12 @@ exports.createTodo = async (req, res) => {
 // Todo 목록 조회
 exports.getTodoList = async (req, res) => {
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const date = req.query.date || new Date().toISOString().split('T')[0]; // 쿼리 날짜가 없으면 오늘 날짜로 설정
+    const date = req.query.date;
+
+    // date 값이 없을 경우 요청 거부
+    if (!date) {
+        return res.status(400).json({ message: '날짜를 입력해 주세요.' });
+    }
 
     try {
         const todo = await Todo.findAll({
@@ -103,7 +108,7 @@ exports.getTodoList = async (req, res) => {
 exports.updateTodo = async (req, res) => {
     const { todo_id } = req.params;
     const signId = res.locals.decoded.sign_id;
-    const { description, is_completed } = req.body;
+    const { todo_title, description, is_completed } = req.body;
 
     try {
         const todo = await Todo.findOne({
@@ -117,7 +122,7 @@ exports.updateTodo = async (req, res) => {
             return res.status(404).json({ message: 'Todo를 찾을 수 없습니다.' });
         }
 
-        // description과 is_completed 필드 업데이트
+        todo.todo_title = todo_title !== undefined ? todo_title : todo.todo_title;
         todo.description = description !== undefined ? description : todo.description;
         todo.is_completed = is_completed !== undefined ? is_completed : todo.is_completed;
 
@@ -164,8 +169,15 @@ exports.deleteTodo = async (req, res) => {
 // routine 생성
 exports.createRoutine = async (req, res) => {
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const { description, is_completed } = req.body;
-    const date = req.body.date || new Date().toISOString().split('T')[0]; // date가 없으면 오늘 날짜로 설정
+    const { routine_title, description, is_completed, date } = req.body;
+
+    // 필수값 검증
+    if (!routine_title) {
+        return res.status(400).json({ message: '루틴 제목을 입력해 주세요.' });
+    }
+    if (!date) {
+        return res.status(400).json({ message: '날짜를 입력해 주세요.' });
+    }
 
     try {
         // 선택한 날짜에 이미 Todo나 Routine을 생성했는지 확인
@@ -186,6 +198,7 @@ exports.createRoutine = async (req, res) => {
 
         // 루틴 생성
         const newRoutine = await Routine.create({
+            routine_title,
             description,
             is_completed,
             sign_id: signId,
@@ -210,7 +223,12 @@ exports.createRoutine = async (req, res) => {
 // routine 목록 조회
 exports.getRoutineList = async (req, res) => {
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const date = req.query.date || new Date().toISOString().split('T')[0]; // 쿼리 날짜가 없으면 오늘 날짜로 설정
+    const date = req.query.date;
+
+    // date 값이 없을 경우 요청 거부
+    if (!date) {
+        return res.status(400).json({ message: '날짜를 입력해 주세요.' });
+    }
 
     try {
         const routine = await Routine.findAll({
@@ -218,7 +236,7 @@ exports.getRoutineList = async (req, res) => {
                 sign_id: signId, // 사용자 sign_id로 필터링
                 date // 선택한 날짜로 필터링
             },
-            order: [['createdAt', 'ASC']] 
+            order: [['createdAt', 'ASC']]
         });
         
         res.status(200).json({
@@ -235,7 +253,7 @@ exports.getRoutineList = async (req, res) => {
 exports.updateRoutine = async (req, res) => {
     const { routine_id } = req.params;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const { description, is_completed } = req.body;
+    const { routine_title, description, is_completed } = req.body;
 
     try {
         const routine = await Routine.findOne({
@@ -249,7 +267,7 @@ exports.updateRoutine = async (req, res) => {
             return res.status(404).json({ message: '루틴을 찾을 수 없습니다.' });
         }
 
-        // description과 is_completed 필드 업데이트
+        routine.routine_title = routine_title !== undefined ? routine_title : routine.routine_title;
         routine.description = description !== undefined ? description : routine.description;
         routine.is_completed = is_completed !== undefined ? is_completed : routine.is_completed;
 
@@ -294,37 +312,41 @@ exports.deleteRoutine = async (req, res) => {
 };
 
 // 오늘의 질문 설정하는 함수
-async function setDailyQuestion() {
-    const today = new Date();
-    
-    await TodayQuestion.update({ today_date: null }, { where: { today_date: today } }); // 기존 오늘의 질문 초기화
+async function setDailyQuestion(date) {
+    await TodayQuestion.update({ today_date: null }, { where: { today_date: date } }); // 기존 해당 날짜의 질문 초기화
 
     const newQuestion = await TodayQuestion.findOne({
         order: Sequelize.literal('RAND()') // 무작위로 질문 선택
     });
 
     if (newQuestion) {
-        await newQuestion.update({ today_date: today }); // 오늘의 날짜로 업데이트하여 설정
+        await newQuestion.update({ today_date: date }); // 해당 날짜로 업데이트하여 설정
     }
 }
 
 // TodayQuestion 조회
 exports.getTodayQuestion = async (req, res) => {
     try {
-         // 쿼리 파라미터가 없을 경우 오늘 날짜 사용
-        const dateParam = req.query.date || new Date(); 
-        const date = new Date(dateParam); 
+        // 쿼리 파라미터에서 date 값을 가져옴
+        const dateParam = req.query.date;
 
-        // 해당 날짜의 질문이 설정되었는지 확인
+        // date가 없을 경우 요청 거부
+        if (!dateParam) {
+            return res.status(400).json({ message: '날짜를 입력해 주세요.' });
+        }
+
+        const date = new Date(dateParam);
+
+        // 요청된 날짜의 질문을 찾음
         let todayQuestion = await TodayQuestion.findOne({
             where: { today_date: date }
         });
 
-        // 오늘 날짜의 질문이 설정되지 않은 경우, 새 질문 설정
-        if (!todayQuestion && date.toDateString() === new Date().toDateString()) {
-            await setDailyQuestion(); // 오늘의 질문 설정 함수 호출
+        // 해당 날짜의 질문이 설정되지 않은 경우, 새 질문 설정
+        if (!todayQuestion) {
+            await setDailyQuestion(date); // 요청된 날짜에 대한 질문 설정
 
-            // 다시 오늘 날짜로 질문을 찾음
+            // 다시 요청된 날짜의 질문을 찾음
             todayQuestion = await TodayQuestion.findOne({
                 where: { today_date: date }
             });
@@ -332,7 +354,7 @@ exports.getTodayQuestion = async (req, res) => {
 
         if (!todayQuestion) {
             return res.status(404).json({
-                message: '해당 날짜의 질문을 찾을 수 없습니다.'
+                message: '질문을 생성할 수 없습니다.'
             });
         }
 
@@ -348,47 +370,35 @@ exports.getTodayQuestion = async (req, res) => {
 };
 
 // TodayAnswer 등록
-exports.createAnswer = [uploadSingle, async (req, res) => {
+exports.createAnswer = [async (req, res) => {
     try {
-        const { question_id } = req.params;
-        const { answer_text } = req.body;
+        const { answer_text, date } = req.body;
         const signId = res.locals.decoded.sign_id;
 
-        // 오늘의 날짜
-        const today = new Date();
-
-        // 해당 question_id가 유효한지 확인
-        const question = await TodayQuestion.findOne({
-            where: { question_id, today_date: today }
-        });
-        
-        if (!question) {
-            return res.status(404).json({ message: '오늘의 질문을 찾을 수 없습니다.' });
+        if (!date) {
+            return res.status(400).json({ message: '날짜를 입력해 주세요.' });
+        }
+        if (!answer_text) {
+            return res.status(400).json({ message: '답변 내용을 입력해 주세요.' });
         }
 
         // 중복 답변 방지: 이미 답변을 작성했는지 확인
         const existingAnswer = await TodayAnswer.findOne({
             where: {
-                question_id,
                 sign_id: signId,
-                date: today
+                date: date
             }
         });
 
         if (existingAnswer) {
-            return res.status(400).json({ message: '이미 오늘의 질문에 답변하셨습니다.' });
+            return res.status(400).json({ message: '이미 해당 날짜에 답변하셨습니다.' });
         }
-
-        // 사진 파일이 있으면 경로 저장
-        const answerPhotoPath = req.file ? req.file.path : null;
 
         // 새 답변 생성
         const newAnswer = await TodayAnswer.create({
-            question_id,
             answer_text,
             sign_id: signId,
-            date: today,
-            answer_photo: answerPhotoPath // 사진 경로 저장
+            date: date
         });
 
         // 포인트 획득
@@ -396,7 +406,12 @@ exports.createAnswer = [uploadSingle, async (req, res) => {
 
         res.status(201).json({
             message: '답변이 등록되었습니다.',
-            data: newAnswer
+            data: {
+                answer_id: newAnswer.answer_id,
+                answer_text: newAnswer.answer_text,
+                sign_id: newAnswer.sign_id,
+                date: newAnswer.date
+            }
         });
 
     } catch (error) {
@@ -408,27 +423,38 @@ exports.createAnswer = [uploadSingle, async (req, res) => {
 // TodayAnswer 조회
 exports.getAnswer = async (req, res) => {
     try {
-        const { answer_id } = req.params;
         const signId = res.locals.decoded.sign_id;
+        const date = req.query.date;
 
-        // 답변 조회
+        // date가 없을 경우 요청 거부
+        if (!date) {
+            return res.status(400).json({ message: '날짜를 입력해 주세요.' });
+        }
+
+        // 해당 날짜와 사용자 ID에 맞는 답변 조회
         const answer = await TodayAnswer.findOne({
-            where: { answer_id, sign_id: signId }
+            where: {
+                sign_id: signId,
+                date: date // 문자열 형식의 날짜로 조회
+            },
+            attributes: ['answer_id','answer_text', 'sign_id']
         });
 
-        // 일치하는 답변이 없을 때 404 오류 반환
+        // 일치하는 답변이 없을 때 빈 객체 반환
         if (!answer) {
-            return res.status(404).json({
-                message: '답변을 찾을 수 없습니다.'
+            return res.status(200).json({
+                message: '해당 날짜에 대한 답변이 없습니다.',
+                data: {}
             });
         }
 
-        // 일치하는 답변이 있을 때 데이터 반환
+        // 일치하는 답변이 있을 때 객체 형태로 반환
         res.status(200).json({
             message: '답변 조회 성공',
             data: {
+                answer_id: answer.answer_id,
                 answer_text: answer.answer_text,
-                answer_photo: answer.answer_photo // 사진 경로 포함
+                sign_id: answer.sign_id
             }
         });
     } catch (error) {
@@ -438,41 +464,39 @@ exports.getAnswer = async (req, res) => {
 };
 
 // TodayAnswer 수정
-exports.updateAnswer = [uploadSingle, async (req, res) => {
+exports.updateAnswer = async (req, res) => {
     try {
         const { answer_id } = req.params;
         const { answer_text } = req.body;
-        const signId = res.locals.decoded.sign_id; 
+        const signId = res.locals.decoded.sign_id;
 
+        // 기존 답변 조회
         const answer = await TodayAnswer.findOne({
             where: { answer_id, sign_id: signId },
         });
-    
+
         if (!answer) {
             return res.status(404).json({ message: '답변을 찾을 수 없습니다.' });
         }
 
-        // 사진 파일이 있으면 새로운 경로 저장
-        if (req.file) {
-            answer.answer_photo = req.file.path;
-        }
-
+        // 답변 텍스트 업데이트
         answer.answer_text = answer_text;
         await answer.save();
-    
+
         res.status(200).json({
             message: '답변이 수정되었습니다.',
             data: {
+                answer_id: answer.answer_id,
                 answer_text: answer.answer_text,
-                answer_photo: answer.answer_photo
+                sign_id: answer.sign_id
             }
         });
 
     } catch (error) {
-        console.error('답변 수정 중 오류 발생:', error);   
+        console.error('답변 수정 중 오류 발생:', error);
         res.status(500).json({ message: '답변 수정에 실패했습니다.' });
     }
-}];
+};
 
 // TodayAnswer 삭제
 exports.deleteAnswer = async (req, res) => {
@@ -480,6 +504,7 @@ exports.deleteAnswer = async (req, res) => {
         const { answer_id } = req.params;
         const signId = res.locals.decoded.sign_id;
 
+        // 답변 조회
         const answer = await TodayAnswer.findOne({
             where: { answer_id, sign_id: signId },
         });
@@ -488,18 +513,7 @@ exports.deleteAnswer = async (req, res) => {
             return res.status(404).json({ message: '답변을 찾을 수 없습니다.' });
         }
 
-        // 파일 삭제: answer_photo가 존재하면 파일 삭제
-        if (answer.answer_photo) {
-            const filePath = path.join(__dirname, '../', answer.answer_photo); // 파일 경로 설정
-            fs.unlink(filePath, (err) => {
-                if (err) {
-                    console.error('파일 삭제 중 오류 발생:', err);
-                } else {
-                    console.log('사진 파일이 성공적으로 삭제되었습니다.');
-                }
-            });
-        }
-
+        // 답변 삭제
         await answer.destroy();
 
         res.status(200).json({
@@ -514,9 +528,19 @@ exports.deleteAnswer = async (req, res) => {
 
 // TodayPlace 등록
 exports.createPlace = async (req, res) => {
-    const { cate_num, today_mood, place_memo } = req.body;
+    const { cate_num, today_mood, place_memo, date } = req.body;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const today = new Date(); // 오늘 날짜 설정
+
+    // 필수값 검증
+    if (!date) {
+        return res.status(400).json({ message: '날짜를 입력해 주세요.' });
+    }
+    if (!cate_num) {
+        return res.status(400).json({ message: '카테고리 번호를 입력해 주세요.' });
+    }
+    if (!today_mood) {
+        return res.status(400).json({ message: '오늘의 기분을 입력해 주세요.' });
+    }
 
     try {
         const newPlace = await TodayPlace.create({
@@ -524,7 +548,7 @@ exports.createPlace = async (req, res) => {
             today_mood,
             place_memo,
             sign_id: signId,
-            date: today // 오늘 날짜 저장
+            date
         });
 
         // 포인트 획득
@@ -543,15 +567,14 @@ exports.createPlace = async (req, res) => {
 // TodayPlace 목록 조회
 exports.getPlaceList = async (req, res) => {
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const { date } = req.query; // 요청에서 date 쿼리 가져오기
-    const queryDate = date ? new Date(date) : new Date(); // 쿼리 날짜가 없으면 오늘 날짜 사용
+    const date = req.query.date;
 
     try {
         // 특정 날짜와 사용자에 해당하는 장소 목록 조회
         const places = await TodayPlace.findAll({
             where: {
                 sign_id: signId,
-                date: queryDate // 요청된 날짜 또는 오늘 날짜 기준으로 필터링
+                date // 요청된 날짜 또는 오늘 날짜 기준으로 필터링
             },
             order: [['createdAt', 'ASC']] // 생성 날짜 순으로 정렬
         });
@@ -569,16 +592,14 @@ exports.getPlaceList = async (req, res) => {
 // TodayPlace 수정
 exports.updatePlace = async (req, res) => {
     const { place_id } = req.params;
-    const { cate_num, today_mood, place_memo } = req.body;
+    const { today_mood, place_memo } = req.body;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const today = new Date(); // 오늘 날짜 설정
 
     try {
         const place = await TodayPlace.findOne({
             where: {
                 place_id,
                 sign_id: signId,
-                date: today // 오늘 날짜로 필터링
             }
         });
 
@@ -589,7 +610,6 @@ exports.updatePlace = async (req, res) => {
         // 필드 업데이트
         place.today_mood = today_mood !== undefined ? today_mood : place.today_mood;
         place.place_memo = place_memo !== undefined ? place_memo : place.place_memo;
-        place.cate_num = cate_num !== undefined ? cate_num : place.cate_num;
 
         await place.save();
 
@@ -607,14 +627,12 @@ exports.updatePlace = async (req, res) => {
 exports.deletePlace = async (req, res) => {
     const { place_id } = req.params;
     const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-    const today = new Date(); // 오늘 날짜 설정
 
     try {
         const place = await TodayPlace.findOne({
             where: {
                 place_id,
                 sign_id: signId,
-                date: today // 오늘 날짜로 필터링
             }
         });
 
@@ -631,7 +649,3 @@ exports.deletePlace = async (req, res) => {
         console.error('장소 삭제 중 오류 발생:', error);
         res.status(500).json({ message: '장소 삭제 중 오류가 발생했습니다.' });
     }
-};
-
-
-
