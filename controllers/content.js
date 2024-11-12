@@ -649,4 +649,3 @@ exports.deletePlace = async (req, res) => {
         console.error('장소 삭제 중 오류 발생:', error);
         res.status(500).json({ message: '장소 삭제 중 오류가 발생했습니다.' });
     }
-};

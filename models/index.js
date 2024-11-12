@@ -60,6 +60,7 @@ db.TodayPlace = TodayPlace;
 db.sequelize = sequelize;
 db.Notice = Notice;
 
+
 // 관계 설정
 
 User.initiate(sequelize)
@@ -87,6 +88,7 @@ Report.initiate(sequelize);
 TodayPlace.initiate(sequelize);
 Notice.initiate(sequelize);
 
+
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
@@ -113,7 +115,6 @@ UserCondition.associate(db);
 Report.associate(db)
 TodayPlace.associate(db);
 Report.associate(db);
-
 Notice.associate(db); 
 
 
