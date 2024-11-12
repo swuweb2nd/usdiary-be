@@ -38,10 +38,10 @@ class Friend extends Sequelize.Model {
   }
   static associate(models) {
     // 팔로워 관계 (N:1) 여러 명의 사용자가 팔로잉될 수 있음
-    this.belongsTo(models.User, { foreignKey: "follower_id", targetKey: "sign_id", as: 'Follower' });
+    this.belongsTo(models.User, { foreignKey: "follower_id", targetKey: "sign_id", as: 'Following',otherKey: 'following_id' });
 
     // 팔로잉 관계 (N:1) 한 사용자가 여러 명의 친구를 팔로우할 수 있음
-    this.belongsTo(models.User, { foreignKey: "following_id", targetKey: "sign_id", as: 'Following' });
+    this.belongsTo(models.User, { foreignKey: "following_id", targetKey: "sign_id", as: 'Follower',otherKey: 'follower_id' });
   }
 }
 

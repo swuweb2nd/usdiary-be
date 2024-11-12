@@ -30,7 +30,6 @@ class Notification extends Sequelize.Model {
         like_id: {
           type: Sequelize.BIGINT,
           allowNull: false,
-        
         },
         qna_id3: {   //원래 아이디가 q&a id3인데 '&'가 오류를 일으켜서 n으로 대체하고 띄어쓰기 대신 언더바로 대체
           type: Sequelize.BIGINT,

@@ -13,7 +13,7 @@ exports.getFriends = async (req, res) => {
   
         // 팔로우 중인 유저 목록 조회 (팔로잉)
         const following = await Friend.findAll({
-            where: { follower_id: user.user_id },
+            where: { follower_id: signId },
             attributes: ['following_id']
         });
 
@@ -56,16 +56,14 @@ exports.getFriends = async (req, res) => {
 exports.getFollowers = async (req, res) => {
     try {
         const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-        const user = await User.findOne({ where: { sign_id: signId } });
-  
-
+        
         // 나를 팔로우 중인 유저 목록 조회
         const followers = await Friend.findAll({
-            where: { following_id: user.user_id  },
+            where: { following_id: signId },
             include: [{
                 model: User,  // 팔로워 유저 정보
                 as: 'Follower',  // 팔로워 유저와의 관계 (별칭)
-                attributes: ['sign_id', 'user_name', 'user_tendency']
+                attributes: ['sign_id', 'user_nick', 'user_name', 'user_tendency']
             }]
         });
 
@@ -88,15 +86,14 @@ exports.getFollowers = async (req, res) => {
 exports.getFollowing = async (req, res) => {
     try {
         const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-        const user = await User.findOne({ where: { sign_id: signId } });
-  
+        
         // 내가 팔로우 중인 유저 목록 조회
         const following = await Friend.findAll({
-            where: { follower_id: user.user_id },
+            where: { follower_id: signId },
             include: [{
                 model: User,  // 팔로우된 유저 정보
                 as: 'Following',  // 팔로우된 유저와의 관계 (별칭)
-                attributes: ['sign_id', 'user_name', 'user_tendency']
+                attributes: ['sign_id', 'user_nick', 'user_name', 'user_tendency']
             }]
         });
 
@@ -145,13 +142,13 @@ exports.deleteFollowers = async (req, res) => {
 exports.deleteFollowing = async (req, res) => {
     try {
         const signId = res.locals.decoded.sign_id; // JWT에서 sign_id 가져오기
-        const user = await User.findOne({ where: { sign_id: signId } });
+        //const user = await User.findOne({ where: { sign_id: signId } });
         const followingId = req.body.following_id; // 삭제할 팔로잉의 sign_id
 
         // 특정 팔로잉 삭제
         const result = await Friend.destroy({
             where: {
-                follower__id: user.user_id,
+                follower_id: signId,
                 following_id: followingId
             }
         });

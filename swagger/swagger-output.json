@@ -2510,8 +2510,7 @@
             "description": "팔로워를 조회할 유저의 sign_id",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string"
             }
           }
         ],
@@ -2620,8 +2619,7 @@
             "description": "팔로잉 목록을 조회할 유저의 ID",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string"
             }
           }
         ],
