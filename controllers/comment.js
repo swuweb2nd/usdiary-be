@@ -60,32 +60,36 @@ exports.createComment = async (req, res) => {
 };
 
 // 댓글 수정
+// 댓글 수정
 exports.updateComment = async (req, res) => {
     try {
-        const { diaryId, commentId } = req.params;
+        const { diary_id, comment_id } = req.params;
         const { content } = req.body;
         const signId = res.locals.decoded.sign_id; // JWT에서 사용자 sign_id 가져오기
 
-        // 해당 일기가 존재하는지 확인
-        const diary = await Diary.findByPk(diaryId);
+        const diary = await Diary.findOne({ where: { diary_id: diary_id } });
         if (!diary) {
             return res.status(404).json({ message: 'Diary not found' });
         }
+      
 
         // 수정할 댓글이 존재하는지 확인
         const comment = await Comment.findOne({
-            where: { comment_id: commentId, diary_id: diaryId,  sign_id: signId }
+            where: { comment_id: comment_id, diary_id: diary_id, sign_id: signId }
         });
-
+        
         if (!comment) {
             return res.status(404).json({ message: 'Comment not found or you do not have permission to edit this comment' });
         }
 
-        // 댓글 내용 수정
-        comment.content = content;
-        await comment.save();
+        comment.comment_text = content 
+       
 
-        res.status(200).json({message: '댓글이 성공적으로 수정되었습니다.',data: {comment}});
+        // 변경사항 저장
+        await comment.save();
+     
+
+        res.status(200).json({ message: '댓글이 성공적으로 수정되었습니다.', data: { comment } });
     } catch (error) {
         console.error('Error updating comment:', error);
         res.status(500).json({ message: 'Server error', error });
