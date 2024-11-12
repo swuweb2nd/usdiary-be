@@ -1,6 +1,6 @@
 const { Op } = require('sequelize');
 const { User, Profile, Diary, Board } = require('../models'); 
-
+const bcrypt = require('bcrypt');
 //프로필 조회
 exports.getProfile = async (req, res) => {
     const { user_id } = req.params; 
@@ -27,43 +27,54 @@ exports.getProfile = async (req, res) => {
 
 //프로필 수정
 exports.updateProfile = async (req, res) => {
-    const { user_id } = req.params;
-    const { sign_id, user_nick, user_pwd, user_email, user_name, user_phone, user_birthday, user_gender } = req.body;
-    const profile_img = req.file ? req.file.filename : null; // 프로필 이미지 파일 처리
+  const { user_id } = req.params;
+  const { sign_id, user_nick, user_pwd, user_email, user_name, user_phone, user_birthday, user_gender } = req.body;
+  const profile_img = req.file ? req.file.filename : null; // 프로필 이미지 파일 처리
 
-    try {
-        const user = await User.findOne({ where: { user_id: user_id } });
+  try {
+      const user = await User.findOne({ where: { user_id } });
 
-        if (!user) {
-            return res.status(404).json({ message: '해당 사용자가 존재하지 않습니다.' });
-        }
+      if (!user) {
+          return res.status(404).json({ message: '해당 사용자가 존재하지 않습니다.' });
+      }
 
-        // 사용자 정보 업데이트
-        await user.update({
-            sign_id,
-            user_nick,
-            user_pwd,
-            user_email,
-            user_name,
-            user_phone,
-            user_birthday,
-            user_gender,
-        });
+      // 비밀번호 해싱 처리
+      let hashedPassword = user.user_pwd; // 기존 비밀번호 유지
+      if (user_pwd) { // 새 비밀번호가 제공된 경우에만 해시
+          hashedPassword = await bcrypt.hash(user_pwd, 10);
+      }
 
-        // 프로필 이미지 업데이트
-        const profile = await Profile.findOne({ where: { user_id: user_id } });
-        if (profile) {
-            await profile.update({ profile_img });
-        } else {
-            await Profile.create({ user_id, profile_img });
-        }
+      // 사용자 정보 업데이트
+      await user.update({
+          sign_id,
+          user_nick,
+          user_pwd: hashedPassword,
+          user_email,
+          user_name,
+          user_phone,
+          user_birthday,
+          user_gender,
+      });
 
-        res.status(200).json({ message: '사용자 정보가 성공적으로 업데이트되었습니다.' });
-    } catch (error) {
-        res.status(500).json({ message: '사용자 정보를 업데이트하는 중 오류가 발생했습니다.', error: error.message });
-    }
+      // 프로필 이미지 업데이트
+      const profile = await Profile.findOne({ where: { user_id } });
+      if (profile) {
+          await profile.update({
+              profile_img: profile_img || profile.profile_img // 새 이미지가 없으면 기존 이미지 유지
+          });
+      } else if (profile_img) { // 프로필이 없는 경우 새로 생성 (이미지가 있는 경우에만)
+          await Profile.create({ user_id, profile_img });
+      }
+
+      res.status(200).json({ message: '사용자 정보가 성공적으로 업데이트되었습니다.' });
+  } catch (error) {
+      console.error("사용자 정보 업데이트 중 오류:", error); // 전체 오류 로그
+      res.status(500).json({
+          message: '사용자 정보를 업데이트하는 중 오류가 발생했습니다.',
+          error: error.message
+      });
+  }
 };
-
 // 월별 일기 조회 및 숲, 바다, 도시 비율 계산
 exports.getDiariesByMonth = async (req, res) => {
   const { user_id, year, month } = req.query;
