@@ -423,21 +423,21 @@ exports.createAnswer = [async (req, res) => {
 // TodayAnswer 조회
 exports.getAnswer = async (req, res) => {
     try {
-        const signId = res.locals.decoded.sign_id;
-        const date = req.query.date;
+        const { date, sign_id: providedSignId } = req.query;
+        const signId = providedSignId || res.locals.decoded.sign_id;
 
-        // date가 없을 경우 요청 거부
+        // date가 없으면 오류 반환
         if (!date) {
             return res.status(400).json({ message: '날짜를 입력해 주세요.' });
         }
 
-        // 해당 날짜와 사용자 ID에 맞는 답변 조회
+        // 해당 날짜와 sign_id에 맞는 답변 조회
         const answer = await TodayAnswer.findOne({
             where: {
                 sign_id: signId,
-                date: date // 문자열 형식의 날짜로 조회
+                date: date
             },
-            attributes: ['answer_id','answer_text', 'sign_id']
+            attributes: ['answer_id', 'answer_text', 'sign_id', 'date']
         });
 
         // 일치하는 답변이 없을 때 빈 객체 반환
@@ -454,7 +454,8 @@ exports.getAnswer = async (req, res) => {
             data: {
                 answer_id: answer.answer_id,
                 answer_text: answer.answer_text,
-                sign_id: answer.sign_id
+                sign_id: answer.sign_id,
+                date: answer.date
             }
         });
     } catch (error) {
