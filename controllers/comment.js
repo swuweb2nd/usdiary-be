@@ -10,20 +10,25 @@ const { gainPoints, getWeeklyPoints} = require('./point');
 exports.createComment = async (req, res) => {
     try {
         const diaryId = req.params.diary_id;
+        const sign_id = res.locals.decoded.sign_id; // JWT에서 사용자 sign_id 가져오기
         const { content } = req.body;
-        const signId = res.locals.decoded.sign_id; // JWT에서 사용자 sign_id 가져오기
+
+        // content가 문자열인지 확인
+        if (typeof content !== 'string') {
+            return res.status(400).json({ message: 'content must be a string' });
+        }
 
         // 해당 일기가 존재하는지 확인
-        const diary = await Diary.findOne({ where: { diary_id: diary_id } });
+        const diary = await Diary.findOne({ where: { diary_id: diaryId } });
         if (!diary) {
             return res.status(404).json({ message: 'Diary not found' });
         }
 
         // 새로운 댓글 생성
-        const comment = await Comment.create({
-            comment_text: content,
-            sign_id: signId, // 사용자 sign_id 추가
-            diary_id: diaryId
+        const newComment = await Comment.create({
+            diary_id: diaryId,
+            sign_id: sign_id, // 사용자 sign_id 추가
+            comment_text: content
         });
 
         // 현재 주의 댓글 수를 계산 (월요일 ~ 일요일 기준)
@@ -32,7 +37,7 @@ exports.createComment = async (req, res) => {
 
         const commentsThisWeek = await Comment.count({
             where: {
-                sign_id: signId,
+                sign_id: sign_id,
                 createdAt: {
                     [Op.between]: [startOfWeek, endOfWeek],
                 },
@@ -44,15 +49,16 @@ exports.createComment = async (req, res) => {
         const maxWeeklyPoints = 5;
 
         if (earnedPoints > 0) {
-            const currentWeekPoints = await getWeeklyPoints(signId);
+            const currentWeekPoints = await getWeeklyPoints(sign_id);
             const pointsToAdd = Math.min(earnedPoints, maxWeeklyPoints - currentWeekPoints);
 
             if (pointsToAdd > 0) {
                 await gainPoints(req, res, '일기에 댓글', pointsToAdd);
             }
         }
+        
         // 생성된 댓글 반환
-        res.status(201).json({ message: '댓글이 성공적으로 생성되었습니다.', data: { comment } });
+        res.status(201).json({ message: '댓글이 성공적으로 생성되었습니다.', data: { newComment } });
     } catch (error) {
         console.error('Error creating comment:', error);
         res.status(500).json({ message: 'Server error', error });
@@ -99,13 +105,12 @@ exports.renderComments = async (req, res) => {
     try {
         const diaryId = req.params.diary_id;
         const commentId = req.params.comment_id; // 특정 댓글 ID 가져오기
-        const signId = res.locals.decoded.sign_id; // JWT에서 사용자 sign_id 가져오기
         let comments;
 
         if (commentId) {
             // 특정 댓글 조회
             comments = await Comment.findOne({
-                where: { diary_id: diaryId, id: commentId },
+                where: { diary_id: diaryId, comment_id: commentId },
                 include: [
                     { 
                         model: User, 

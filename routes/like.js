@@ -9,7 +9,7 @@ const { verifyToken } = require('../middlewares/jwt');
 router.get('/:diary_id/like', verifyToken, likeDiary)
 
 //일기 좋아요 삭제
-router.delete('/:diary_id/like', verifyToken, deleteLike);
+router.delete('/:diary_id/like/:like_id', verifyToken, deleteLike);
 
 module.exports = router;
 
