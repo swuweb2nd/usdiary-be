@@ -76,7 +76,7 @@ app.use('/contents', contentRoutes);
 app.use('/friends', friendRoutes);
 app.use('/checkPermissions', permissionRoutes);
 app.use('/mypages', mypageRoutes);
-app.use('/like', likeRoutes);
+app.use('/diaries', likeRoutes);
 app.use('/points', pointRoutes)
 app.use('/reports', reportRoutes);
 app.use('/qnas', qnaRoutes);

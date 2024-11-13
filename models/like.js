@@ -32,8 +32,8 @@ class Like extends Sequelize.Model {
     );
   }
   static associate(models) {
-    this.belongsTo(models.Diary, { foreignKey: "diary_id", targetKey: "diary_id" });  //(1:N)하나의 다이어리에 여러 개의 좋아요가 달릴 수 있음
-    this.belongsTo(models.User, { foreignKey: "user_id", targetKey: "user_id" });  //(N:1)여러 개의 좋아요가 한 명의 사용자에 의해 달릴 수 있음
+    this.belongsTo(models.Diary, { through: 'Like', foreignKey: "diary_id", targetKey: "diary_id" });  //(1:N)하나의 다이어리에 여러 개의 좋아요가 달릴 수 있음
+    this.belongsTo(models.User, { through: 'Like', foreignKey: "user_id", targetKey: "user_id" });  //(N:1)여러 개의 좋아요가 한 명의 사용자에 의해 달릴 수 있음
   }
     }
 

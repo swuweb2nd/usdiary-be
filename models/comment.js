@@ -16,7 +16,7 @@ class Comment extends Sequelize.Model {
         },
         sign_id: {
           type: Sequelize.STRING(255),
-          allowNull: true,
+          allowNull: false,
         },
         comment_text: {
           type: Sequelize.TEXT,

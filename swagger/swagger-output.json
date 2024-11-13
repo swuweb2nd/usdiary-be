@@ -1404,7 +1404,7 @@
     "post": {
       "summary": "댓글 생성",
       "description": "일기에 댓글을 작성합니다.",
-      "tags": ["Comments"],
+      "tags": ["Comment"],
       "parameters": [
         {
           "name": "diary_id",
@@ -1457,7 +1457,7 @@
     },
     "get": {
       "summary": "댓글 조회",
-      "tags": ["Comments"],
+      "tags": ["Comment"],
       "description": "특정 일기에 대한 모든 댓글을 조회합니다.",
       "parameters": [
         {
@@ -1539,7 +1539,7 @@
     "put": {
       "summary": "댓글 수정",
       "description": "일기에 달린 댓글을 수정합니다.",
-      "tags": ["Comments"],
+      "tags": ["Comment"],
       "parameters": [
         {
           "name": "diary_id",
@@ -1617,7 +1617,7 @@
   "/diaries/comments/{comment_id}": {
     "delete": {
       "summary": "댓글 삭제",
-      "tags": ["Comments"],
+      "tags": ["Comment"],
       "description": "특정 댓글을 삭제합니다.",
       "parameters": [
         {
@@ -4888,7 +4888,40 @@
               "format": "date-time",
               "description": "공지사항 생성일"
             }
-            
+        }
+      },
+      "Comment": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "comment_id": {
+              "type": "integer",
+              "description": "댓글 ID"
+            },
+            "diary_id": {
+              "type": "integer",
+              "description": "일기 ID"
+            },
+            "sign_id": {
+              "type": "string",
+              "description": "유저 sign_id"
+            },
+            "content": {
+              "type": "string",
+              "description": "댓글 내용"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "description": "댓글 생성일"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time",
+              "description": "댓글 수정일"
+            }
+          }
         }
       }
     }
