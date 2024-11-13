@@ -4,6 +4,8 @@ const Todo  = require('../models/todos');
 const TodayQuestion = require('../models/today_questions'); 
 const TodayAnswer = require('../models/today_answers'); 
 const TodayPlace = require('../models/today_places'); 
+const Diary = require('../models/diary');
+const User = require('../models/user');
 const { gainPoints } = require('../controllers/point'); 
 const { uploadSingle } = require('../middlewares/upload');
 const fs = require('fs');
@@ -375,13 +377,7 @@ exports.createAnswer = [async (req, res) => {
         const { answer_text, date } = req.body;
         const signId = res.locals.decoded.sign_id;
 
-        if (!date) {
-            return res.status(400).json({ message: '날짜를 입력해 주세요.' });
-        }
-        if (!answer_text) {
-            return res.status(400).json({ message: '답변 내용을 입력해 주세요.' });
-        }
-
+      
         // 중복 답변 방지: 이미 답변을 작성했는지 확인
         const existingAnswer = await TodayAnswer.findOne({
             where: {
@@ -421,7 +417,7 @@ exports.createAnswer = [async (req, res) => {
 }];
 
 // TodayAnswer 조회
-exports.getAnswer = async (req, res) => {
+exports.getMyAnswer = async (req, res) => {
     try {
         const { date, sign_id: providedSignId } = req.query;
         const signId = providedSignId || res.locals.decoded.sign_id;
@@ -463,6 +459,70 @@ exports.getAnswer = async (req, res) => {
         res.status(500).json({ message: '답변 조회 중 오류가 발생했습니다.' });
     }
 };
+// TodayAnswer 조회
+exports.getAnswer = async (req, res) => {
+    try {
+        const { date, diary_id } = req.query;
+
+        // diary_id와 date가 없으면 오류 반환
+        // if (!date || !diary_id) {
+        //     return res.status(400).json({ message: '날짜와 diary_id를 입력해 주세요.' });
+        // }
+
+        // 해당 diary_id에 맞는 user_id 조회
+        const diary = await Diary.findOne({
+            where: { diary_id },
+            attributes: ['user_id']
+        });
+
+        if (!diary) {
+            return res.status(404).json({ message: '해당 일기를 찾을 수 없습니다.' });
+        }
+
+        // user_id로 유저의 sign_id 가져오기
+        const user = await User.findOne({
+            where: { user_id: diary.user_id },
+            attributes: ['sign_id']
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+        }
+
+        // 해당 날짜와 일기 작성자의 sign_id에 맞는 답변 조회
+        const answer = await TodayAnswer.findOne({
+            where: {
+                sign_id: user.sign_id,
+                date: date
+            },
+            attributes: ['answer_id', 'answer_text', 'sign_id', 'date']
+        });
+
+        // 일치하는 답변이 없을 때 빈 객체 반환
+        if (!answer) {
+            return res.status(200).json({
+                message: '해당 날짜에 대한 답변이 없습니다.',
+                data: {}
+            });
+        }
+
+        // 일치하는 답변이 있을 때 객체 형태로 반환
+        res.status(200).json({
+            message: '답변 조회 성공',
+            data: {
+                answer_id: answer.answer_id,
+                answer_text: answer.answer_text,
+                sign_id: answer.sign_id,
+                date: answer.date
+            }
+        });
+    } catch (error) {
+        console.error('답변 조회 중 오류 발생:', error);
+        res.status(500).json({ message: '답변 조회 중 오류가 발생했습니다.' });
+    }
+};
+
+
 
 // TodayAnswer 수정
 exports.updateAnswer = async (req, res) => {
