@@ -145,6 +145,7 @@ async function compressImage(imagePath) {
 exports.updateDiary = async (req, res) => {
     const { diary_id } = req.params;
     const signId = res.locals.decoded.sign_id; // JWT에서 사용자 sign_id 가져오기
+    const user = await User.findOne({ where: { sign_id: signId } });
     const postPhotos = req.files ? req.files.map(file => file.path) : [];
     const {
       diary_title,
@@ -157,7 +158,7 @@ exports.updateDiary = async (req, res) => {
       const diary = await Diary.findOne({
           where: {
               diary_id,
-              sign_id: signId // 사용자 sign_id로 필터링
+              user_id: user.user_id // 사용자 sign_id로 필터링
           }
       });
       if (!diary) {
@@ -188,13 +189,13 @@ exports.updateDiary = async (req, res) => {
 exports.deleteDiary = async (req, res) => {
     const diaryId = req.params.diary_id;
     const signId = res.locals.decoded.sign_id; // JWT에서 사용자 sign_id 가져오기
-
+    const user = await User.findOne({ where: { sign_id: signId } });
     try {
       // 일기가 존재하는지 확인
       const diary = await Diary.findOne({
           where: {
               diary_id: diaryId,
-              sign_id: signId // 사용자 sign_id로 필터링
+              user_id: user.user_id // 사용자 sign_id로 필터링
           }
       });
         if (!diary) {
