@@ -10,6 +10,7 @@ const { gainPoints } = require('../controllers/point');
 const { uploadSingle } = require('../middlewares/upload');
 const fs = require('fs');
 const path = require('path');
+const sharp = require('sharp');
 
 const MAX_TODOS_PER_DIARY = 5 //투두 개수 제한
 const MAX_ROUTINES_PER_USER = 3; //루틴 개수 제한
@@ -372,13 +373,18 @@ exports.getTodayQuestion = async (req, res) => {
 };
 
 // TodayAnswer 등록
-exports.createAnswer = [async (req, res) => {
+exports.createAnswer = [uploadSingle, async (req, res) => {
     try {
         const { answer_text, date } = req.body;
         const signId = res.locals.decoded.sign_id;
+        let answer_photo = null;
 
-      
-        // 중복 답변 방지: 이미 답변을 작성했는지 확인
+        // 업로드된 파일이 있는 경우
+        if (req.file) {
+            answer_photo = `/uploads/answers/${req.file.filename}`;
+        }
+
+        // 중복 답변 확인
         const existingAnswer = await TodayAnswer.findOne({
             where: {
                 sign_id: signId,
@@ -387,12 +393,20 @@ exports.createAnswer = [async (req, res) => {
         });
 
         if (existingAnswer) {
+            // 파일이 업로드되었다면 삭제
+            if (req.file) {
+                const filePath = path.join(__dirname, '..', 'uploads', 'answers', req.file.filename);
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                }
+            }
             return res.status(400).json({ message: '이미 해당 날짜에 답변하셨습니다.' });
         }
 
         // 새 답변 생성
         const newAnswer = await TodayAnswer.create({
             answer_text,
+            answer_photo,
             sign_id: signId,
             date: date
         });
@@ -405,16 +419,45 @@ exports.createAnswer = [async (req, res) => {
             data: {
                 answer_id: newAnswer.answer_id,
                 answer_text: newAnswer.answer_text,
+                answer_photo: newAnswer.answer_photo,
                 sign_id: newAnswer.sign_id,
                 date: newAnswer.date
             }
         });
 
     } catch (error) {
+        // 에러 발생 시 업로드된 파일 삭제
+        if (req.file) {
+            const filePath = path.join(__dirname, '..', 'uploads', 'answers', req.file.filename);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+        }
         console.error('답변 등록 중 오류 발생:', error);
         res.status(500).json({ message: '답변 등록에 실패했습니다.' });
     }
 }];
+
+// 이미지 처리 함수 (이미 정의되어 있다면 재사용)
+async function processImages(images) {
+    for (const image of images) {
+        await compressImage(image);
+    }
+}
+
+// 이미지 압축 함수 (이미 정의되어 있다면 재사용)
+async function compressImage(imagePath) {
+    const outputPath = imagePath.replace(/(\.[\w\d]+)$/, '-compressed$1');
+
+    try {
+        await sharp(imagePath)
+            .resize(800)
+            .toFile(outputPath);
+        fs.unlinkSync(imagePath);
+    } catch (error) {
+        console.error('Error compressing image:', error);
+    }
+}
 
 // TodayAnswer 조회
 exports.getMyAnswer = async (req, res) => {
@@ -433,7 +476,7 @@ exports.getMyAnswer = async (req, res) => {
                 sign_id: signId,
                 date: date
             },
-            attributes: ['answer_id', 'answer_text', 'sign_id', 'date']
+            attributes: ['answer_id', 'answer_text', 'answer_photo', 'sign_id', 'date']
         });
 
         // 일치하는 답변이 없을 때 빈 객체 반환
@@ -450,6 +493,7 @@ exports.getMyAnswer = async (req, res) => {
             data: {
                 answer_id: answer.answer_id,
                 answer_text: answer.answer_text,
+                answer_photo: answer.answer_photo,
                 sign_id: answer.sign_id,
                 date: answer.date
             }
@@ -459,73 +503,9 @@ exports.getMyAnswer = async (req, res) => {
         res.status(500).json({ message: '답변 조회 중 오류가 발생했습니다.' });
     }
 };
-// TodayAnswer 조회
-exports.getAnswer = async (req, res) => {
-    try {
-        const { date, diary_id } = req.query;
-
-        // diary_id와 date가 없으면 오류 반환
-        // if (!date || !diary_id) {
-        //     return res.status(400).json({ message: '날짜와 diary_id를 입력해 주세요.' });
-        // }
-
-        // 해당 diary_id에 맞는 user_id 조회
-        const diary = await Diary.findOne({
-            where: { diary_id },
-            attributes: ['user_id']
-        });
-
-        if (!diary) {
-            return res.status(404).json({ message: '해당 일기를 찾을 수 없습니다.' });
-        }
-
-        // user_id로 유저의 sign_id 가져오기
-        const user = await User.findOne({
-            where: { user_id: diary.user_id },
-            attributes: ['sign_id']
-        });
-
-        if (!user) {
-            return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
-        }
-
-        // 해당 날짜와 일기 작성자의 sign_id에 맞는 답변 조회
-        const answer = await TodayAnswer.findOne({
-            where: {
-                sign_id: user.sign_id,
-                date: date
-            },
-            attributes: ['answer_id', 'answer_text', 'sign_id', 'date']
-        });
-
-        // 일치하는 답변이 없을 때 빈 객체 반환
-        if (!answer) {
-            return res.status(200).json({
-                message: '해당 날짜에 대한 답변이 없습니다.',
-                data: {}
-            });
-        }
-
-        // 일치하는 답변이 있을 때 객체 형태로 반환
-        res.status(200).json({
-            message: '답변 조회 성공',
-            data: {
-                answer_id: answer.answer_id,
-                answer_text: answer.answer_text,
-                sign_id: answer.sign_id,
-                date: answer.date
-            }
-        });
-    } catch (error) {
-        console.error('답변 조회 중 오류 발생:', error);
-        res.status(500).json({ message: '답변 조회 중 오류가 발생했습니다.' });
-    }
-};
-
-
 
 // TodayAnswer 수정
-exports.updateAnswer = async (req, res) => {
+exports.updateAnswer = [uploadSingle, async (req, res) => {
     try {
         const { answer_id } = req.params;
         const { answer_text } = req.body;
@@ -537,7 +517,27 @@ exports.updateAnswer = async (req, res) => {
         });
 
         if (!answer) {
+            // 파일이 업로드되었다면 삭제
+            if (req.file) {
+                const filePath = path.join(__dirname, '..', 'uploads', 'answers', req.file.filename);
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                }
+            }
             return res.status(404).json({ message: '답변을 찾을 수 없습니다.' });
+        }
+
+        // 새로운 파일이 업로드된 경우
+        if (req.file) {
+            // 기존 파일이 있다면 삭제
+            if (answer.answer_photo) {
+                const oldFilePath = path.join(__dirname, '..', answer.answer_photo);
+                if (fs.existsSync(oldFilePath)) {
+                    fs.unlinkSync(oldFilePath);
+                }
+            }
+            // 새 파일 경로 설정
+            answer.answer_photo = `/uploads/answers/${req.file.filename}`;
         }
 
         // 답변 텍스트 업데이트
@@ -549,15 +549,24 @@ exports.updateAnswer = async (req, res) => {
             data: {
                 answer_id: answer.answer_id,
                 answer_text: answer.answer_text,
-                sign_id: answer.sign_id
+                answer_photo: answer.answer_photo,
+                sign_id: answer.sign_id,
+                date: answer.date
             }
         });
 
     } catch (error) {
+        // 에러 발생 시 업로드된 파일 삭제
+        if (req.file) {
+            const filePath = path.join(__dirname, '..', 'uploads', 'answers', req.file.filename);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+        }
         console.error('답변 수정 중 오류 발생:', error);
         res.status(500).json({ message: '답변 수정에 실패했습니다.' });
     }
-};
+}];
 
 // TodayAnswer 삭제
 exports.deleteAnswer = async (req, res) => {
