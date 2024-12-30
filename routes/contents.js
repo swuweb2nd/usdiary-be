@@ -4,7 +4,7 @@ const {
     createTodo, getTodoList, updateTodo, deleteTodo,
     createRoutine, getRoutineList, updateRoutine, deleteRoutine,
     getTodayQuestion,
-    createAnswer, getAnswer,getMyAnswer, updateAnswer, deleteAnswer,
+    createAnswer, getMyAnswer, updateAnswer, deleteAnswer,
     createPlace, getPlaceList, updatePlace, deletePlace 
 } = require('../controllers/content');
 const { verifyToken } = require('../middlewares/jwt');
@@ -26,10 +26,9 @@ router.delete('/routines/:routine_id', verifyToken, deleteRoutine);
 router.get('/questions/today', getTodayQuestion);
 
 // TodayAnswer
-router.post('/answers', verifyToken, uploadSingle, createAnswer);
-router.get('/answers', getAnswer);
-router.get('/myanswers', verifyToken,getMyAnswer);
-router.patch('/answers/:answer_id', verifyToken, uploadSingle, updateAnswer);
+router.post('/answers', verifyToken, createAnswer);
+router.get('/myanswers', verifyToken, getMyAnswer);
+router.patch('/answers/:answer_id', verifyToken, updateAnswer);
 router.delete('/answers/:answer_id', verifyToken, deleteAnswer);
 
 // TodayPlace

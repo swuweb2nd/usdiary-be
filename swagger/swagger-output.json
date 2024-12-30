@@ -2161,847 +2161,943 @@
       "/contents/answers": {
           "post": {
             "summary": "오늘의 질문에 대한 답변 등록",
-            "description": "주어진 날짜의 질문에 대한 답변을 등록합니다.",
+            "description": "주어진 날짜의 질문에 대한 답변과 이미지를 등록합니다.",
             "tags": ["TodayAnswer"],
             "requestBody": {
               "required": true,
               "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/CreateAnswerRequest"
-                  }
+                "multipart/form-data": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "answer_text": {
+                                "type": "string",
+                                "description": "답변 내용"
+                            },
+                            "date": {
+                                "type": "string",
+                                "format": "date",
+                                "description": "답변 날짜 (YYYY-MM-DD)"
+                            },
+                            "answer_photo": {
+                                "type": "string",
+                                "format": "binary",
+                                "description": "답변에 첨부할 이미지 파일 (선택사항)"
+                            }
+                        },
+                        "required": ["answer_text", "date"]
+                      }
                 }
-              }
-            },
-            "responses": {
-              "201": {
+            }
+        },
+        "responses": {
+            "201": {
                 "description": "답변이 성공적으로 등록되었습니다.",
                 "content": {
-                  "application/json": {
-                    "schema": {
-                      "type": "object",
-                      "properties": {
-                        "message": { "type": "string", "example": "답변이 등록되었습니다." },
-                        "data": { "$ref": "#/components/schemas/TodayAnswerResponse" }
-                      }
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "답변이 등록되었습니다."
+                                },
+                                "data": {
+                                    "type": "object",
+                                    "properties": {
+                                        "answer_id": {
+                                            "type": "integer"
+                                        },
+                                        "answer_text": {
+                                            "type": "string"
+                                        },
+                                        "answer_photo": {
+                                            "type": "string",
+                                            "nullable": true,
+                                            "description": "이미지 파일 경로"
+                                        },
+                                        "sign_id": {
+                                            "type": "string"
+                                        },
+                                        "date": {
+                                            "type": "string",
+                                            "format": "date"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
-                  }
                 }
-              },
-              "400": {
-                "description": "잘못된 요청입니다. 날짜와 답변 내용을 확인해 주세요."
-              },
-              "404": {
-                "description": "해당 날짜의 질문을 찾을 수 없습니다."
-              },
-              "500": {
-                "description": "서버 오류로 인해 답변 등록에 실패했습니다."
-              }
-            },
-            "security": [
-              { "bearerAuth": [] }
-            ]
-          },
-          "get": {
-            "summary": "특정 날짜와 사용자의 답변 조회",
-            "description": "지정된 날짜와 사용자의 ID에 따른 답변을 조회합니다. `sign_id`가 제공되지 않으면 로그인한 사용자의 답변을 조회합니다.",
-            "tags": ["TodayAnswer"],
-            "parameters": [
-              {
-                "name": "sign_id",
-                "in": "query",
-                "description": "조회할 사용자의 ID. 제공되지 않으면 로그인한 사용자의 ID가 사용됩니다.",
-                "required": false,
-                "schema": {
-                  "type": "string",
-                  "example": "user123"
-                }
-              },
-              {
-                "name": "date",
-                "in": "query",
-                "description": "조회할 답변의 날짜 (형식: YYYY-MM-DD).",
-                "required": true,
-                "schema": {
-                  "type": "string",
-                  "format": "date",
-                  "example": "2024-11-09"
-                }
-              }
-            ],
-            "responses": {
-              "200": {
-                "description": "답변 조회 성공",
-                "content": {
-                  "application/json": {
-                    "schema": {
-                      "type": "object",
-                      "properties": {
-                        "message": { "type": "string", "example": "답변 조회 성공" },
-                        "data": { "$ref": "#/components/schemas/TodayAnswerResponse" }
-                      }
-                    }
-                  }
-                }
-              },
-              "400": {
-                "description": "잘못된 요청입니다. 날짜와 사용자 ID를 확인해 주세요."
-              },
-              "404": {
-                "description": "해당 날짜의 답변을 찾을 수 없습니다."
-              },
-              "500": {
-                "description": "서버 오류로 인해 답변 조회에 실패했습니다."
-              }
-            },
-            "security": [
-              { "bearerAuth": [] }
-            ]
-          }
-        },
-        "/contents/answers/{answer_id}": {
-          "patch": {
-            "summary": "답변 수정",
-            "description": "특정 ID의 답변을 수정합니다.",
-            "tags": ["TodayAnswer"],
-            "parameters": [
-              {
-                "name": "answer_id",
-                "in": "path",
-                "description": "수정할 답변의 ID",
-                "required": true,
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            ],
-            "requestBody": {
-              "required": true,
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/UpdateAnswerRequest"
-                  }
-                }
-              }
-            },
-            "responses": {
-              "200": {
-                "description": "답변이 성공적으로 수정되었습니다.",
-                "content": {
-                  "application/json": {
-                    "schema": {
-                      "type": "object",
-                      "properties": {
-                        "message": { "type": "string", "example": "답변이 수정되었습니다." },
-                        "data": { "$ref": "#/components/schemas/TodayAnswerResponse" }
-                      }
-                    }
-                  }
-                }
-              },
-              "404": {
-                "description": "수정할 답변을 찾을 수 없습니다."
-              },
-              "500": {
-                "description": "서버 오류로 인해 답변 수정에 실패했습니다."
-              }
-            },
-            "security": [
-              { "bearerAuth": [] }
-            ]
-          },
-          "delete": {
-            "summary": "답변 삭제",
-            "description": "특정 ID의 답변을 삭제합니다.",
-            "tags": ["TodayAnswer"],
-            "parameters": [
-              {
-                "name": "answer_id",
-                "in": "path",
-                "description": "삭제할 답변의 ID",
-                "required": true,
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            ],
-            "responses": {
-              "200": {
-                "description": "답변이 성공적으로 삭제되었습니다.",
-                "content": {
-                  "application/json": {
-                    "schema": {
-                      "type": "object",
-                      "properties": {
-                        "message": { "type": "string", "example": "답변이 성공적으로 삭제되었습니다." }
-                      }
-                    }
-                  }
-                }
-              },
-              "404": {
-                "description": "삭제할 답변을 찾을 수 없습니다."
-              },
-              "500": {
-                "description": "서버 오류로 인해 답변 삭제에 실패했습니다."
-              }
-            },
-            "security": [
-              { "bearerAuth": [] }
-            ]
-          }
-        },
-      "/contents/places": {
-        "post": {
-          "summary": "오늘의 장소 등록",
-          "description": "새로운 장소를 등록합니다. 필수 필드로 date, cate_num, today_mood가 필요합니다.",
-          "tags": ["TodayPlace"],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlaceRequest"
-                }
-              }
-            }
-          },
-          "responses": {
-            "201": {
-              "description": "오늘의 장소가 성공적으로 생성되었습니다.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string",
-                        "example": "오늘의 장소가 성공적으로 생성되었습니다."
-                      },
-                      "data": {
-                        "$ref": "#/components/schemas/PlaceResponse"
-                      }
-                    }
-                  }
-                }
-              }
             },
             "400": {
-              "description": "필수 필드가 누락되었습니다."
+                "description": "이미 해당 날짜에 답변이 존재합니다."
             },
             "500": {
-              "description": "서버 오류"
+                "description": "서버 오류로 인해 답변 등록에 실패했습니다."
             }
-          },
-          "security": [
-            { "bearerAuth": [] }
-          ]
-        },
-        "get": {
-          "summary": "장소 목록 조회",
-          "description": "특정 날짜의 장소 목록을 조회합니다. 날짜가 없으면 오늘 날짜로 조회합니다.",
-          "tags": ["TodayPlace"],
-          "parameters": [
-            {
-              "name": "date",
-              "in": "query",
-              "required": true,
-              "description": "조회할 날짜 (YYYY-MM-DD 형식)",
-              "schema": {
-                "type": "string",
-                "format": "date"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "장소 목록 조회 성공",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string",
-                        "example": "장소 목록 조회 성공"
-                      },
-                      "data": {
-                        "type": "array",
-                        "items": {
-                          "$ref": "#/components/schemas/PlaceResponse"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "서버 오류"
-            }
-          },
-          "security": [
-            { "bearerAuth": [] }
-          ]
-        }
-      },
-      "/contents/places/{place_id}": {
-        "patch": {
-          "summary": "장소 수정",
-          "description": "특정 장소의 today_mood와 place_memo를 수정합니다.",
-          "tags": ["TodayPlace"],
-          "parameters": [
-            {
-              "name": "place_id",
-              "in": "path",
-              "required": true,
-              "description": "수정할 장소의 ID",
-              "schema": {
-                "type": "integer",
-                "format": "int64"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlaceUpdateRequest"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "장소 수정 성공",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string",
-                        "example": "장소가 성공적으로 수정되었습니다."
-                      },
-                      "data": {
-                        "$ref": "#/components/schemas/PlaceResponse"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "장소를 찾을 수 없습니다."
-            },
-            "500": {
-              "description": "서버 오류"
-            }
-          },
-          "security": [
-            { "bearerAuth": [] }
-          ]
-        },
-        "delete": {
-          "summary": "장소 삭제",
-          "description": "특정 장소를 삭제합니다.",
-          "tags": ["TodayPlace"],
-          "parameters": [
-            {
-              "name": "place_id",
-              "in": "path",
-              "required": true,
-              "description": "삭제할 장소의 ID",
-              "schema": {
-                "type": "integer",
-                "format": "int64"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "장소가 성공적으로 삭제되었습니다.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string",
-                        "example": "장소가 성공적으로 삭제되었습니다."
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "장소를 찾을 수 없습니다."
-            },
-            "500": {
-              "description": "서버 오류"
-            }
-          },
-          "security": [
-            { "bearerAuth": [] }
-          ]
-        }
-      },
-    "/friends/{sign_id}/followers": {
-      "get": {
-        "summary": "팔로워 목록 조회",
-        "description": "특정 유저의 팔로워 목록을 조회합니다.",
-        "tags": ["Mooner"],
-        "parameters": [
-          {
-            "name": "sign_id",
-            "in": "path",
-            "description": "팔로워를 조회할 유저의 sign_id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "성공적으로 팔로워 목록을 가져왔습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Follower list retrieved successfully"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/FollowingUser"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "유저를 찾을 수 없습니다."
-          },
-          "500": {
-            "description": "Internal Server Error"
-          },
-          "default": {
-            "description": "기타 오류"
-          }
         },
         "security": [
-          { "bearerAuth": [] }
+            { "bearerAuth": [] }
         ]
-      },
-      "delete": {
-        "summary": "팔로워 삭제",
-        "description": "유저의 특정 팔로워를 삭제합니다.",
-        "tags": ["Mooner"],
+      }
+    },
+    "/contents/myanswers": {
+      "get": {
+        "summary": "사용자의 특정 날짜에 대한 답변 조회",
+        "description": "JWT 인증을 기반으로 사용자가 특정 날짜에 작성한 답변을 조회합니다.",
+        "tags": ["TodayAnswer"],
         "parameters": [
             {
+                "name": "date",
+                "in": "query",
+                "required": true,
+                "schema": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "description": "조회할 답변의 날짜 (YYYY-MM-DD)"
+            }
+        ],
+        "responses": {
+            "200": {
+                "description": "답변 조회 성공",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "답변 조회 성공"
+                                },
+                                "data": {
+                                    "type": "object",
+                                    "properties": {
+                                        "answer_id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "answer_text": {
+                                            "type": "string",
+                                            "example": "오늘의 답변 내용입니다."
+                                        },
+                                        "answer_photo": {
+                                            "type": "string",
+                                            "nullable": true,
+                                            "example": "/uploads/answers/answer_photo-1234567890.jpg"
+                                        },
+                                        "sign_id": {
+                                            "type": "string",
+                                            "example": "user123"
+                                        },
+                                        "date": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "example": "2024-03-25"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "400": {
+                "description": "날짜를 입력해 주세요."
+            },
+            "500": {
+                "description": "답변 조회 중 오류가 발생했습니다."
+            }
+        },
+        "security": [
+            {
+                "bearerAuth": []
+            }
+        ]
+    }
+  },
+  "/contents/answers/{answer_id}": {
+    "patch": {
+      "summary": "답변 수정",
+      "description": "특정 답변의 내용과 이미지를 수정합니다.",
+      "tags": ["TodayAnswer"],
+      "parameters": [
+        {
+          "name": "answer_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          },
+          "description": "수정할 답변의 ID"
+        }
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "multipart/form-data": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "answer_text": {
+                  "type": "string",
+                  "description": "수정할 답변 내용"
+                },
+                "answer_photo": {
+                  "type": "string",
+                  "format": "binary",
+                  "description": "수정할 이미지 파일 (선택사항)"
+                }
+              },
+              "required": ["answer_text"]
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "답변이 성공적으로 수정되었습니다.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "example": "답변이 수정되었습니다."
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "answer_id": {
+                        "type": "integer"
+                      },
+                      "answer_text": {
+                        "type": "string"
+                      },
+                      "answer_photo": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "sign_id": {
+                        "type": "string"
+                      },
+                      "date": {
+                        "type": "string",
+                        "format": "date"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "잘못된 요청입니다."
+        },
+        "404": {
+          "description": "답변을 찾을 수 없습니다."
+        },
+        "500": {
+          "description": "답변 수정에 실패했습니다."
+        }
+      },
+      "security": [
+        { "bearerAuth": [] }
+      ]
+    },
+    "delete": {
+      "summary": "답변 삭제",
+      "description": "특정 ID의 답변을 삭제합니다.",
+      "tags": ["TodayAnswer"],
+      "parameters": [
+        {
+          "name": "answer_id",
+          "in": "path",
+          "description": "삭제할 답변의 ID",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "답변이 성공적으로 삭제되었습니다.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": { "type": "string", "example": "답변이 성공적으로 삭제되었습니다." }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "삭제할 답변을 찾을 수 없습니다."
+        },
+        "500": {
+          "description": "서버 오류로 인해 답변 삭제에 실패했습니다."
+        }
+      },
+      "security": [
+        { "bearerAuth": [] }
+      ]
+    }
+  },
+  "/contents/places": {
+    "post": {
+      "summary": "오늘의 장소 등록",
+      "description": "새로운 장소를 등록합니다. 필수 필드로 date, cate_num, today_mood가 필요합니다.",
+      "tags": ["TodayPlace"],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PlaceRequest"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "오늘의 장소가 성공적으로 생성되었습니다.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "example": "친늘의 장소가 성공적으로 생성되었습니다."
+                  },
+                  "data": {
+                    "$ref": "#/components/schemas/PlaceResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "필수 필드가 누락되었습니다."
+        },
+        "500": {
+          "description": "서버 오류"
+        }
+      },
+      "security": [
+        { "bearerAuth": [] }
+      ]
+    },
+    "get": {
+      "summary": "장소 목록 조회",
+      "description": "특정 날짜의 장소 목록을 조회합니다. 날짜가 없으면 오늘 날짜로 조회합니다.",
+      "tags": ["TodayPlace"],
+      "parameters": [
+        {
+          "name": "date",
+          "in": "query",
+          "required": true,
+          "description": "조회할 날짜 (YYYY-MM-DD 형식)",
+          "schema": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "장소 목록 조회 성공",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "example": "장소 목록 조회 성공"
+                  },
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/PlaceResponse"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "서버 오류"
+        }
+      },
+      "security": [
+        { "bearerAuth": [] }
+      ]
+    }
+  },
+  "/contents/places/{place_id}": {
+    "patch": {
+      "summary": "장소 수정",
+      "description": "특정 장소의 today_mood와 place_memo를 수정합니다.",
+      "tags": ["TodayPlace"],
+      "parameters": [
+        {
+          "name": "place_id",
+          "in": "path",
+          "required": true,
+          "description": "수정할 장소의 ID",
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PlaceUpdateRequest"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "장소 수정 성공",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "example": "장소가 성공적으로 수정되었습니다."
+                  },
+                  "data": {
+                    "$ref": "#/components/schemas/PlaceResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "장소를 찾을 수 없습니다."
+        },
+        "500": {
+          "description": "서버 오류"
+        }
+      },
+      "security": [
+        { "bearerAuth": [] }
+      ]
+    },
+    "delete": {
+      "summary": "장소 삭제",
+      "description": "특정 장소를 삭제합니다.",
+      "tags": ["TodayPlace"],
+      "parameters": [
+        {
+          "name": "place_id",
+          "in": "path",
+          "required": true,
+          "description": "삭제할 장소의 ID",
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "장소가 성공적으로 삭제되었습니다.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "example": "장소가 성공적으로 삭제되었습니다."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "장소를 찾을 수 없습니다."
+        },
+        "500": {
+          "description": "서버 오류"
+        }
+      },
+      "security": [
+        { "bearerAuth": [] }
+      ]
+    }
+  },
+  "/friends/{sign_id}/followers": {
+    "get": {
+      "summary": "팔로워 목록 조회",
+      "description": "특정 유저의 팔로워 목록을 조회합니다.",
+      "tags": ["Mooner"],
+      "parameters": [
+        {
           "name": "sign_id",
           "in": "path",
-          "description": "팔로워를 삭제할 사용자의 sign_id",
+          "description": "팔로워를 조회할 유저의 sign_id",
           "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "성공적으로 팔로워 목록을 가져왔습니다.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "example": "Follower list retrieved successfully"
+                  },
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/FollowingUser"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "유저를 찾을 수 없습니다."
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "default": {
+          "description": "기타 오류"
+        }
+      },
+      "security": [
+        { "bearerAuth": [] }
+      ]
+    },
+    "delete": {
+      "summary": "팔로워 삭제",
+      "description": "유저의 특정 팔로워를 삭제합니다.",
+      "tags": ["Mooner"],
+      "parameters": [
+          {
+        "name": "sign_id",
+        "in": "path",
+        "description": "팔로워를 삭제할 사용자의 sign_id",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "follower_sign_id",
+        "in": "query",
+        "description": "삭제할 팔로워의 sign_id",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+      ],
+      "responses": {
+          "200": {
+              "description": "성공적으로 팔로워를 삭제했습니다.",
+              "content": {
+                  "application/json": {
+                      "schema": {
+                          "type": "object",
+                          "properties": {
+                              "message": {
+                                  "type": "string",
+                                  "example": "Follower removed successfully"
+                              }
+                          }
+                      }
+                  }
+              }
+          },
+          "404": {
+              "description": "유저 또는 팔로워를 찾을 수 없습니다."
+          },
+          "500": {
+              "description": "Internal Server Error"
+          },
+          "default": {
+              "description": "기타 오류"
+          }
+      },
+      "security": [
+        { "bearerAuth": [] }
+      ]
+    }
+  },
+  "/friends/{sign_id}/followings": {
+    "get": {
+      "summary": "팔로잉 목록 조회",
+      "description": "특정 유저가 팔로우하는 목록을 조회합니다.",
+      "tags": ["Mooner"],
+      "parameters": [
+        {
+          "name": "sign_id",
+          "in": "path",
+          "description": "팔로잉 목록을 조회할 유저의 ID",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "성공적으로 팔로잉 목록을 가져왔습니다.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "example": "Following list retrieved successfully"
+                  },
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/FollowingUser"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "유저를 찾을 수 없습니다."
+        },
+        "500": {
+          "description": "Internal Server Error"
+        },
+        "default": {
+          "description": "기타 오류"
+        }
+      },
+      "security": [
+        { "bearerAuth": [] }
+      ]
+    },
+    "delete": {
+      "summary": "팔로잉 삭제",
+      "description": "유저가 팔로우하는 특정 계정을 삭제합니다.",
+      "tags": ["Mooner"],
+      "parameters": [
+        {
+          "name": "sign_id",
+          "in": "path",
+          "required": true,
+          "description": "언팔로우를 요청하는 사용자의 sign_id",
           "schema": {
             "type": "string"
           }
         },
         {
-          "name": "follower_sign_id",
+          "name": "following_sign_id",
           "in": "query",
-          "description": "삭제할 팔로워의 sign_id",
           "required": true,
+          "description": "언팔로우할 대상 사용자의 sign_id",
           "schema": {
             "type": "string"
           }
         }
-        ],
-        "responses": {
-            "200": {
-                "description": "성공적으로 팔로워를 삭제했습니다.",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "message": {
-                                    "type": "string",
-                                    "example": "Follower removed successfully"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "404": {
-                "description": "유저 또는 팔로워를 찾을 수 없습니다."
-            },
-            "500": {
-                "description": "Internal Server Error"
-            },
-            "default": {
-                "description": "기타 오류"
-            }
-        },
-        "security": [
-          { "bearerAuth": [] }
-        ]
-      }
-    },
-    "/friends/{sign_id}/followings": {
-      "get": {
-        "summary": "팔로잉 목록 조회",
-        "description": "특정 유저가 팔로우하는 목록을 조회합니다.",
-        "tags": ["Mooner"],
-        "parameters": [
-          {
-            "name": "sign_id",
-            "in": "path",
-            "description": "팔로잉 목록을 조회할 유저의 ID",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
+      ],
+      "responses": {
           "200": {
-            "description": "성공적으로 팔로잉 목록을 가져왔습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Following list retrieved successfully"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/FollowingUser"
+              "description": "성공적으로 팔로잉을 취소했습니다.",
+              "content": {
+                  "application/json": {
+                      "schema": {
+                          "type": "object",
+                          "properties": {
+                              "message": {
+                                  "type": "string",
+                                  "example": "Unfollowed successfully"
+                              }
+                          }
                       }
-                    }
                   }
-                }
               }
-            }
           },
           "404": {
-            "description": "유저를 찾을 수 없습니다."
+              "description": "팔로잉 대상을 찾을 수 없습니다."
           },
           "500": {
-            "description": "Internal Server Error"
+              "description": "Internal Server Error"
           },
           "default": {
-            "description": "기타 오류"
+              "description": "기타 오류"
           }
-        },
-        "security": [
-          { "bearerAuth": [] }
-        ]
       },
-      "delete": {
-        "summary": "팔로잉 삭제",
-        "description": "유저가 팔로우하는 특정 계정을 삭제합니다.",
-        "tags": ["Mooner"],
-        "parameters": [
-          {
-            "name": "sign_id",
-            "in": "path",
-            "required": true,
-            "description": "언팔로우를 요청하는 사용자의 sign_id",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "following_sign_id",
-            "in": "query",
-            "required": true,
-            "description": "언팔로우할 대상 사용자의 sign_id",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-            "200": {
-                "description": "성공적으로 팔로잉을 취소했습니다.",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "message": {
-                                    "type": "string",
-                                    "example": "Unfollowed successfully"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "404": {
-                "description": "팔로잉 대상을 찾을 수 없습니다."
-            },
-            "500": {
-                "description": "Internal Server Error"
-            },
-            "default": {
-                "description": "기타 오류"
-            }
-        },
-        "security": [
-          { "bearerAuth": [] }
-        ]
-      }
-    },
-    "/friends/follow-request": {
-      "post": {
-        "summary": "팔로우 요청",
-        "tags": ["Mooner"],
-        "description": "다른 사용자에게 팔로우 요청을 보냅니다.",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "requested_sign_id": {
-                    "type": "string",
-                    "description": "팔로우 요청할 사용자의 sign_id",
-                    "example": "user123"
-                  }
-                },
-                "required": ["requested_sign_id"]
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "성공적으로 팔로우 요청을 보냈습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "user123님에게 팔로우 요청을 보냈습니다."
-                    },
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "sign_id": { "type": "string", "example": "user123" },
-                        "user_nick": { "type": "string", "example": "닉네임" },
-                        "profile_img": { "type": "string", "example": "http://example.com/profile.jpg" }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "이미 요청 중이거나 팔로우 상태입니다."
-          },
-          "500": {
-            "description": "팔로우 요청 중 오류 발생"
-          }
-        }
-      }
-    },
-    "/friends/follow-request/handle": {
-      "post": {
-        "summary": "팔로우 요청 처리",
-        "tags": ["Mooner"],
-        "description": "들어온 팔로우 요청을 수락하거나 거절합니다.",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "follower_sign_id": {
-                    "type": "string",
-                    "description": "팔로우 요청을 보낸 사용자의 sign_id",
-                    "example": "user123"
-                  },
-                  "action": {
-                    "type": "string",
-                    "enum": ["accepted", "rejected"],
-                    "description": "팔로우 요청을 수락할지 거절할지 결정",
-                    "example": "accepted"
-                  }
-                },
-                "required": ["follower_sign_id", "action"]
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "성공적으로 요청을 처리했습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "user123님의 팔로우 요청을 수락하였습니다."
-                    },
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "follower_sign_id": { "type": "string", "example": "user123" },
-                        "follower_user_nick": { "type": "string", "example": "닉네임" },
-                        "follower_profile_img": { "type": "string", "example": "http://example.com/profile.jpg" },
-                        "status": { "type": "string", "example": "accepted" }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "잘못된 요청입니다."
-          },
-          "404": {
-            "description": "팔로우 요청을 찾을 수 없습니다."
-          },
-          "500": {
-            "description": "팔로우 요청 처리 중 오류 발생"
-          }
-        }
-      }
-    },
-    "/friends/{sign_id}/search": {
-      "get": {
-        "summary": "친구 목록에서 사용자 검색",
-        "tags": ["Mooner"],
-        "description": "사용자의 친구 목록에서 특정 사용자를 검색합니다.",
-        "parameters": [
-          {
-            "name": "sign_id",
-            "in": "query",
-            "required": true,
-            "description": "검색할 사용자의 sign_id",
-            "schema": {
-              "type": "string",
-              "example": "user123"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "친구 목록에서 사용자를 찾았습니다.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "친구 목록에서 사용자를 찾았습니다."
-                    },
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "sign_id": { "type": "string", "example": "user123" },
-                        "user_name": { "type": "string", "example": "홍길동" },
-                        "user_nick": { "type": "string", "example": "길동이" },
-                        "profile_img": { "type": "string", "example": "http://example.com/profile.jpg" }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "해당 사용자는 친구 목록에 없습니다."
-          },
-          "500": {
-            "description": "친구 목록에서 사용자를 검색하는 중 오류가 발생했습니다."
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-  "/friends/search/nickname": {
-  "get": {
-    "summary": "닉네임으로 사용자 검색 및 최근 게시물 3개 조회",
-    "tags": ["Mooner"],
-    "description": "주어진 닉네임으로 사용자를 검색하고, 해당 사용자의 최근 게시물 3개를 포함한 정보를 반환합니다.",
-    "parameters": [
-      {
-        "name": "user_nick",
-        "in": "query",
-        "required": true,
-        "description": "검색할 사용자의 닉네임",
-        "schema": {
-          "type": "string",
-          "example": "길동이"
-        }
-      }
-    ],
-    "responses": {
-      "200": {
-        "description": "사용자 정보와 최근 게시물 목록을 성공적으로 찾았습니다.",
+      "security": [
+        { "bearerAuth": [] }
+      ]
+    }
+  },
+  "/friends/follow-request": {
+    "post": {
+      "summary": "팔로우 요청",
+      "tags": ["Mooner"],
+      "description": "다른 사용자에게 팔로우 요청을 보냅니다.",
+      "requestBody": {
         "content": {
           "application/json": {
             "schema": {
               "type": "object",
               "properties": {
-                "message": {
+                "requested_sign_id": {
                   "type": "string",
-                  "example": "닉네임으로 사용자 정보와 최근 게시물을 찾았습니다."
+                  "description": "팔로우 요청할 사용자의 sign_id",
+                  "example": "user123"
+                }
+              },
+              "required": ["requested_sign_id"]
+            }
+          }
+        },
+        "required": true
+      },
+      "responses": {
+        "201": {
+          "description": "성공적으로 팔로우 요청을 보냈습니다.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "example": "user123님에게 팔로우 요청을 보냈습니다."
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "sign_id": { "type": "string", "example": "user123" },
+                      "user_nick": { "type": "string", "example": "닉네임" },
+                      "profile_img": { "type": "string", "example": "http://example.com/profile.jpg" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "이미 요청 중이거나 팔로우 상태입니다."
+        },
+        "500": {
+          "description": "팔로우 요청 중 오류 발생"
+        }
+      }
+    }
+  },
+  "/friends/follow-request/handle": {
+    "post": {
+      "summary": "팔로우 요청 처리",
+      "tags": ["Mooner"],
+      "description": "들어온 팔로우 요청을 수락하거나 거절합니다.",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "follower_sign_id": {
+                  "type": "string",
+                  "description": "팔로우 요청을 보낸 사용자의 sign_id",
+                  "example": "user123"
                 },
-                "data": {
-                  "type": "object",
-                  "properties": {
-                    "user": {
+                "action": {
+                  "type": "string",
+                  "enum": ["accepted", "rejected"],
+                  "description": "팔로우 요청을 수락할지 거절할지 결정",
+                  "example": "accepted"
+                }
+              },
+              "required": ["follower_sign_id", "action"]
+            }
+          }
+        },
+        "required": true
+      },
+      "responses": {
+        "200": {
+          "description": "성공적으로 요청을 처리했습니다.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "example": "user123님의 팔로우 요청을 수락하였습니다."
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "follower_sign_id": { "type": "string", "example": "user123" },
+                      "follower_user_nick": { "type": "string", "example": "닉네임" },
+                      "follower_profile_img": { "type": "string", "example": "http://example.com/profile.jpg" },
+                      "status": { "type": "string", "example": "accepted" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "잘못된 요청입니다."
+        },
+        "404": {
+          "description": "팔로우 요청을 찾을 수 없습니다."
+        },
+        "500": {
+          "description": "팔로우 요청 처리 중 오류 발생"
+        }
+      }
+    }
+  },
+  "/friends/{sign_id}/search": {
+    "get": {
+      "summary": "친구 목록에서 사용자 검색",
+      "tags": ["Mooner"],
+      "description": "사용자의 친구 목록에서 특정 사용자를 검색합니다.",
+      "parameters": [
+        {
+          "name": "sign_id",
+          "in": "query",
+          "required": true,
+          "description": "검색할 사용자의 sign_id",
+          "schema": {
+            "type": "string",
+            "example": "user123"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "친구 목록에서 사용자를 찾았습니다.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "example": "친구 목록에서 사용자를 찾았습니다."
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "sign_id": { "type": "string", "example": "user123" },
+                      "user_name": { "type": "string", "example": "홍길동" },
+                      "user_nick": { "type": "string", "example": "길동이" },
+                      "profile_img": { "type": "string", "example": "http://example.com/profile.jpg" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "해당 사용자는 친구 목록에 없습니다."
+        },
+        "500": {
+          "description": "친구 목록에서 사용자를 검색하는 중 오류가 발생했습니다."
+        }
+      },
+      "security": [
+        {
+          "bearerAuth": []
+        }
+      ]
+    }
+  },
+"/friends/search/nickname": {
+"get": {
+  "summary": "닉네임으로 사용자 검색 및 최근 게시물 3개 조회",
+  "tags": ["Mooner"],
+  "description": "주어진 닉네임으로 사용자를 검색하고, 해당 사용자의 최근 게시물 3개를 포함한 정보를 반환합니다.",
+  "parameters": [
+    {
+      "name": "user_nick",
+      "in": "query",
+      "required": true,
+      "description": "검색할 사용자의 닉네임",
+      "schema": {
+        "type": "string",
+        "example": "길동이"
+      }
+    }
+  ],
+  "responses": {
+    "200": {
+      "description": "사용자 정보와 최근 게시물 목록을 성공적으로 찾았습니다.",
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string",
+                "example": "닉네임으로 사용자 정보와 최근 게시물을 찾았습니다."
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "user": {
+                    "type": "object",
+                    "properties": {
+                      "sign_id": { "type": "string", "example": "user123" },
+                      "user_id": { "type": "string", "example": "uid456" },
+                      "user_nick": { "type": "string", "example": "길동이" },
+                      "user_tendency": { "type": "string", "example": "모험가" },
+                      "profile_img": { "type": "string", "example": "http://example.com/profile.jpg" }
+                    }
+                  },
+                  "recent_diaries": {
+                    "type": "array",
+                    "items": {
                       "type": "object",
                       "properties": {
-                        "sign_id": { "type": "string", "example": "user123" },
-                        "user_id": { "type": "string", "example": "uid456" },
-                        "user_nick": { "type": "string", "example": "길동이" },
-                        "user_tendency": { "type": "string", "example": "모험가" },
-                        "profile_img": { "type": "string", "example": "http://example.com/profile.jpg" }
-                      }
-                    },
-                    "recent_diaries": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "diary_id": { "type": "string", "example": "diary456" },
-                          "diary_title": { "type": "string", "example": "여행 일기" },
-                          "diary_content": { "type": "string", "example": "오늘은 정말..." },
-                          "createdAt": { "type": "string", "format": "date-time", "example": "2024-10-01T12:34:56Z" },
-                          "access_level": { "type": "integer", "example": 0 },
-                          "post_photo": { "type": "string", "example": "http://example.com/photo.jpg" }
-                        }
+                        "diary_id": { "type": "string", "example": "diary456" },
+                        "diary_title": { "type": "string", "example": "여행 일기" },
+                        "diary_content": { "type": "string", "example": "오늘은 정말..." },
+                        "createdAt": { "type": "string", "format": "date-time", "example": "2024-10-01T12:34:56Z" },
+                        "access_level": { "type": "integer", "example": 0 },
+                        "post_photo": { "type": "string", "example": "http://example.com/photo.jpg" }
                       }
                     }
                   }
@@ -3010,20 +3106,21 @@
             }
           }
         }
-      },
-      "404": {
-        "description": "해당 닉네임의 사용자를 찾을 수 없습니다."
-      },
-      "500": {
-        "description": "사용자 검색 중 오류가 발생했습니다."
       }
     },
-    "security": [
-      {
-        "bearerAuth": []
-      }
-    ]
-  }
+    "404": {
+      "description": "해당 닉네임의 사용자를 찾을 수 없습니다."
+    },
+    "500": {
+      "description": "사용자 검색 중 오류가 발생했습니다."
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ]
+}
 },
 
     
